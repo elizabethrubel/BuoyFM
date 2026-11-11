@@ -2,178 +2,319 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   <title>BuoyFM // Isometric Ocean Telemetry</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@400..700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@200;300;400&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
+    :root {
+      --bg-color: #091526;
+      --fg-color: #f5f2eb;
+      --panel-bg: rgba(12, 24, 42, 0.82);
+      --panel-border: rgba(255, 255, 255, 0.14);
+      --card-bg: rgba(255, 255, 255, 0.06);
+      --card-hover: rgba(255, 255, 255, 0.12);
+      --dot-color: rgba(255, 255, 255, 0.06);
+      --accent-pill-bg: #f5f2eb;
+      --accent-pill-fg: #141413;
+    }
+
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
     html, body {
       margin: 0;
       padding: 0;
       width: 100%;
-      height: 100%;
+      height: 100dvh;
       overflow: hidden;
-      background-color: #f0ebe1;
-      color: #1c1917;
+      background-color: var(--bg-color);
+      color: var(--fg-color);
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      transition: background-color 0.65s ease, color 0.35s ease;
     }
+
+    /* Lighter weight for Bitcount Prop Single so it looks crisp and dot-matrix rather than heavy */
     .font-bitcount {
       font-family: 'Bitcount Prop Single', ui-monospace, monospace;
+      font-weight: 300;
     }
-    /* Subtle archival paper grain overlay */
-    .paper-surface {
-      background-color: #f0ebe1;
-      background-image: radial-gradient(rgba(28, 25, 23, 0.048) 1px, transparent 0);
+
+    /* Subtle dot-grid surface texture */
+    .surface-grid {
+      background-color: var(--bg-color);
+      background-image: radial-gradient(var(--dot-color) 1px, transparent 0);
       background-size: 16px 16px;
     }
-    .hud-pill {
-      background: rgba(240, 235, 225, 0.88);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(28, 25, 23, 0.16);
+
+    .glass-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--panel-border);
+      color: var(--fg-color);
+      transition: background-color 0.45s ease, border-color 0.35s ease;
     }
-    input[type="range"] {
-      accent-color: #1c1917;
+
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--panel-border);
     }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: rgba(28, 25, 23, 0.25); border-radius: 99px; }
+    ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 99px; }
   </style>
 </head>
-<body class="paper-surface select-none relative w-screen h-screen overflow-hidden">
+<body class="surface-grid select-none fixed inset-0 overflow-hidden">
 
   <!-- FULL-SCREEN INTERACTIVE ISOMETRIC CANVAS -->
-  <canvas id="isoCanvas" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing touch-none"></canvas>
+  <canvas id="isoCanvas" class="fixed inset-0 w-full h-full cursor-grab active:cursor-grabbing touch-none z-0"></canvas>
 
-  <!-- ULTRA-MINIMAL TOP BAR: BuoyFM Title + Small Buoy Picker (Left) + Minimal Audio/Info Icons (Right) -->
-  <header class="absolute top-3 left-3 right-3 z-30 flex items-center justify-between gap-2 pointer-events-none">
+  <!-- TOP HEADER BAR (Light-weight BuoyFM Logo + Audio / Theme / About '?' Controls) -->
+  <header class="fixed top-3 left-3 right-3 z-30 flex items-center justify-between gap-2 pointer-events-none">
+    <div class="flex items-center gap-2.5 pointer-events-auto">
+      <!-- Desktop Sidebar Expand Button (shown when desktop sidebar is collapsed) -->
+      <button id="desktopSidebarOpenBtn" class="hidden md:hidden glass-panel px-3 py-1.5 rounded-full text-xs font-bold items-center gap-2 hover:opacity-90 transition cursor-pointer shadow-sm">
+        <span id="collapsedBuoyDot" class="w-2 h-2 rounded-full"></span>
+        <span id="collapsedBuoyLabel">Select Buoy</span>
+        <span class="opacity-70">▸</span>
+      </button>
 
-    <!-- BRAND TITLE ("BuoyFM" in Bitcount font) + SMALL BUOY PICKER PILL -->
-    <div class="flex items-center gap-2.5 pointer-events-auto min-w-0">
-      <h1 class="font-bitcount text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 leading-none shrink-0 pl-1">
+      <!-- BuoyFM Logo in light weight (300) Bitcount font -->
+      <h1 class="font-bitcount text-3xl sm:text-4xl tracking-tight leading-none pl-1">
         BuoyFM
       </h1>
-
-      <div class="relative min-w-0">
-        <button id="stationMenuBtn" class="px-3 py-1.5 rounded-full flex items-center gap-2 text-left transition cursor-pointer shadow-sm border border-black/15" style="background: rgba(155, 137, 52, 0.95); color: #fdfaf2;">
-          <span id="activeStationDot" class="w-2 h-2 rounded-full border border-white/80 shrink-0"></span>
-          <span id="activeStationName" class="text-xs font-bold tracking-wide truncate max-w-[115px] sm:max-w-none">Gulf of Alaska</span>
-          <span id="activeStationClock" class="text-[11px] opacity-90 whitespace-nowrap hidden xs:inline sm:inline">☾ 10:00 PM</span>
-          <span class="text-[10px] opacity-80">▾</span>
-        </button>
-
-        <!-- Popover Flat Station List -->
-        <div id="stationDropdown" class="hidden absolute left-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-24px)] rounded-xl p-2.5 shadow-xl z-40 border border-stone-900/20" style="background: rgba(155, 137, 52, 0.98); color: #fdfaf2; backdrop-filter: blur(12px);">
-          <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-1.5 px-1">
-            <span class="tracking-[0.14em] text-[10px] font-bold uppercase">L’ANNUEL OCÉANIQUE</span>
-            <span id="syncBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/25">NOAA LIVE</span>
-          </div>
-          <div id="spineContainer" class="space-y-1 max-h-64 overflow-y-auto"></div>
-        </div>
-      </div>
     </div>
 
-    <!-- MINIMAL ICON BUTTONS: Audio Toggle + Info Sheet Trigger -->
-    <div class="flex items-center gap-1.5 pointer-events-auto shrink-0">
-      <button id="audioToggleBtn" class="h-8 px-3 rounded-full bg-stone-900 text-stone-50 text-xs font-bold hover:bg-stone-800 transition cursor-pointer flex items-center gap-1.5 shadow-sm" title="Toggle Ambient Ocean Synth">
+    <!-- Top-Right Action Pills: Audio + Dark/Light Mode + '?' About Modal -->
+    <div class="flex items-center gap-1.5 pointer-events-auto">
+      <button id="audioToggleBtn" class="glass-panel h-8 px-3 rounded-full text-xs font-bold hover:opacity-90 transition cursor-pointer flex items-center gap-1.5 shadow-sm" title="Toggle Ambient Ocean Synth">
         <span id="audioIcon" class="text-xs">🔇</span>
         <span id="audioLabel" class="text-[11px]">Audio</span>
       </button>
-      <button id="infoToggleBtn" class="w-8 h-8 rounded-full hud-pill text-stone-900 text-xs font-bold hover:bg-white transition cursor-pointer flex items-center justify-center shadow-sm" title="Live Telemetry, Guide & Spacing">
+
+      <button id="themeToggleBtn" class="glass-panel w-8 h-8 rounded-full text-xs font-bold hover:opacity-90 transition cursor-pointer flex items-center justify-center shadow-sm" title="Toggle Thermal Dark / Light Mode">
+        <span id="themeIcon">☀</span>
+      </button>
+
+      <button id="aboutToggleBtn" class="glass-panel w-8 h-8 rounded-full text-xs font-bold hover:opacity-90 transition cursor-pointer flex items-center justify-center shadow-sm" title="About BuoyFM & How Data Is Displayed">
         ?
       </button>
     </div>
-
   </header>
 
-  <!-- UNOBTRUSIVE POPOVER SHEET (Telemetry, Thermal Spectrum, Plane Guide, Spacing & Raw NOAA) -->
-  <div id="infoDrawer" class="hidden absolute top-14 right-3 left-3 sm:left-auto z-30 sm:w-88 max-h-[76vh] overflow-y-auto hud-pill rounded-2xl p-4 shadow-xl pointer-events-auto">
-    <div class="flex items-center justify-between pb-2 border-b border-stone-900/15">
-      <div class="flex items-center gap-2.5">
-        <span id="drawerStationIdx" class="font-bitcount text-2xl font-bold text-stone-900 leading-none">01</span>
+  <!-- ======================================================================= -->
+  <!-- DESKTOP LEFT SIDEBAR: Collapsible Buoy Selector + Live Station Readout  -->
+  <!-- ======================================================================= -->
+  <aside id="desktopSidebar" class="hidden md:flex fixed top-14 left-3 bottom-16 w-80 z-20 glass-panel rounded-2xl p-3.5 flex-col justify-between shadow-xl pointer-events-auto transition-transform duration-300">
+    <!-- Top Section: Select Buoy List -->
+    <div class="flex flex-col min-h-0">
+      <div class="flex items-center justify-between pb-2 mb-2 border-b" style="border-color: var(--panel-border);">
         <div>
-          <div id="drawerStationTitle" class="text-xs font-bold uppercase">STATION #46001 • Gulf of Alaska</div>
-          <div id="drawerStationSub" class="text-[10px] opacity-70">56.3°N, 148.0°W • 968.2 hPa</div>
+          <h2 class="text-xs font-bold uppercase tracking-wider">Select Buoy</h2>
+          <p class="text-[10px] opacity-70">Live NOAA Stations • Local Time</p>
+        </div>
+        <button id="desktopSidebarCloseBtn" class="px-2 py-0.5 rounded text-xs opacity-70 hover:opacity-100 cursor-pointer" title="Collapse panel">
+          ◂ Hide
+        </button>
+      </div>
+
+      <!-- Flat Buoy List -->
+      <div id="desktopSpineList" class="space-y-1 overflow-y-auto pr-0.5 max-h-56"></div>
+    </div>
+
+    <!-- Bottom Section: Selected Buoy Telemetry & Thermal Spectrum -->
+    <div class="pt-3 border-t flex flex-col gap-2.5" style="border-color: var(--panel-border);">
+      <div class="flex items-center justify-between">
+        <div>
+          <div id="deskStationTitle" class="text-xs font-bold uppercase">#46001 • Gulf of Alaska</div>
+          <div id="deskStationSub" class="text-[10px] opacity-70">56.3°N, 148.0°W • 968.2 hPa</div>
+        </div>
+        <span id="syncBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded glass-card">NOAA LIVE</span>
+      </div>
+
+      <!-- 2x2 Telemetry Cards with Descriptive Layer Names -->
+      <div class="grid grid-cols-2 gap-1.5 text-xs">
+        <div class="p-2 rounded-lg glass-card">
+          <div class="text-[10px] opacity-65">Wave Height</div>
+          <div id="deskWvht" class="font-bold text-sm mt-0.5">4.00 m</div>
+          <div class="text-[9px] opacity-60">Swell Crest</div>
+        </div>
+        <div class="p-2 rounded-lg glass-card">
+          <div class="text-[10px] opacity-65">Swell / Chop</div>
+          <div id="deskPeriod" class="font-bold text-sm mt-0.5">14.0s / 8.5s</div>
+          <div class="text-[9px] opacity-60">Wave Period</div>
+        </div>
+        <div class="p-2 rounded-lg glass-card">
+          <div class="text-[10px] opacity-65">Wind / Gust</div>
+          <div id="deskWind" class="font-bold text-sm mt-0.5">8.0 / 12.0 m/s</div>
+          <div class="text-[9px] opacity-60">Air Breeze</div>
+        </div>
+        <div class="p-2 rounded-lg glass-card">
+          <div class="text-[10px] opacity-65">Water Temp</div>
+          <div id="deskTemp" class="font-bold text-sm mt-0.5">8.5 °C</div>
+          <div class="text-[9px] opacity-60">Thermal Base</div>
         </div>
       </div>
-      <button id="closeInfoBtn" class="w-6 h-6 rounded-full hover:bg-stone-900/10 text-xs font-bold cursor-pointer">✕</button>
-    </div>
 
-    <!-- Live Telemetry 2x2 Compact Grid -->
-    <div class="grid grid-cols-2 gap-1.5 my-2.5 text-xs">
-      <div class="p-2 rounded-lg bg-white/60 border border-stone-900/10">
-        <div class="flex justify-between text-[10px] opacity-65"><span>WAVE (WVHT)</span><span>P100</span></div>
-        <div id="metricWvht" class="font-bold text-sm mt-0.5">4.00 m</div>
+      <!-- Thermal Palette Swatches + 0-32°C Bar -->
+      <div class="p-2 rounded-lg glass-card">
+        <div class="flex items-center justify-between text-[10px] mb-1">
+          <span class="opacity-75">Thermal Palette</span>
+          <span id="deskPaletteName" class="font-bold">Sub-Arctic Glacial</span>
+        </div>
+        <div id="deskSwatchRow" class="flex items-center gap-1 h-2 mb-1.5"></div>
+        <div class="relative pt-1">
+          <div class="h-1.5 w-full rounded-full" style="background: linear-gradient(90deg, #0b2545 0%, #1d5b9e 22%, #1b7a75 42%, #28664b 56%, #eab308 72%, #ed5c2b 88%, #8f2d1e 100%);"></div>
+          <div id="deskTempMarker" class="absolute top-0 w-2.5 h-2.5 rounded-full bg-white border-2 border-stone-900 shadow" style="left: 26%;"></div>
+        </div>
       </div>
-      <div class="p-2 rounded-lg bg-white/60 border border-stone-900/10">
-        <div class="flex justify-between text-[10px] opacity-65"><span>SWELL / CHOP</span><span>P125·75</span></div>
-        <div id="metricPeriod" class="font-bold text-sm mt-0.5">14.0s / 8.5s</div>
-      </div>
-      <div class="p-2 rounded-lg bg-white/60 border border-stone-900/10">
-        <div class="flex justify-between text-[10px] opacity-65"><span>WIND / GUST</span><span>P50</span></div>
-        <div id="metricWind" class="font-bold text-sm mt-0.5">8.0 / 12.0 m/s</div>
-      </div>
-      <div class="p-2 rounded-lg bg-white/60 border border-stone-900/10">
-        <div class="flex justify-between text-[10px] opacity-65"><span>WATER TEMP</span><span>P150</span></div>
-        <div id="metricTemp" class="font-bold text-sm mt-0.5">8.5 °C</div>
-      </div>
-    </div>
 
-    <!-- Thermal Palette Swatches + 0°C-32°C Bar -->
-    <div class="p-2.5 rounded-lg bg-white/50 border border-stone-900/10 mb-2.5">
-      <div class="flex items-center justify-between text-[11px] mb-1">
-        <span class="opacity-75">Thermal Palette</span>
-        <span id="paletteName" class="font-bold">Sub-Arctic Glacial</span>
+      <!-- Plane Spacing Slider + Collapsible Raw NOAA Packet -->
+      <div class="flex items-center justify-between text-[11px] gap-2 px-0.5">
+        <span class="opacity-75 shrink-0">Plane Spacing</span>
+        <input id="deskExplodeSlider" type="range" min="45" max="155" value="100" class="w-full h-1 cursor-pointer" />
+        <span id="deskExplodeVal" class="font-bold w-9 text-right">100%</span>
       </div>
-      <div id="swatchRow" class="flex items-center gap-1 h-2.5 mb-2"></div>
-      <div class="relative pt-1">
-        <div class="h-1.5 w-full rounded-full" style="background: linear-gradient(90deg, #0b2545 0%, #1d5b9e 22%, #1b7a75 42%, #28664b 56%, #eab308 72%, #ed5c2b 88%, #8f2d1e 100%);"></div>
-        <div id="tempMarker" class="absolute top-0 w-2.5 h-2.5 rounded-full bg-white border-2 border-stone-900 shadow" style="left: 26%;"></div>
-        <div class="flex justify-between text-[9px] opacity-65 mt-1">
-          <span>0°C Polar</span>
-          <span>15°C Temperate</span>
-          <span>32°C Equatorial</span>
+
+      <details class="text-[10px] rounded-lg p-2 bg-black/35 text-stone-200 border border-white/10">
+        <summary class="cursor-pointer font-bold text-amber-300 flex items-center justify-between">
+          <span>{ } Raw NOAA Packet</span>
+          <span id="deskRawTime" class="opacity-70 font-normal">08:30 UTC</span>
+        </summary>
+        <p id="deskRawNotes" class="text-[10px] text-stone-300 my-1 leading-relaxed"></p>
+        <pre id="deskRawPre" class="text-[9px] leading-tight text-emerald-300 bg-black/50 p-1.5 rounded overflow-x-auto whitespace-pre"></pre>
+      </details>
+    </div>
+  </aside>
+
+  <!-- ======================================================================= -->
+  <!-- DESKTOP BOTTOM LAYER BAR: Actual Terms (Wind/Gust, Surface Chop, etc.)  -->
+  <!-- ======================================================================= -->
+  <footer class="hidden md:flex fixed bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+    <div id="desktopPlaneBtns" class="glass-panel rounded-full px-2.5 py-1.5 pointer-events-auto shadow-lg flex items-center gap-1.5"></div>
+  </footer>
+
+  <!-- ======================================================================= -->
+  <!-- MOBILE STICKY BOTTOM DOCK: Layer Chips + Full-Width Buoy Bar & Drawer   -->
+  <!-- ======================================================================= -->
+  <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 flex flex-col pointer-events-none" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
+
+    <!-- Expandable Mobile Drawer (Select Buoy List + Selected Buoy Info) -->
+    <div id="mobileBuoyDrawer" class="hidden pointer-events-auto glass-panel mx-2 mb-2 rounded-2xl p-3.5 shadow-2xl max-h-[68dvh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-2 mb-2 border-b" style="border-color: var(--panel-border);">
+        <div>
+          <div class="text-xs font-bold uppercase tracking-wider">Select Buoy</div>
+          <div class="text-[10px] opacity-75">Tap a station • Local solar time</div>
+        </div>
+        <button id="closeMobileDrawerBtn" class="w-7 h-7 rounded-full glass-card text-xs font-bold flex items-center justify-center cursor-pointer">✕</button>
+      </div>
+
+      <!-- Mobile Buoy List -->
+      <div id="mobileSpineList" class="space-y-1 mb-3"></div>
+
+      <!-- Mobile Selected Buoy Telemetry Readout -->
+      <div class="pt-2.5 border-t space-y-2" style="border-color: var(--panel-border);">
+        <div class="flex items-center justify-between">
+          <span id="mobStationTitle" class="text-xs font-bold uppercase">#46001 • Gulf of Alaska</span>
+          <span id="mobStationCoords" class="text-[10px] opacity-75">56.3°N, 148.0°W</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-1.5 text-xs">
+          <div class="p-2 rounded-lg glass-card">
+            <div class="text-[10px] opacity-65">Wave Height</div>
+            <div id="mobWvht" class="font-bold text-sm">4.00 m</div>
+          </div>
+          <div class="p-2 rounded-lg glass-card">
+            <div class="text-[10px] opacity-65">Swell / Chop</div>
+            <div id="mobPeriod" class="font-bold text-sm">14.0s / 8.5s</div>
+          </div>
+          <div class="p-2 rounded-lg glass-card">
+            <div class="text-[10px] opacity-65">Wind / Gust</div>
+            <div id="mobWind" class="font-bold text-sm">8.0 / 12.0 m/s</div>
+          </div>
+          <div class="p-2 rounded-lg glass-card">
+            <div class="text-[10px] opacity-65">Water Temp</div>
+            <div id="mobTemp" class="font-bold text-sm">8.5 °C</div>
+          </div>
+        </div>
+
+        <!-- Mobile Plane Spacing Slider -->
+        <div class="flex items-center justify-between text-[11px] gap-2 pt-1">
+          <span class="opacity-75 shrink-0">Plane Spacing</span>
+          <input id="mobExplodeSlider" type="range" min="45" max="155" value="100" class="w-full h-1.5 cursor-pointer" />
+          <span id="mobExplodeVal" class="font-bold w-9 text-right">100%</span>
         </div>
       </div>
     </div>
 
-    <!-- Plane Spacing Slider -->
-    <div class="p-2.5 rounded-lg bg-white/50 border border-stone-900/10 mb-2.5">
-      <div class="flex items-center justify-between text-[11px] mb-1">
-        <span class="opacity-75">Isometric Plane Spacing</span>
-        <span id="explodeVal" class="font-bold">100%</span>
-      </div>
-      <input id="explodeSlider" type="range" min="45" max="155" value="100" class="w-full h-1.5 cursor-pointer" />
-    </div>
+    <!-- Horizontally Scrollable Layer Terms Bar (Always visible above bottom selector) -->
+    <div id="mobilePlaneBtns" class="pointer-events-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar px-3 py-1.5"></div>
 
-    <!-- Concise Plane & Audio Stem Key -->
-    <div class="space-y-1 text-[11px] mb-2.5">
-      <div class="font-bold uppercase text-[10px] opacity-65 mb-1">Planes & Ambient Sound Stems</div>
-      <div class="flex justify-between py-1 border-b border-stone-900/10"><span><strong>50</strong> Wind & Gust (WSPD)</span><span class="opacity-75">♪ Coastal Breeze</span></div>
-      <div class="flex justify-between py-1 border-b border-stone-900/10"><span><strong>75</strong> Surface Chop (APD)</span><span class="opacity-75">♪ Harmonic Shimmer</span></div>
-      <div class="flex justify-between py-1 border-b border-stone-900/10"><span><strong>100</strong> Swell Crest (WVHT)</span><span class="opacity-75">♪ Deep Surf Wash</span></div>
-      <div class="flex justify-between py-1 border-b border-stone-900/10"><span><strong>125</strong> Wave Period (DPD)</span><span class="opacity-75">♪ Sub-Fifth Tide</span></div>
-      <div class="flex justify-between py-1"><span><strong>150</strong> Thermal Base (WTMP)</span><span class="opacity-75">♪ Warm Sea Drone</span></div>
+    <!-- Full-Width Bottom Buoy Selector Bar + Quick Info Trigger -->
+    <div class="pointer-events-auto glass-panel border-b-0 border-x-0 px-3.5 py-2.5 flex items-center justify-between gap-2">
+      <button id="mobileSelectBuoyBtn" class="flex-1 flex items-center justify-between gap-2 text-left cursor-pointer">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span id="mobActiveDot" class="w-3 h-3 rounded-full shrink-0 border border-white/80"></span>
+          <div class="truncate">
+            <div class="flex items-center gap-1.5">
+              <span class="text-[10px] uppercase opacity-70 font-bold tracking-wider">Select Buoy</span>
+              <span class="text-[10px] opacity-70">▴</span>
+            </div>
+            <div class="text-xs font-bold truncate" id="mobActiveName">Gulf of Alaska • 8.5°C • 4.0m</div>
+          </div>
+        </div>
+        <div class="text-right shrink-0">
+          <div id="mobActiveClock" class="text-xs font-bold">☾ 10:00 PM</div>
+          <div id="mobActiveSub" class="text-[10px] opacity-70">#46001</div>
+        </div>
+      </button>
     </div>
-
-    <!-- Collapsible Raw NOAA Packet inside Drawer -->
-    <details class="text-[11px] bg-stone-900 text-stone-100 rounded-lg p-2.5">
-      <summary class="cursor-pointer font-bold text-amber-300 flex items-center justify-between">
-        <span>{ } Raw NOAA NDBC Packet</span>
-        <span id="stationTimeRight" class="text-[10px] text-stone-400 font-normal">08:30 UTC</span>
-      </summary>
-      <p id="rawNotes" class="text-[10px] text-stone-300 my-1.5 leading-relaxed"></p>
-      <pre id="rawPre" class="text-[10px] leading-tight text-emerald-300 bg-stone-950 p-2 rounded overflow-x-auto whitespace-pre"></pre>
-    </details>
   </div>
 
-  <!-- ULTRA-COMPACT BOTTOM PILL: Multi-Select Plane Numbers Only (50 · 75 · 100 · 125 · 150) -->
-  <footer class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-    <div id="planeSliceBtns" class="hud-pill rounded-full px-2 py-1 pointer-events-auto shadow-sm flex items-center gap-1"></div>
-  </footer>
+  <!-- ======================================================================= -->
+  <!-- '?' ABOUT MODAL: Explains what BuoyFM is & how data maps to planes/sound -->
+  <!-- ======================================================================= -->
+  <div id="aboutModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 pointer-events-auto">
+    <div class="glass-panel rounded-2xl max-w-lg w-full max-h-[82dvh] overflow-y-auto p-5 shadow-2xl">
+      <div class="flex items-start justify-between gap-4 pb-3 border-b" style="border-color: var(--panel-border);">
+        <div>
+          <h2 class="font-bitcount text-2xl leading-none">About BuoyFM</h2>
+          <p class="text-xs opacity-75 mt-1">Ambient Ocean Telemetry Visualizer & Generative Synthesizer</p>
+        </div>
+        <button id="closeAboutBtn" class="w-7 h-7 rounded-full glass-card text-xs font-bold flex items-center justify-center cursor-pointer">✕</button>
+      </div>
+
+      <div class="space-y-3 my-3.5 text-xs leading-relaxed">
+        <p class="opacity-90">
+          <strong>BuoyFM</strong> turns live meteorological readings from offshore <strong>NOAA National Data Buoy Center (NDBC)</strong> stations into a 5-layer isometric sculpture and a relaxing ambient soundscape.
+        </p>
+
+        <div class="p-3 rounded-xl glass-card space-y-1.5">
+          <div class="font-bold uppercase text-[11px] tracking-wider">How the 5 Isometric Layers Work</div>
+          <p class="text-[11px] opacity-85">
+            Each floating sheet represents a slice of the ocean from the air above down to the deep thermal mass. Click or tap any combination of layer pills to solo or mix both the visual planes and their corresponding sound stems:
+          </p>
+          <ul class="space-y-1.5 text-[11px] pt-1">
+            <li>• <strong>Wind / Gust:</strong> High-frequency surface ripples aligned with wind direction (<code class="font-bold">WDIR</code>), paired with a soft pink-noise coastal breeze.</li>
+            <li>• <strong>Surface Chop:</strong> Center pinhole dots and target rings pulsing at the average wave period (<code class="font-bold">APD</code>), paired with a warm fifth harmonic shimmer.</li>
+            <li>• <strong>Swell Crest:</strong> Outer ring size dilating with significant wave height (<code class="font-bold">WVHT</code>) along mean wave direction (<code class="font-bold">MWD</code>), driving deep brown-noise ocean surf wash.</li>
+            <li>• <strong>Wave Period:</strong> The dominant swell period (<code class="font-bold">DPD</code>, 3s–14s) sets the breathing tempo across all layers and a slow sub-harmonic tide pulse.</li>
+            <li>• <strong>Thermal Base:</strong> Sea surface temperature (<code class="font-bold">WTMP</code>) shifts both the concentric ring palette and the ambient background hue—from deep navy in sub-arctic waters to warm burgundy in the tropics—while tuning the foundational sine drone.</li>
+          </ul>
+        </div>
+
+        <div class="p-3 rounded-xl glass-card text-[11px] opacity-85">
+          <strong>Interactions:</strong> Drag anywhere on the canvas to tilt the isometric stack. Use the <strong>☀ / ☾</strong> button in the header to switch between temperature-tinted Dark Mode (default) and archival paper Light Mode.
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script>
     // Real NOAA NDBC telemetry rows + UTC offsets for real local time-of-day calculation
@@ -223,7 +364,7 @@
         wvht: 5.6, dpd: 14.0, apd: 9.0, mwd: 268,
         wdir: 210, wspd: 12.0, gst: 15.0,
         pres: 1002.1, ptdy: -1.4, atmp: 14.5, wtmp: 13.3,
-        notes: 'Heavy North Pacific storm swell! 5.6-meter (18.4 ft) significant wave height with 15.0 m/s gusts—causing the concentric circles on Planes 100–150 to dilate and fuse into dense columns.',
+        notes: 'Heavy North Pacific storm swell! 5.6-meter (18.4 ft) significant wave height with 15.0 m/s gusts—causing the concentric circles on the lower planes to dilate and fuse.',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
 2026 11 10 08 40 210 12.0 15.0   MM  MM  MM  MM 1002.1 14.5 13.3   MM
 2026 11 10 08 20 200 10.0 12.0  5.6  14 9.0 268 1001.9 14.4   MM   MM
@@ -288,39 +429,49 @@
         wvht: 1.5, dpd: 6.0, apd: 4.4, mwd: 99,
         wdir: 70, wspd: 9.0, gst: 11.0,
         pres: 1010.5, ptdy: -1.2, atmp: 29.3, wtmp: 29.6,
-        notes: '29.6°C sea surface temperature—the warmest station in the network—driving deep vermilion/sunburst thermal rings and brisk 4.4s trade-wind chop.',
+        notes: '29.6°C sea surface temperature—the warmest station in the network—driving deep vermilion/sunburst thermal rings and a rich burgundy background.',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
 2026 11 10 08 40  70  9.0 11.0  1.5  MM 4.4  99 1010.5 29.3 29.6   MM
 2026 11 10 08 20  60  9.0 11.0  1.4   6 4.5  93 1010.6 29.3 29.6   MM`
       }
     ];
 
-    // Dynamic Temperature-Driven Palette Generator (interpolates smoothly across 0°C -> 32°C)
+    // Dynamic Temperature-Driven Palette + Dark Background Anchors (Navy for cold -> Burgundy for warm)
     const thermalAnchors = [
       {
         temp: 6.0,
         name: 'Sub-Arctic Glacial Cobalt',
-        rings: ['#0b2545', '#1d5b9e', '#3a86a8', '#7fc8c2', '#d9ed92']
+        darkBg: '#071324',      // Deep Sub-Arctic Navy
+        darkPanel: '#0b1c33',
+        rings: ['#2b72c4', '#3a86a8', '#56b4d3', '#7fc8c2', '#d9ed92']
       },
       {
         temp: 12.5,
         name: 'North Temperate Kelp & Slate',
-        rings: ['#184e68', '#28664b', '#1d5b9e', '#eab308', '#ed5c2b']
+        darkBg: '#091c26',      // Deep Slate Navy-Teal
+        darkPanel: '#0e2836',
+        rings: ['#2b72c4', '#2d8a64', '#4ea8de', '#eab308', '#ed5c2b']
       },
       {
         temp: 18.5,
         name: 'Upwelling Teal & Pacific Coral',
-        rings: ['#1d5b9e', '#28664b', '#eab308', '#ed5c2b', '#f28bb2']
+        darkBg: '#121d24',      // Deep Pacific Indigo-Plum
+        darkPanel: '#1a2933',
+        rings: ['#3b82f6', '#2a9d8f', '#eab308', '#ed5c2b', '#f28bb2']
       },
       {
         temp: 25.0,
         name: 'Sub-Tropical Hibiscus & Gold',
-        rings: ['#f28bb2', '#ed5c2b', '#eab308', '#28664b', '#1d5b9e']
+        darkBg: '#24111c',      // Warm Aubergine / Mulberry
+        darkPanel: '#331828',
+        rings: ['#f28bb2', '#ed5c2b', '#eab308', '#2a9d8f', '#3b82f6']
       },
       {
         temp: 30.0,
         name: 'Equatorial Vermilion & Sunburst',
-        rings: ['#8f2d1e', '#ed5c2b', '#f59e0b', '#f28bb2', '#fde047']
+        darkBg: '#2b0d14',      // Rich Deep Burgundy
+        darkPanel: '#3d131d',
+        rings: ['#ed5c2b', '#f59e0b', '#f28bb2', '#fde047', '#b91c1c']
       }
     ];
 
@@ -341,7 +492,8 @@
 
     function getThermalPalette(wtmp) {
       if (wtmp <= thermalAnchors[0].temp) {
-        return { name: thermalAnchors[0].name, rings: [...thermalAnchors[0].rings] };
+        const a = thermalAnchors[0];
+        return { name: a.name, darkBg: a.darkBg, darkPanel: a.darkPanel, rings: [...a.rings] };
       }
       for (let i = 0; i < thermalAnchors.length - 1; i++) {
         const a = thermalAnchors[i];
@@ -349,12 +501,14 @@
         if (wtmp <= b.temp) {
           const ratio = (wtmp - a.temp) / (b.temp - a.temp);
           const rings = a.rings.map((colA, idx) => lerpColor(colA, b.rings[idx], ratio));
+          const darkBg = lerpColor(a.darkBg, b.darkBg, ratio);
+          const darkPanel = lerpColor(a.darkPanel, b.darkPanel, ratio);
           const name = ratio < 0.5 ? a.name : b.name;
-          return { name, rings };
+          return { name, darkBg, darkPanel, rings };
         }
       }
       const last = thermalAnchors[thermalAnchors.length - 1];
-      return { name: last.name, rings: [...last.rings] };
+      return { name: last.name, darkBg: last.darkBg, darkPanel: last.darkPanel, rings: [...last.rings] };
     }
 
     // Compute local time of day at buoy location
@@ -378,17 +532,20 @@
       };
     }
 
+    // Actual human-readable layer names (no cryptic 50, 75, 100 codes)
     const planeDefs = [
-      { code: '50',  name: 'WIND / GUST',  stem: 'Air Breeze' },
-      { code: '75',  name: 'SURFACE CHOP', stem: 'Harmonic Shimmer' },
-      { code: '100', name: 'SWELL CREST',  stem: 'Surf Wash' },
-      { code: '125', name: 'WAVE PERIOD',  stem: 'Deep Tide' },
-      { code: '150', name: 'THERMAL BASE', stem: 'Warm Drone' }
+      { label: 'Wind / Gust',  short: 'Wind / Gust',  stem: 'Air Breeze' },
+      { label: 'Surface Chop', short: 'Surface Chop', stem: 'Harmonic Shimmer' },
+      { label: 'Swell Crest',  short: 'Swell Crest',  stem: 'Surf Wash' },
+      { label: 'Wave Period',  short: 'Wave Period',  stem: 'Deep Tide' },
+      { label: 'Thermal Base', short: 'Thermal Base', stem: 'Warm Drone' }
     ];
 
     let activeBuoyIdx = 0;
     let selectedPlanes = new Set([0, 1, 2, 3, 4]);
     let explodeFactor = 1.0;
+    let isDarkMode = true; // Default is temperature-aligned Dark Mode
+    let isDesktopSidebarOpen = true;
 
     // Interactive isometric camera tilt offset
     let camYaw = 0;
@@ -409,15 +566,95 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    const stationDropdown = document.getElementById('stationDropdown');
-    const infoDrawer = document.getElementById('infoDrawer');
+    // Apply Dark (temperature-aligned navy -> burgundy) or Light (archival paper) CSS theme variables
+    function applyThemeColors() {
+      const b = buoys[activeBuoyIdx];
+      const pal = getThermalPalette(b.wtmp);
+      const root = document.documentElement;
 
+      if (isDarkMode) {
+        const [pr, pg, pb] = hexToRgb(pal.darkPanel);
+        root.style.setProperty('--bg-color', pal.darkBg);
+        root.style.setProperty('--fg-color', '#f5f2eb');
+        root.style.setProperty('--panel-bg', `rgba(${pr}, ${pg}, ${pb}, 0.84)`);
+        root.style.setProperty('--panel-border', 'rgba(255, 255, 255, 0.14)');
+        root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.06)');
+        root.style.setProperty('--card-hover', 'rgba(255, 255, 255, 0.12)');
+        root.style.setProperty('--dot-color', 'rgba(255, 255, 255, 0.06)');
+        document.getElementById('themeIcon').textContent = '☀';
+      } else {
+        root.style.setProperty('--bg-color', '#f0ebe1');
+        root.style.setProperty('--fg-color', '#1c1917');
+        root.style.setProperty('--panel-bg', 'rgba(240, 235, 225, 0.90)');
+        root.style.setProperty('--panel-border', 'rgba(28, 25, 23, 0.16)');
+        root.style.setProperty('--card-bg', 'rgba(28, 25, 23, 0.05)');
+        root.style.setProperty('--card-hover', 'rgba(28, 25, 23, 0.10)');
+        root.style.setProperty('--dot-color', 'rgba(28, 25, 23, 0.05)');
+        document.getElementById('themeIcon').textContent = '☾';
+      }
+    }
+
+    document.getElementById('themeToggleBtn').addEventListener('click', () => {
+      isDarkMode = !isDarkMode;
+      applyThemeColors();
+      renderPlaneButtons();
+      renderSpine();
+    });
+
+    // Desktop Sidebar Collapse / Expand
+    const desktopSidebar = document.getElementById('desktopSidebar');
+    const desktopSidebarOpenBtn = document.getElementById('desktopSidebarOpenBtn');
+
+    function updateDesktopSidebarState() {
+      if (isDesktopSidebarOpen) {
+        desktopSidebar.classList.remove('-translate-x-[110%]');
+        desktopSidebarOpenBtn.classList.remove('md:flex');
+        desktopSidebarOpenBtn.classList.add('md:hidden');
+      } else {
+        desktopSidebar.classList.add('-translate-x-[110%]');
+        desktopSidebarOpenBtn.classList.remove('md:hidden');
+        desktopSidebarOpenBtn.classList.add('md:flex');
+      }
+    }
+
+    document.getElementById('desktopSidebarCloseBtn').addEventListener('click', () => {
+      isDesktopSidebarOpen = false;
+      updateDesktopSidebarState();
+    });
+    desktopSidebarOpenBtn.addEventListener('click', () => {
+      isDesktopSidebarOpen = true;
+      updateDesktopSidebarState();
+    });
+
+    // Mobile Bottom Drawer Toggle
+    const mobileBuoyDrawer = document.getElementById('mobileBuoyDrawer');
+    document.getElementById('mobileSelectBuoyBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      mobileBuoyDrawer.classList.toggle('hidden');
+    });
+    document.getElementById('closeMobileDrawerBtn').addEventListener('click', () => {
+      mobileBuoyDrawer.classList.add('hidden');
+    });
+
+    // '?' About Modal Toggle
+    const aboutModal = document.getElementById('aboutModal');
+    document.getElementById('aboutToggleBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      aboutModal.classList.toggle('hidden');
+    });
+    document.getElementById('closeAboutBtn').addEventListener('click', () => {
+      aboutModal.classList.add('hidden');
+    });
+    aboutModal.addEventListener('click', (e) => {
+      if (e.target === aboutModal) aboutModal.classList.add('hidden');
+    });
+
+    // Canvas Dragging
     canvas.addEventListener('pointerdown', (e) => {
       isDragging = true;
       dragStartX = e.clientX - camYaw * 140;
       dragStartY = e.clientY - camPitch * 140;
-      stationDropdown.classList.add('hidden');
-      infoDrawer.classList.add('hidden');
+      mobileBuoyDrawer.classList.add('hidden');
     });
     window.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
@@ -426,115 +663,133 @@
     });
     window.addEventListener('pointerup', () => { isDragging = false; });
 
-    document.getElementById('stationMenuBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      infoDrawer.classList.add('hidden');
-      stationDropdown.classList.toggle('hidden');
-    });
+    // Sync Explode Sliders (Desktop & Mobile)
+    function setExplode(val) {
+      explodeFactor = parseFloat(val) / 100;
+      document.getElementById('deskExplodeSlider').value = val;
+      document.getElementById('mobExplodeSlider').value = val;
+      document.getElementById('deskExplodeVal').textContent = `${val}%`;
+      document.getElementById('mobExplodeVal').textContent = `${val}%`;
+    }
+    document.getElementById('deskExplodeSlider').addEventListener('input', (e) => setExplode(e.target.value));
+    document.getElementById('mobExplodeSlider').addEventListener('input', (e) => setExplode(e.target.value));
 
-    document.getElementById('infoToggleBtn').addEventListener('click', (e) => {
-      e.stopPropagation();
-      stationDropdown.classList.add('hidden');
-      infoDrawer.classList.toggle('hidden');
-    });
-
-    document.getElementById('closeInfoBtn').addEventListener('click', () => {
-      infoDrawer.classList.add('hidden');
-    });
-
-    document.getElementById('explodeSlider').addEventListener('input', (e) => {
-      explodeFactor = parseFloat(e.target.value) / 100;
-      document.getElementById('explodeVal').textContent = `${e.target.value}%`;
-    });
-
-    // Flat location directory inside popover
+    // Render Buoy Lists (both Desktop Sidebar & Mobile Bottom Drawer)
     function renderSpine() {
-      const container = document.getElementById('spineContainer');
-      container.innerHTML = '';
+      const deskContainer = document.getElementById('desktopSpineList');
+      const mobContainer = document.getElementById('mobileSpineList');
+      deskContainer.innerHTML = '';
+      mobContainer.innerHTML = '';
+
       buoys.forEach((b, idx) => {
         const isSel = idx === activeBuoyIdx;
         const localTime = getBuoyLocalTime(b.tzOffset);
         const pal = getThermalPalette(b.wtmp);
 
-        const row = document.createElement('button');
-        row.type = 'button';
-        row.className = `w-full text-left flex items-center justify-between gap-2 py-1.5 px-2.5 rounded-lg transition cursor-pointer border ${
-          isSel
-            ? 'bg-stone-950/40 border-white/80 shadow-sm'
-            : 'bg-black/10 border-transparent hover:bg-black/20'
-        }`;
-        row.onclick = () => {
-          activeBuoyIdx = idx;
-          stationDropdown.classList.add('hidden');
-          renderSpine();
-          updateHUD();
-        };
+        const activeBg = isDarkMode
+          ? 'bg-white/15 border-white/60 shadow-xs'
+          : 'bg-stone-900/15 border-stone-900/50 shadow-xs';
+        const idleBg = isDarkMode
+          ? 'bg-white/5 border-transparent hover:bg-white/10'
+          : 'bg-stone-900/5 border-transparent hover:bg-stone-900/10';
 
-        row.innerHTML = `
+        const rowHTML = `
           <div class="flex items-center gap-2 min-w-0">
             <span class="w-2.5 h-2.5 rounded-full shrink-0 border border-white/70" style="background:${pal.rings[0]}"></span>
             <div class="truncate">
-              <div class="text-xs ${isSel ? 'font-bold text-white' : 'font-medium text-stone-100'} truncate">
+              <div class="text-xs ${isSel ? 'font-bold' : 'font-medium opacity-90'} truncate">
                 ${b.short}
               </div>
-              <div class="text-[10px] opacity-80">
+              <div class="text-[10px] opacity-70">
                 #${b.id} • ${b.wtmp.toFixed(1)}°C • ${b.wvht.toFixed(1)}m
               </div>
             </div>
           </div>
           <div class="text-right shrink-0">
-            <div class="text-xs font-bold whitespace-nowrap ${isSel ? 'text-amber-200' : 'text-stone-100'}">
+            <div class="text-xs font-bold whitespace-nowrap">
               ${localTime.full}
             </div>
-            <div class="text-[10px] opacity-75">
+            <div class="text-[10px] opacity-65">
               ${localTime.utcLabel}
             </div>
           </div>
         `;
-        container.appendChild(row);
+
+        const deskBtn = document.createElement('button');
+        deskBtn.type = 'button';
+        deskBtn.className = `w-full text-left flex items-center justify-between gap-2 py-1.5 px-2.5 rounded-lg transition cursor-pointer border ${isSel ? activeBg : idleBg}`;
+        deskBtn.innerHTML = rowHTML;
+        deskBtn.onclick = () => {
+          activeBuoyIdx = idx;
+          renderSpine();
+          updateHUD();
+        };
+        deskContainer.appendChild(deskBtn);
+
+        const mobBtn = document.createElement('button');
+        mobBtn.type = 'button';
+        mobBtn.className = `w-full text-left flex items-center justify-between gap-2 py-1.5 px-2.5 rounded-lg transition cursor-pointer border ${isSel ? activeBg : idleBg}`;
+        mobBtn.innerHTML = rowHTML;
+        mobBtn.onclick = () => {
+          activeBuoyIdx = idx;
+          renderSpine();
+          updateHUD();
+        };
+        mobContainer.appendChild(mobBtn);
       });
     }
 
-    // Minimal Bottom Pill: ALL · 50 · 75 · 100 · 125 · 150
+    // Render Layer Toggle Buttons using descriptive terms (Wind/Gust, Surface Chop, etc.)
     function renderPlaneButtons() {
-      const container = document.getElementById('planeSliceBtns');
-      container.innerHTML = '';
+      const deskContainer = document.getElementById('desktopPlaneBtns');
+      const mobContainer = document.getElementById('mobilePlaneBtns');
+      deskContainer.innerHTML = '';
+      mobContainer.innerHTML = '';
 
       const allSelected = selectedPlanes.size === planeDefs.length;
 
-      const allBtn = document.createElement('button');
-      allBtn.className = `px-2.5 py-1 rounded-full text-[11px] font-bold transition cursor-pointer ${
-        allSelected ? 'bg-stone-900 text-stone-50' : 'text-stone-700 hover:bg-stone-900/10'
-      }`;
-      allBtn.textContent = 'ALL';
-      allBtn.onclick = () => {
-        selectedPlanes = new Set([0, 1, 2, 3, 4]);
-        renderPlaneButtons();
-      };
-      container.appendChild(allBtn);
+      const activeClass = isDarkMode
+        ? 'bg-stone-100 text-stone-950 font-bold shadow-xs'
+        : 'bg-stone-900 text-stone-50 font-bold shadow-xs';
+      const idleClass = isDarkMode
+        ? 'glass-panel opacity-75 hover:opacity-100'
+        : 'glass-panel opacity-75 hover:opacity-100';
+
+      function makeAllBtn() {
+        const btn = document.createElement('button');
+        btn.className = `px-3 py-1 rounded-full text-[11px] font-bold transition cursor-pointer shrink-0 ${allSelected ? activeClass : idleClass}`;
+        btn.textContent = 'All Layers';
+        btn.onclick = () => {
+          selectedPlanes = new Set([0, 1, 2, 3, 4]);
+          renderPlaneButtons();
+        };
+        return btn;
+      }
+
+      deskContainer.appendChild(makeAllBtn());
+      mobContainer.appendChild(makeAllBtn());
 
       planeDefs.forEach((p, idx) => {
         const active = selectedPlanes.has(idx);
-        const btn = document.createElement('button');
-        btn.className = `px-2.5 py-1 rounded-full text-[11px] font-bold transition cursor-pointer flex items-center gap-1 ${
-          active
-            ? 'bg-stone-900 text-stone-50 shadow-xs'
-            : 'text-stone-500 hover:bg-stone-900/10 opacity-75'
-        }`;
-        btn.innerHTML = `
-          <span class="w-1.5 h-1.5 rounded-full ${active ? 'bg-amber-400' : 'bg-stone-400'}"></span>
-          <span>${p.code}</span>
-        `;
-        btn.title = `${p.code} // ${p.name} (${p.stem})`;
-        btn.onclick = () => {
-          if (selectedPlanes.has(idx)) {
-            if (selectedPlanes.size > 1) selectedPlanes.delete(idx);
-          } else {
-            selectedPlanes.add(idx);
-          }
-          renderPlaneButtons();
-        };
-        container.appendChild(btn);
+
+        [deskContainer, mobContainer].forEach(container => {
+          const btn = document.createElement('button');
+          btn.className = `px-3 py-1 rounded-full text-[11px] transition cursor-pointer flex items-center gap-1.5 shrink-0 ${active ? activeClass : idleClass}`;
+          btn.innerHTML = `
+            <span class="w-1.5 h-1.5 rounded-full ${active ? 'bg-amber-500' : 'bg-current opacity-40'}"></span>
+            <span>${p.label}</span>
+          `;
+          btn.title = `${p.label} — Audio Stem: ${p.stem}`;
+          btn.onclick = () => {
+            if (selectedPlanes.has(idx)) {
+              if (selectedPlanes.size > 1) selectedPlanes.delete(idx);
+            } else {
+              selectedPlanes.add(idx);
+            }
+            renderPlaneButtons();
+          };
+          container.appendChild(btn);
+        });
       });
     }
 
@@ -571,30 +826,43 @@
       const pal = getThermalPalette(b.wtmp);
       const localTime = getBuoyLocalTime(b.tzOffset);
 
-      // Update Minimal Top-Left Picker Pill
-      document.getElementById('activeStationDot').style.background = pal.rings[0];
-      document.getElementById('activeStationName').textContent = b.short;
-      document.getElementById('activeStationClock').textContent = localTime.full;
+      applyThemeColors();
 
-      // Update Info Drawer details
-      document.getElementById('drawerStationIdx').textContent = String(b.idx).padStart(2, '0');
-      document.getElementById('drawerStationTitle').textContent = `#${b.id} • ${b.short}`;
-      document.getElementById('drawerStationSub').textContent = `${b.lat}°N, ${Math.abs(b.lon)}°W • ${b.pres} hPa • ${localTime.utcLabel}`;
-      document.getElementById('metricWvht').textContent = `${b.wvht.toFixed(2)} m`;
-      document.getElementById('metricPeriod').textContent = `${b.dpd.toFixed(1)}s / ${b.apd.toFixed(1)}s`;
-      document.getElementById('metricWind').textContent = `${b.wspd.toFixed(1)} / ${b.gst.toFixed(1)} m/s`;
-      document.getElementById('metricTemp').textContent = `${b.wtmp.toFixed(1)} °C`;
-      document.getElementById('paletteName').textContent = pal.name;
+      // Update Collapsed Desktop Pill
+      document.getElementById('collapsedBuoyDot').style.background = pal.rings[0];
+      document.getElementById('collapsedBuoyLabel').textContent = `${b.short} (${localTime.full})`;
 
-      const swatchRow = document.getElementById('swatchRow');
+      // Update Desktop Sidebar Info
+      document.getElementById('deskStationTitle').textContent = `#${b.id} • ${b.short}`;
+      document.getElementById('deskStationSub').textContent = `${b.lat}°N, ${Math.abs(b.lon)}°W • ${b.pres} hPa • ${localTime.utcLabel}`;
+      document.getElementById('deskWvht').textContent = `${b.wvht.toFixed(2)} m`;
+      document.getElementById('deskPeriod').textContent = `${b.dpd.toFixed(1)}s / ${b.apd.toFixed(1)}s`;
+      document.getElementById('deskWind').textContent = `${b.wspd.toFixed(1)} / ${b.gst.toFixed(1)} m/s`;
+      document.getElementById('deskTemp').textContent = `${b.wtmp.toFixed(1)} °C`;
+      document.getElementById('deskPaletteName').textContent = pal.name;
+
+      const swatchRow = document.getElementById('deskSwatchRow');
       swatchRow.innerHTML = pal.rings.map(c => `<div class="flex-1 h-full rounded-xs border border-black/20" style="background:${c}"></div>`).join('');
 
       const pct = Math.max(2, Math.min(96, (b.wtmp / 32) * 100));
-      document.getElementById('tempMarker').style.left = `calc(${pct}% - 5px)`;
+      document.getElementById('deskTempMarker').style.left = `calc(${pct}% - 5px)`;
 
-      document.getElementById('stationTimeRight').textContent = b.timeUTC;
-      document.getElementById('rawNotes').textContent = b.notes;
-      document.getElementById('rawPre').textContent = b.raw;
+      document.getElementById('deskRawTime').textContent = b.timeUTC;
+      document.getElementById('deskRawNotes').textContent = b.notes;
+      document.getElementById('deskRawPre').textContent = b.raw;
+
+      // Update Mobile Bottom Bar & Drawer Info
+      document.getElementById('mobActiveDot').style.background = pal.rings[0];
+      document.getElementById('mobActiveName').textContent = `${b.short} • ${b.wtmp.toFixed(1)}°C • ${b.wvht.toFixed(1)}m`;
+      document.getElementById('mobActiveClock').textContent = localTime.full;
+      document.getElementById('mobActiveSub').textContent = `#${b.id} • ${localTime.utcLabel}`;
+
+      document.getElementById('mobStationTitle').textContent = `#${b.id} • ${b.short}`;
+      document.getElementById('mobStationCoords').textContent = `${b.lat}°N, ${Math.abs(b.lon)}°W • ${b.pres} hPa`;
+      document.getElementById('mobWvht').textContent = `${b.wvht.toFixed(2)} m`;
+      document.getElementById('mobPeriod').textContent = `${b.dpd.toFixed(1)}s / ${b.apd.toFixed(1)}s`;
+      document.getElementById('mobWind').textContent = `${b.wspd.toFixed(1)} / ${b.gst.toFixed(1)} m/s`;
+      document.getElementById('mobTemp').textContent = `${b.wtmp.toFixed(1)} °C`;
 
       if (!skipSync) syncLiveBuoy(activeBuoyIdx);
     }
@@ -626,7 +894,7 @@
         bOut[i] = lastBrown * 1.35;
       }
 
-      // STEM 0 (Plane 50 - WIND / GUST): Warm lowpass coastal breeze
+      // STEM 0 (Wind / Gust): Warm lowpass coastal breeze
       const windSrc = audioCtx.createBufferSource();
       windSrc.buffer = pinkBuf;
       windSrc.loop = true;
@@ -640,7 +908,7 @@
       windGain.connect(audioCtx.destination);
       windSrc.start();
 
-      // STEM 1 (Plane 75 - SURFACE CHOP): Gentle ambient harmonic Fifth shimmer pad
+      // STEM 1 (Surface Chop): Gentle ambient harmonic Fifth shimmer pad
       const chopOsc = audioCtx.createOscillator();
       chopOsc.type = 'sine';
       chopOsc.frequency.value = 220;
@@ -650,7 +918,7 @@
       chopGain.connect(audioCtx.destination);
       chopOsc.start();
 
-      // STEM 2 (Plane 100 - SWELL CREST): Deep lowpass surf wash
+      // STEM 2 (Swell Crest): Deep lowpass surf wash
       const surfSrc = audioCtx.createBufferSource();
       surfSrc.buffer = brownBuf;
       surfSrc.loop = true;
@@ -664,7 +932,7 @@
       surfGain.connect(audioCtx.destination);
       surfSrc.start();
 
-      // STEM 3 (Plane 125 - WAVE PERIOD): Deep harmonic sub-fifth tide pulse
+      // STEM 3 (Wave Period): Deep harmonic sub-fifth tide pulse
       const periodOsc = audioCtx.createOscillator();
       periodOsc.type = 'sine';
       periodOsc.frequency.value = 82;
@@ -674,7 +942,7 @@
       periodGain.connect(audioCtx.destination);
       periodOsc.start();
 
-      // STEM 4 (Plane 150 - THERMAL BASE): Warm continuous sea-temperature drone
+      // STEM 4 (Thermal Base): Warm continuous sea-temperature drone
       const thermalOsc = audioCtx.createOscillator();
       thermalOsc.type = 'sine';
       thermalOsc.frequency.value = 110;
@@ -710,7 +978,7 @@
     };
 
     // =========================================================================
-    // MAIN FULL-SCREEN ISOMETRIC RENDER LOOP (Responsive for Mobile & Desktop)
+    // MAIN FULL-SCREEN ISOMETRIC RENDER LOOP (Tall Mobile Stack + Desktop Offset)
     // =========================================================================
     let t = 0;
     function render() {
@@ -773,21 +1041,31 @@
         }
       }
 
-      // Mobile-aware sizing so all 5 planes fit comfortably on portrait screens as well as desktop
-      const isPortrait = W < 640;
-      const planeSize = isPortrait ? Math.min(W * 0.54, H * 0.36) : Math.min(W, H) * 0.46;
-      const baseSpacingX = (isPortrait ? W * 0.085 : Math.min(W * 0.088, 96)) * explodeFactor * (1 + camYaw * 0.45);
-      const baseSpacingY = (isPortrait ? -18 : -14) * explodeFactor + camPitch * 45;
-      const skewY = 0.30 + camPitch * 0.18;
+      // Responsive Layout:
+      // - On mobile (<768px): use a taller vertical cascade so the 5 isometric planes fill the tall portrait screen!
+      // - On desktop (>=768px): shift center right when the left sidebar is open so it never overlaps.
+      const isMobile = W < 768;
+      const planeSize = isMobile
+        ? Math.min(W * 0.68, H * 0.42)
+        : Math.min(W * 0.44, H * 0.50);
+
+      const baseSpacingX = (isMobile ? W * 0.055 : Math.min(W * 0.088, 98)) * explodeFactor * (1 + camYaw * 0.45);
+      const baseSpacingY = (isMobile ? -H * 0.068 : -18) * explodeFactor + camPitch * 45;
+      const skewY = (isMobile ? 0.24 : 0.30) + camPitch * 0.18;
 
       const totalStackW = baseSpacingX * 4 + planeSize;
-      const startX = (W - totalStackW) * 0.50;
-      const startY = (H - planeSize - planeSize * skewY) * 0.52;
+      const totalStackH = planeSize + planeSize * skewY + Math.abs(baseSpacingY * 4);
+
+      const desktopOffset = (!isMobile && isDesktopSidebarOpen) ? 155 : 0;
+      const startX = (W - totalStackW) * 0.50 + desktopOffset;
+      const startY = isMobile
+        ? (H - totalStackH) * 0.46 + Math.abs(baseSpacingY * 4)
+        : (H - planeSize - planeSize * skewY) * 0.51;
 
       for (let pIdx = 4; pIdx >= 0; pIdx--) {
         const pDef = planeDefs[pIdx];
         const isActive = selectedPlanes.has(pIdx);
-        const planeAlpha = isActive ? 1.0 : 0.14;
+        const planeAlpha = isActive ? 1.0 : 0.15;
 
         const ox = startX + pIdx * baseSpacingX;
         const oy = startY + pIdx * baseSpacingY;
@@ -796,38 +1074,42 @@
         ctx.globalAlpha = planeAlpha;
         ctx.transform(1, skewY, 0, 1, ox, oy);
 
-        ctx.fillStyle = isActive ? 'rgba(245, 240, 232, 0.42)' : 'rgba(240, 235, 225, 0.15)';
-        ctx.fillRect(0, 0, planeSize, planeSize);
+        // Sheet fill & frame adapted for Dark vs Light mode
+        if (isDarkMode) {
+          ctx.fillStyle = isActive ? 'rgba(255, 255, 255, 0.055)' : 'rgba(255, 255, 255, 0.02)';
+          ctx.fillRect(0, 0, planeSize, planeSize);
+          ctx.strokeStyle = isActive ? 'rgba(255, 255, 255, 0.48)' : 'rgba(255, 255, 255, 0.14)';
+        } else {
+          ctx.fillStyle = isActive ? 'rgba(245, 240, 232, 0.44)' : 'rgba(240, 235, 225, 0.15)';
+          ctx.fillRect(0, 0, planeSize, planeSize);
+          ctx.strokeStyle = isActive ? 'rgba(28, 25, 23, 0.68)' : 'rgba(28, 25, 23, 0.25)';
+        }
 
-        ctx.strokeStyle = isActive ? 'rgba(28, 25, 23, 0.68)' : 'rgba(28, 25, 23, 0.25)';
         ctx.lineWidth = isActive ? 1.25 : 0.9;
         ctx.strokeRect(0, 0, planeSize, planeSize);
 
-        // Plane Number rendered in Bitcount font
-        ctx.fillStyle = '#1c1917';
-        ctx.font = isPortrait ? 'bold 12px "Bitcount Prop Single", monospace' : 'bold 15px "Bitcount Prop Single", monospace';
-        ctx.fillText(pDef.code, 2, planeSize + (isPortrait ? 13 : 17));
-        if (!isPortrait) {
-          ctx.font = '11px monospace';
-          ctx.fillStyle = 'rgba(28, 25, 23, 0.65)';
-          ctx.fillText(pDef.name, 34, planeSize + 16);
-        }
+        // Actual human-readable term on each plane corner
+        ctx.fillStyle = isDarkMode ? 'rgba(245, 242, 235, 0.85)' : 'rgba(28, 25, 23, 0.82)';
+        ctx.font = isMobile ? 'bold 10px monospace' : 'bold 11px monospace';
+        ctx.fillText(pDef.label.toUpperCase(), 4, planeSize + (isMobile ? 13 : 16));
 
         const gridN = 8;
         const pad = planeSize * 0.12;
         const step = (planeSize - pad * 2) / (gridN - 1);
 
+        // First pass: quiet reference grid circles
         for (let gx = 0; gx < gridN; gx++) {
           for (let gy = 0; gy < gridN; gy++) {
             const px = pad + gx * step;
             const py = pad + gy * step;
             ctx.beginPath();
             ctx.arc(px, py, step * 0.36, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(255, 252, 245, 0.48)';
+            ctx.fillStyle = isDarkMode ? 'rgba(255, 255, 255, 0.06)' : 'rgba(255, 252, 245, 0.48)';
             ctx.fill();
           }
         }
 
+        // Second pass: Live Buoy Telemetry Concentric Dots & Overlapping Clusters
         const dirRad = (b.mwd * Math.PI) / 180;
         const windRad = (b.wdir * Math.PI) / 180;
 
@@ -862,7 +1144,7 @@
                 ctx.beginPath();
                 ctx.arc(px, py, outerRadius * 0.85, 0, Math.PI * 2);
                 ctx.strokeStyle = outerColor;
-                ctx.lineWidth = isPortrait ? 2.0 : 2.8;
+                ctx.lineWidth = isMobile ? 2.2 : 2.8;
                 ctx.stroke();
 
                 ctx.beginPath();
@@ -875,7 +1157,7 @@
                 ctx.fillStyle = outerColor;
                 ctx.fill();
 
-                if (outerRadius > (isPortrait ? 5.0 : 7.5)) {
+                if (outerRadius > (isMobile ? 5.5 : 7.5)) {
                   const innerRatio = Math.min(0.65, 0.30 + (b.wtmp / 32) * 0.32);
                   ctx.beginPath();
                   ctx.arc(px, py, outerRadius * innerRatio, 0, Math.PI * 2);
@@ -883,7 +1165,7 @@
                   ctx.fill();
                 }
 
-                const pinRadius = Math.max(1.2, (isPortrait ? 1.4 : 1.8) + Math.sin(t * chopOmega + gx + gy) * 0.7);
+                const pinRadius = Math.max(1.2, (isMobile ? 1.5 : 1.8) + Math.sin(t * chopOmega + gx + gy) * 0.7);
                 ctx.beginPath();
                 ctx.arc(px, py, pinRadius, 0, Math.PI * 2);
                 ctx.fillStyle = coreColor;
