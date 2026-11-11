@@ -39,10 +39,10 @@
 </head>
 <body class="paper-surface select-none relative w-screen h-screen overflow-hidden">
 
-  <!-- FULL-SCREEN INTERACTIVE 3D ISOMETRIC CANVAS -->
+  <!-- FULL-SCREEN INTERACTIVE ISOMETRIC CANVAS -->
   <canvas id="isoCanvas" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"></canvas>
 
-  <!-- TOP-LEFT HUD: Parameter Header + Re-designed Flat Location Selector -->
+  <!-- TOP-LEFT HUD: Parameter Header + Flat Location Selector -->
   <header class="absolute top-5 left-5 z-20 flex flex-col gap-3 pointer-events-none w-80">
     <div class="hud-panel rounded-lg p-3.5 pointer-events-auto shadow-sm">
       <div class="flex items-start justify-between gap-4">
@@ -54,22 +54,13 @@
         <canvas id="bitmapDigit" width="44" height="44" class="w-11 h-11 shrink-0"></canvas>
       </div>
 
-      <!-- Color Variable Mode Switcher -->
-      <div class="mt-3 pt-2.5 border-t border-stone-900/15">
-        <div class="text-xs opacity-70 mb-1.5">colour encoding variable:</div>
-        <div class="grid grid-cols-3 gap-1" id="colorModeBtns"></div>
-      </div>
-
-      <!-- Plane Explode & Camera Reset -->
+      <!-- Plane Explode Slider -->
       <div class="mt-2.5 pt-2 border-t border-stone-900/15 space-y-1.5">
         <div class="flex items-center justify-between text-xs">
           <span class="opacity-75">plane spacing (explode)</span>
-          <div class="flex items-center gap-2">
-            <span id="explodeVal" class="font-bold">100%</span>
-            <button id="resetViewBtn" class="px-1.5 py-0.5 rounded bg-stone-900/10 hover:bg-stone-900/20 text-[10px] font-bold transition cursor-pointer" title="Reset 3D camera rotation">Reset View</button>
-          </div>
+          <span id="explodeVal" class="font-bold">100%</span>
         </div>
-        <input id="explodeSlider" type="range" min="45" max="165" value="100" class="w-full h-1.5 cursor-pointer" />
+        <input id="explodeSlider" type="range" min="45" max="155" value="100" class="w-full h-1.5 cursor-pointer" />
       </div>
     </div>
 
@@ -270,8 +261,8 @@
       <div id="planeSliceBtns" class="flex flex-wrap items-center gap-1.5"></div>
     </div>
 
-    <div class="hud-panel rounded-lg px-3.5 py-2 pointer-events-auto shadow-sm text-xs opacity-85 flex items-center gap-3">
-      <span>↻ Drag anywhere to orbit 360° in 3D (<strong id="angleReadout">Yaw -36° · Pitch 22°</strong>)</span>
+    <div class="hud-panel rounded-lg px-3.5 py-2 pointer-events-auto shadow-sm text-xs opacity-80">
+      <span>Drag canvas to tilt isometric perspective • Toggle planes (50–150) to mix visual & audio layers</span>
     </div>
   </footer>
 
@@ -486,26 +477,17 @@
       { code: '150', name: 'THERMAL BASE', stem: 'Warm Drone',  desc: 'WTMP concentric heat mass' }
     ];
 
-    const colorModes = [
-      { id: 'thermal', label: 'Thermal Rings' },
-      { id: 'plane',   label: 'By Plane (50-150)' },
-      { id: 'mono',    label: 'Studio Ink + Coral' }
-    ];
-
     let activeBuoyIdx = 0;
-    let activeColorMode = 'thermal';
     // Multi-select set of active plane indices (0..4)
     let selectedPlanes = new Set([0, 1, 2, 3, 4]);
     let explodeFactor = 1.0;
 
-    // True 3D Orbital Camera Angles (in radians)
-    const DEFAULT_YAW = -0.64;   // ~ -36 deg classic isometric
-    const DEFAULT_PITCH = 0.38;  // ~ +22 deg elevation
-    let rotYaw = DEFAULT_YAW;
-    let rotPitch = DEFAULT_PITCH;
+    // Interactive isometric camera tilt offset (restored original feel)
+    let camYaw = 0;
+    let camPitch = 0;
     let isDragging = false;
-    let lastPtrX = 0;
-    let lastPtrY = 0;
+    let dragStartX = 0;
+    let dragStartY = 0;
 
     const canvas = document.getElementById('isoCanvas');
     const ctx = canvas.getContext('2d');
@@ -521,38 +503,18 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    function updateAngleReadout() {
-      const degY = Math.round(((rotYaw * 180 / Math.PI) % 360));
-      const degP = Math.round((rotPitch * 180 / Math.PI));
-      document.getElementById('angleReadout').textContent = `Yaw ${degY}° · Pitch ${degP}°`;
-    }
-
-    // Full 360° 3D Orbit Dragging
+    // Drag to tilt isometric stack
     canvas.addEventListener('pointerdown', (e) => {
       isDragging = true;
-      lastPtrX = e.clientX;
-      lastPtrY = e.clientY;
+      dragStartX = e.clientX - camYaw * 140;
+      dragStartY = e.clientY - camPitch * 140;
     });
     window.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
-      const dx = e.clientX - lastPtrX;
-      const dy = e.clientY - lastPtrY;
-      lastPtrX = e.clientX;
-      lastPtrY = e.clientY;
-      rotYaw += dx * 0.0085;
-      rotPitch = Math.max(-1.25, Math.min(1.25, rotPitch + dy * 0.0075));
-      updateAngleReadout();
+      camYaw = Math.max(-0.45, Math.min(0.45, (e.clientX - dragStartX) / 140));
+      camPitch = Math.max(-0.35, Math.min(0.35, (e.clientY - dragStartY) / 140));
     });
     window.addEventListener('pointerup', () => { isDragging = false; });
-
-    document.getElementById('resetViewBtn').addEventListener('click', () => {
-      rotYaw = DEFAULT_YAW;
-      rotPitch = DEFAULT_PITCH;
-      explodeFactor = 1.0;
-      document.getElementById('explodeSlider').value = 100;
-      document.getElementById('explodeVal').textContent = '100%';
-      updateAngleReadout();
-    });
 
     document.getElementById('explodeSlider').addEventListener('input', (e) => {
       explodeFactor = parseFloat(e.target.value) / 100;
@@ -583,24 +545,6 @@
           }
         }
       }
-    }
-
-    function renderColorModeButtons() {
-      const el = document.getElementById('colorModeBtns');
-      el.innerHTML = '';
-      colorModes.forEach(cm => {
-        const btn = document.createElement('button');
-        const active = cm.id === activeColorMode;
-        btn.className = `px-2 py-1 rounded text-xs font-bold transition cursor-pointer border ${
-          active ? 'bg-stone-900 text-stone-50 border-stone-900' : 'bg-white/60 text-stone-800 border-stone-900/20 hover:bg-white'
-        }`;
-        btn.textContent = cm.label;
-        btn.onclick = () => {
-          activeColorMode = cm.id;
-          renderColorModeButtons();
-        };
-        el.appendChild(btn);
-      });
     }
 
     // Flat, clean, high-legibility location directory with local time of day
@@ -686,7 +630,6 @@
         `;
         btn.onclick = () => {
           if (selectedPlanes.has(idx)) {
-            // Keep at least 1 plane active so visual/audio isn't completely empty
             if (selectedPlanes.size > 1) selectedPlanes.delete(idx);
           } else {
             selectedPlanes.add(idx);
@@ -886,26 +829,8 @@
     };
 
     // =========================================================================
-    // TRUE 3D ROTATION & PROJECTION ENGINE FOR THE 5 ISOMETRIC PLANES
+    // MAIN FULL-SCREEN ISOMETRIC + TEMPERATURE-DRIVEN CONCENTRIC RENDER LOOP
     // =========================================================================
-    function project3D(x, y, z, cx, cy, cosY, sinY, cosP, sinP) {
-      // Rotate around Y axis (yaw)
-      const x1 = x * cosY + z * sinY;
-      const z1 = -x * sinY + z * cosY;
-      // Rotate around X axis (pitch)
-      const y2 = y * cosP - z1 * sinP;
-      const z2 = y * sinP + z1 * cosP;
-      // Subtle perspective foreshortening so rotating 360° feels physical
-      const fov = 1500;
-      const scale = fov / Math.max(400, fov + z2);
-      return {
-        sx: cx + x1 * scale,
-        sy: cy + y2 * scale,
-        z: z2,
-        scale
-      };
-    }
-
     let t = 0;
     function render() {
       t += 0.022;
@@ -978,65 +903,43 @@
         }
       }
 
-      // 3D Scene Setup
-      const cx = W * 0.51;
-      const cy = H * 0.49;
-      const planeSize = Math.min(W, H) * 0.45;
-      const half = planeSize * 0.5;
-      const zGap = Math.min(W, H) * 0.125 * explodeFactor;
+      // Responsive sizing for the 5 Isometric Planes centered on screen (original crisp shear projection)
+      const planeSize = Math.min(W, H) * 0.43;
+      const baseSpacingX = Math.min(W * 0.082, 88) * explodeFactor * (1 + camYaw * 0.45);
+      const baseSpacingY = -14 * explodeFactor + camPitch * 45;
+      const skewY = 0.30 + camPitch * 0.18;
 
-      const cosY = Math.cos(rotYaw);
-      const sinY = Math.sin(rotYaw);
-      const cosP = Math.cos(rotPitch);
-      const sinP = Math.sin(rotPitch);
+      const totalStackW = baseSpacingX * 4 + planeSize;
+      const startX = (W - totalStackW) * 0.52;
+      const startY = (H - planeSize - planeSize * skewY) * 0.50;
 
-      // Build list of planes with their 3D center depth so we sort back-to-front accurately at ANY 360° angle
-      const planeRenderOrder = [0, 1, 2, 3, 4].map(pIdx => {
-        const zLocal = (pIdx - 2) * zGap;
-        const centerProj = project3D(0, 0, zLocal, cx, cy, cosY, sinY, cosP, sinP);
-        return { pIdx, zLocal, depth: centerProj.z };
-      });
-
-      // Painter's algorithm: draw farthest plane (largest z2) first, nearest plane last
-      planeRenderOrder.sort((a, b) => b.depth - a.depth);
-
-      const dirRad = (b.mwd * Math.PI) / 180;
-      const windRad = (b.wdir * Math.PI) / 180;
-
-      for (const item of planeRenderOrder) {
-        const { pIdx, zLocal } = item;
+      // Draw from Back Plane (150, index 4) to Front Plane (50, index 0)
+      for (let pIdx = 4; pIdx >= 0; pIdx--) {
         const pDef = planeDefs[pIdx];
         const isActive = selectedPlanes.has(pIdx);
-        const planeAlpha = isActive ? 1.0 : 0.13;
+        const planeAlpha = isActive ? 1.0 : 0.14;
 
-        // Project origin & basis vectors of this plane for crisp affine canvas transform
-        const pOrigin = project3D(-half, -half, zLocal, cx, cy, cosY, sinY, cosP, sinP);
-        const pRight  = project3D( half, -half, zLocal, cx, cy, cosY, sinY, cosP, sinP);
-        const pDown   = project3D(-half,  half, zLocal, cx, cy, cosY, sinY, cosP, sinP);
-
-        const ux = (pRight.sx - pOrigin.sx) / planeSize;
-        const uy = (pRight.sy - pOrigin.sy) / planeSize;
-        const vx = (pDown.sx - pOrigin.sx) / planeSize;
-        const vy = (pDown.sy - pOrigin.sy) / planeSize;
+        const ox = startX + pIdx * baseSpacingX;
+        const oy = startY + pIdx * baseSpacingY;
 
         ctx.save();
         ctx.globalAlpha = planeAlpha;
-        ctx.transform(ux, uy, vx, vy, pOrigin.sx, pOrigin.sy);
+        ctx.transform(1, skewY, 0, 1, ox, oy);
 
         // Translucent paper sheet fill + crisp architectural frame
-        ctx.fillStyle = isActive ? 'rgba(245, 240, 232, 0.44)' : 'rgba(240, 235, 225, 0.12)';
+        ctx.fillStyle = isActive ? 'rgba(245, 240, 232, 0.42)' : 'rgba(240, 235, 225, 0.15)';
         ctx.fillRect(0, 0, planeSize, planeSize);
 
-        ctx.strokeStyle = isActive ? 'rgba(28, 25, 23, 0.72)' : 'rgba(28, 25, 23, 0.22)';
-        ctx.lineWidth = isActive ? 1.35 : 0.9;
+        ctx.strokeStyle = isActive ? 'rgba(28, 25, 23, 0.68)' : 'rgba(28, 25, 23, 0.25)';
+        ctx.lineWidth = isActive ? 1.25 : 0.9;
         ctx.strokeRect(0, 0, planeSize, planeSize);
 
-        // Plane Number & Name Label at bottom-left corner of each wireframe sheet (50, 75, 100, 125, 150)
+        // Plane Number Label at bottom-left corner of each wireframe sheet (50, 75, 100, 125, 150)
         ctx.fillStyle = '#1c1917';
         ctx.font = 'bold 13px monospace';
         ctx.fillText(pDef.code, 4, planeSize + 16);
         ctx.font = '11px monospace';
-        ctx.fillStyle = 'rgba(28, 25, 23, 0.68)';
+        ctx.fillStyle = 'rgba(28, 25, 23, 0.65)';
         ctx.fillText(pDef.name, 34, planeSize + 16);
 
         // 8x8 Dot Matrix inside each isometric sheet
@@ -1057,6 +960,9 @@
         }
 
         // Second pass: Live Buoy Telemetry Concentric Dots & Overlapping Clusters
+        const dirRad = (b.mwd * Math.PI) / 180;
+        const windRad = (b.wdir * Math.PI) / 180;
+
         for (let gx = 0; gx < gridN; gx++) {
           for (let gy = 0; gy < gridN; gy++) {
             const nx = (gx / (gridN - 1)) * 2 - 1;
@@ -1081,22 +987,10 @@
               const waveFactor = 0.55 + (b.wvht / 5.6) * 0.75;
               const outerRadius = Math.max(2.5, step * 0.46 * (combined + 0.45) * planeScale * waveFactor);
 
-              // Pick Concentric Colors using the dynamic temperature-interpolated palette
-              let outerColor, innerColor, coreColor;
-              if (activeColorMode === 'thermal') {
-                outerColor = pal.rings[(gx + pIdx) % pal.rings.length];
-                innerColor = pal.rings[(gy + pIdx + 2) % pal.rings.length];
-                coreColor = '#fdfaf2';
-              } else if (activeColorMode === 'plane') {
-                outerColor = pal.rings[pIdx % pal.rings.length];
-                innerColor = pal.rings[(pIdx + 2) % pal.rings.length];
-                coreColor = '#1c1917';
-              } else {
-                const gray = 22 + pIdx * 22;
-                outerColor = (combined > 0.55) ? '#ed5c2b' : `rgb(${gray}, ${gray}, ${gray})`;
-                innerColor = (combined > 0.35) ? '#f28bb2' : '#eab308';
-                coreColor = '#fdfaf2';
-              }
+              // Concentric Thermal Rings colors driven by sea surface temperature
+              const outerColor = pal.rings[(gx + pIdx) % pal.rings.length];
+              const innerColor = pal.rings[(gy + pIdx + 2) % pal.rings.length];
+              const coreColor = '#fdfaf2';
 
               // Alternate between solid overlapping beads and open target rings
               const isTargetRing = (pIdx <= 1) && ((gx + gy) % 2 === 1);
@@ -1119,9 +1013,9 @@
                 ctx.fillStyle = outerColor;
                 ctx.fill();
 
-                // Concentric inner thermal ring whose relative size expands with water temperature
-                if (outerRadius > 7.0) {
-                  const innerRatio = Math.min(0.68, 0.26 + (b.wtmp / 32) * 0.38);
+                // Concentric inner thermal ring when circle is large enough
+                if (outerRadius > 7.5) {
+                  const innerRatio = Math.min(0.65, 0.30 + (b.wtmp / 32) * 0.32);
                   ctx.beginPath();
                   ctx.arc(px, py, outerRadius * innerRatio, 0, Math.PI * 2);
                   ctx.fillStyle = innerColor;
@@ -1145,13 +1039,10 @@
       requestAnimationFrame(render);
     }
 
-    renderColorModeButtons();
     renderSpine();
     renderPlaneButtons();
     updateHUD();
-    updateAngleReadout();
     render();
-    // Refresh local clocks every 30s
     setInterval(() => {
       renderSpine();
       updateHUD();
