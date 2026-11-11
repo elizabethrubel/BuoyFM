@@ -2,11 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>BUOY FM // Isometric Parameter Matrix</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
       margin: 0;
       padding: 0;
@@ -23,231 +23,144 @@
       background-image: radial-gradient(rgba(28, 25, 23, 0.048) 1px, transparent 0);
       background-size: 16px 16px;
     }
-    .hud-panel {
-      background: rgba(240, 235, 225, 0.90);
-      backdrop-filter: blur(12px);
+    .hud-pill {
+      background: rgba(240, 235, 225, 0.88);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
       border: 1px solid rgba(28, 25, 23, 0.16);
     }
     input[type="range"] {
       accent-color: #1c1917;
     }
-    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(28, 25, 23, 0.25); border-radius: 99px; }
   </style>
 </head>
 <body class="paper-surface select-none relative w-screen h-screen overflow-hidden">
 
-  <!-- FULL-SCREEN INTERACTIVE ISOMETRIC CANVAS (Completely unobstructed in the center & sides) -->
-  <canvas id="isoCanvas" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+  <!-- FULL-SCREEN INTERACTIVE ISOMETRIC CANVAS -->
+  <canvas id="isoCanvas" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing touch-none"></canvas>
 
-  <!-- CONSOLIDATED TOP INSTRUMENT BAR -->
-  <header class="absolute top-3 left-3 right-3 z-30 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+  <!-- ULTRA-MINIMAL TOP BAR: Small Buoy Picker (Left) + Minimal Audio/Info Icons (Right) -->
+  <header class="absolute top-3 left-3 right-3 z-30 flex items-center justify-between gap-2 pointer-events-none">
 
-    <!-- LEFT GROUP: Station Selector Trigger + Inline Live Telemetry Strip -->
-    <div class="hud-panel rounded-lg px-2.5 py-1.5 shadow-sm pointer-events-auto flex flex-wrap items-center gap-3">
-      <!-- Bitmap Digit + Mustard Station Selector Pill -->
-      <div class="flex items-center gap-2">
-        <canvas id="bitmapDigit" width="28" height="28" class="w-7 h-7 shrink-0"></canvas>
-        <div class="relative">
-          <button id="stationMenuBtn" class="px-2.5 py-1.5 rounded flex items-center gap-2.5 text-left transition cursor-pointer shadow-sm" style="background: rgba(155, 137, 52, 0.96); color: #fdfaf2;">
-            <div>
-              <div class="flex items-center gap-1.5">
-                <span id="activeStationDot" class="w-2 h-2 rounded-full border border-white/80"></span>
-                <span id="activeStationName" class="text-xs font-bold tracking-wide uppercase">Gulf of Alaska</span>
-                <span class="text-[10px] opacity-80" id="activeStationId">#46001</span>
-              </div>
-              <div class="text-[10px] opacity-90 flex items-center gap-1.5 mt-0.5">
-                <span id="activeStationClock">☾ 10:00 PM</span>
-                <span>•</span>
-                <span id="activeStationCoords">56.3°N, 148.0°W</span>
-              </div>
-            </div>
-            <span id="stationChevron" class="text-xs opacity-85 pl-1">▾</span>
-          </button>
+    <!-- SMALL BUOY PICKER PILL -->
+    <div class="relative pointer-events-auto">
+      <button id="stationMenuBtn" class="px-3 py-1.5 rounded-full flex items-center gap-2 text-left transition cursor-pointer shadow-sm border border-black/15" style="background: rgba(155, 137, 52, 0.95); color: #fdfaf2;">
+        <span id="activeStationDot" class="w-2 h-2 rounded-full border border-white/80 shrink-0"></span>
+        <span id="activeStationName" class="text-xs font-bold tracking-wide truncate max-w-[135px] sm:max-w-none">Gulf of Alaska</span>
+        <span id="activeStationClock" class="text-[11px] opacity-90 whitespace-nowrap">☾ 10:00 PM</span>
+        <span class="text-[10px] opacity-80">▾</span>
+      </button>
 
-          <!-- Popover Flat Station Directory (Mustard L'ANNUEL OCÉANIQUE) -->
-          <div id="stationDropdown" class="hidden absolute left-0 top-full mt-2 w-80 rounded-lg p-3 shadow-xl z-40 border border-stone-900/20" style="background: rgba(155, 137, 52, 0.98); color: #fdfaf2; backdrop-filter: blur(12px);">
-            <div class="flex items-center justify-between border-b border-white/25 pb-2 mb-2">
-              <div>
-                <div class="tracking-[0.16em] text-[11px] font-bold uppercase">L’ANNUEL OCÉANIQUE</div>
-                <div class="text-[10px] opacity-85">SELECT BUOY • LOCAL SOLAR TIME</div>
-              </div>
-              <span id="syncBadge" class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/25">NOAA LIVE</span>
-            </div>
-            <div id="spineContainer" class="space-y-1 max-h-72 overflow-y-auto"></div>
-          </div>
+      <!-- Popover Flat Station List -->
+      <div id="stationDropdown" class="hidden absolute left-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-24px)] rounded-xl p-2.5 shadow-xl z-40 border border-stone-900/20" style="background: rgba(155, 137, 52, 0.98); color: #fdfaf2; backdrop-filter: blur(12px);">
+        <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-1.5 px-1">
+          <span class="tracking-[0.14em] text-[10px] font-bold uppercase">L’ANNUEL OCÉANIQUE</span>
+          <span id="syncBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/25">NOAA LIVE</span>
         </div>
-      </div>
-
-      <!-- Divider -->
-      <div class="h-7 w-px bg-stone-900/15 hidden sm:block"></div>
-
-      <!-- Compact Inline Telemetry Readouts -->
-      <div class="flex items-center gap-3.5 text-xs pr-1">
-        <div title="Significant Wave Height (Plane 100)">
-          <div class="text-[10px] opacity-60 uppercase leading-none">Wave</div>
-          <div id="metricWvht" class="font-bold mt-0.5">4.00 m</div>
-        </div>
-        <div title="Dominant Swell Period / Average Chop Period (Planes 125 & 75)">
-          <div class="text-[10px] opacity-60 uppercase leading-none">Swell / Chop</div>
-          <div id="metricPeriod" class="font-bold mt-0.5">14.0s / 8.5s</div>
-        </div>
-        <div title="Wind Speed & Gusts (Plane 50)">
-          <div class="text-[10px] opacity-60 uppercase leading-none">Wind / Gust</div>
-          <div id="metricWind" class="font-bold mt-0.5">8.0 / 12.0 m/s</div>
-        </div>
-        <div title="Sea Surface Temperature (Plane 150)">
-          <div class="text-[10px] opacity-60 uppercase leading-none">Water Temp</div>
-          <div id="metricTemp" class="font-bold mt-0.5">8.5 °C</div>
-        </div>
-
-        <!-- Compact Thermal Palette Swatches + Spectrum Mini-Bar -->
-        <div class="hidden md:flex flex-col justify-center pl-2 border-l border-stone-900/15 min-w-[130px]">
-          <div class="flex items-center justify-between text-[10px] mb-1">
-            <span id="paletteName" class="font-bold truncate max-w-[125px]">Sub-Arctic Glacial</span>
-          </div>
-          <div id="swatchRow" class="flex items-center gap-0.5 h-2.5 w-full"></div>
-        </div>
+        <div id="spineContainer" class="space-y-1 max-h-64 overflow-y-auto"></div>
       </div>
     </div>
 
-    <!-- RIGHT GROUP: Audio Receiver + Info Drawers -->
-    <div class="hud-panel rounded-lg px-2.5 py-1.5 shadow-sm pointer-events-auto flex items-center gap-1.5">
-      <button id="audioToggleBtn" class="px-3 py-1.5 rounded bg-stone-900 text-stone-50 text-xs font-bold hover:bg-stone-800 transition cursor-pointer flex items-center gap-1.5">
-        <span id="audioIcon">🔇</span>
-        <span id="audioLabel">Start Audio</span>
+    <!-- MINIMAL ICON BUTTONS: Audio Toggle + Info Sheet Trigger -->
+    <div class="flex items-center gap-1.5 pointer-events-auto">
+      <button id="audioToggleBtn" class="h-8 px-3 rounded-full bg-stone-900 text-stone-50 text-xs font-bold hover:bg-stone-800 transition cursor-pointer flex items-center gap-1.5 shadow-sm" title="Toggle Ambient Ocean Synth">
+        <span id="audioIcon" class="text-xs">🔇</span>
+        <span id="audioLabel" class="text-[11px]">Audio</span>
       </button>
-      <button id="guideToggleBtn" class="px-2.5 py-1.5 rounded border border-stone-900/25 bg-amber-100/80 hover:bg-amber-200/90 text-stone-900 text-xs font-bold transition cursor-pointer">
-        ? Data Guide
-      </button>
-      <button id="rawLogBtn" class="px-2.5 py-1.5 rounded border border-stone-900/25 bg-white/60 hover:bg-white text-xs font-bold transition cursor-pointer">
-        { } NOAA .txt
+      <button id="infoToggleBtn" class="w-8 h-8 rounded-full hud-pill text-stone-900 text-xs font-bold hover:bg-white transition cursor-pointer flex items-center justify-center shadow-sm" title="Live Telemetry, Guide & Spacing">
+        ?
       </button>
     </div>
 
   </header>
 
-  <!-- FLOATING POPOVER DRAWERS (Top-Right, only visible when toggled) -->
-  <div class="absolute top-16 right-3 z-30 flex flex-col items-end pointer-events-none">
-    <!-- Collapsible "How Telemetry Maps to Visuals & Sound" Guide Drawer -->
-    <div id="guideDrawer" class="hidden pointer-events-auto hud-panel rounded-lg p-4 shadow-xl w-96 max-h-[75vh] overflow-y-auto bg-stone-50/95 text-stone-900 border border-stone-900/25">
-      <div class="flex items-center justify-between pb-2 border-b border-stone-900/15">
+  <!-- UNOBTRUSIVE POPOVER SHEET (Telemetry, Thermal Spectrum, Plane Guide, Spacing & Raw NOAA) -->
+  <div id="infoDrawer" class="hidden absolute top-14 right-3 left-3 sm:left-auto z-30 sm:w-88 max-h-[76vh] overflow-y-auto hud-pill rounded-2xl p-4 shadow-xl pointer-events-auto">
+    <div class="flex items-center justify-between pb-2 border-b border-stone-900/15">
+      <div class="flex items-center gap-2">
+        <canvas id="bitmapDigit" width="24" height="24" class="w-6 h-6 shrink-0"></canvas>
         <div>
-          <h2 class="text-xs font-bold uppercase tracking-wider">Telemetry → Visual & Audio Architecture</h2>
-          <p class="text-[11px] opacity-70">How live NOAA buoy readings drive the 5 isometric planes</p>
-        </div>
-        <button id="closeGuideBtn" class="px-2 py-0.5 rounded hover:bg-stone-200 text-sm font-bold cursor-pointer">✕</button>
-      </div>
-
-      <!-- Continuous 0°C -> 32°C Ocean Temperature Spectrum Indicator inside Guide -->
-      <div class="my-3 p-2.5 rounded bg-stone-200/50 border border-stone-900/10">
-        <div class="flex items-center justify-between text-[11px] mb-1">
-          <span class="font-bold uppercase">Thermal Ring Spectrum (WTMP)</span>
-          <span id="guideTempBadge" class="font-bold">8.5°C</span>
-        </div>
-        <div class="relative pt-1">
-          <div class="h-2 w-full rounded-full" style="background: linear-gradient(90deg, #0b2545 0%, #1d5b9e 22%, #1b7a75 42%, #28664b 56%, #eab308 72%, #ed5c2b 88%, #8f2d1e 100%);"></div>
-          <div id="tempMarker" class="absolute top-0.5 w-3 h-3 rounded-full bg-white border-2 border-stone-900 shadow transition-all duration-300" style="left: 26%;"></div>
-          <div class="flex justify-between text-[10px] opacity-70 mt-1">
-            <span>0°C Polar</span>
-            <span>15°C Temperate</span>
-            <span>32°C Equatorial</span>
-          </div>
+          <div id="drawerStationTitle" class="text-xs font-bold uppercase">STATION #46001 • Gulf of Alaska</div>
+          <div id="drawerStationSub" class="text-[10px] opacity-70">56.3°N, 148.0°W • 968.2 hPa</div>
         </div>
       </div>
+      <button id="closeInfoBtn" class="w-6 h-6 rounded-full hover:bg-stone-900/10 text-xs font-bold cursor-pointer">✕</button>
+    </div>
 
-      <div class="space-y-2 my-2 text-xs">
-        <div class="p-2.5 rounded bg-stone-200/60 border border-stone-900/10">
-          <div class="font-bold flex justify-between">
-            <span>PLANE 50 // WIND & GUST (WSPD, GST, WDIR)</span>
-            <span class="text-emerald-800">♪ Air Breeze</span>
-          </div>
-          <p class="text-[11px] opacity-85 mt-1 leading-relaxed">
-            <strong>Visual:</strong> High-frequency surface ripples traveling along Wind Direction (<code class="font-bold">WDIR</code>).<br/>
-            <strong>Audio Stem:</strong> Soft lowpass-filtered coastal breeze that gently swells with gusts (<code class="font-bold">GST</code>).
-          </p>
-        </div>
-
-        <div class="p-2.5 rounded bg-stone-200/60 border border-stone-900/10">
-          <div class="font-bold flex justify-between">
-            <span>PLANE 75 // SURFACE CHOP (APD)</span>
-            <span class="text-sky-800">♪ Harmonic Shimmer</span>
-          </div>
-          <p class="text-[11px] opacity-85 mt-1 leading-relaxed">
-            <strong>Visual:</strong> Average Wave Period (<code class="font-bold">APD</code>) controls the pulsing speed of the center pinhole dots and target rings.<br/>
-            <strong>Audio Stem:</strong> Warm, ambient octave-fifth harmonic pad that gently breathes at the surface ripple tempo.
-          </p>
-        </div>
-
-        <div class="p-2.5 rounded bg-stone-200/60 border border-stone-900/10">
-          <div class="font-bold flex justify-between">
-            <span>PLANE 100 // SWELL CREST (WVHT, MWD)</span>
-            <span class="text-amber-800">♪ Surf Wash</span>
-          </div>
-          <p class="text-[11px] opacity-85 mt-1 leading-relaxed">
-            <strong>Visual:</strong> Significant Wave Height (<code class="font-bold">WVHT</code>) dilates the outer ring radius along Mean Wave Direction (<code class="font-bold">MWD</code>).<br/>
-            <strong>Audio Stem:</strong> Deep brown-noise ocean surf wash whose rolling volume scales with wave height in meters.
-          </p>
-        </div>
-
-        <div class="p-2.5 rounded bg-stone-200/60 border border-stone-900/10">
-          <div class="font-bold flex justify-between">
-            <span>PLANE 125 // WAVE PERIOD (DPD)</span>
-            <span class="text-purple-900">♪ Deep Tide</span>
-          </div>
-          <p class="text-[11px] opacity-85 mt-1 leading-relaxed">
-            <strong>Visual:</strong> Dominant Wave Period (<code class="font-bold">DPD</code>, 3s–14s) sets the wavelength and breathing tempo across all planes.<br/>
-            <strong>Audio Stem:</strong> Sub-bass harmonic Fifth oscillator rising and falling slowly at the exact swell period (<code class="font-bold">1 / DPD Hz</code>).
-          </p>
-        </div>
-
-        <div class="p-2.5 rounded bg-stone-200/60 border border-stone-900/10">
-          <div class="font-bold flex justify-between">
-            <span>PLANE 150 // THERMAL BASE (WTMP, PRES)</span>
-            <span class="text-rose-800">♪ Warm Drone</span>
-          </div>
-          <p class="text-[11px] opacity-85 mt-1 leading-relaxed">
-            <strong>Visual:</strong> Sea Surface Temp (<code class="font-bold">WTMP</code>) interpolates the 5-color concentric palette from Polar Cobalt (8°C) to Equatorial Vermilion (30°C) and expands inner thermal cores.<br/>
-            <strong>Audio Stem:</strong> Warm foundational sine drone whose pitch and harmonic warmth rise with water temperature.
-          </p>
-        </div>
+    <!-- Live Telemetry 2x2 Compact Grid -->
+    <div class="grid grid-cols-2 gap-1.5 my-2.5 text-xs">
+      <div class="p-2 rounded-lg bg-white/60 border border-stone-900/10">
+        <div class="flex justify-between text-[10px] opacity-65"><span>WAVE (WVHT)</span><span>P100</span></div>
+        <div id="metricWvht" class="font-bold text-sm mt-0.5">4.00 m</div>
       </div>
-
-      <div class="text-[11px] opacity-75 pt-2 border-t border-stone-900/15">
-        <strong>Interaction:</strong> Drag anywhere on the canvas to tilt the isometric angle, or toggle planes <code class="font-bold">50–150</code> in the bottom dock to mix visual and ambient sound layers.
+      <div class="p-2 rounded-lg bg-white/60 border border-stone-900/10">
+        <div class="flex justify-between text-[10px] opacity-65"><span>SWELL / CHOP</span><span>P125·75</span></div>
+        <div id="metricPeriod" class="font-bold text-sm mt-0.5">14.0s / 8.5s</div>
+      </div>
+      <div class="p-2 rounded-lg bg-white/60 border border-stone-900/10">
+        <div class="flex justify-between text-[10px] opacity-65"><span>WIND / GUST</span><span>P50</span></div>
+        <div id="metricWind" class="font-bold text-sm mt-0.5">8.0 / 12.0 m/s</div>
+      </div>
+      <div class="p-2 rounded-lg bg-white/60 border border-stone-900/10">
+        <div class="flex justify-between text-[10px] opacity-65"><span>WATER TEMP</span><span>P150</span></div>
+        <div id="metricTemp" class="font-bold text-sm mt-0.5">8.5 °C</div>
       </div>
     </div>
 
-    <!-- Collapsible Raw NOAA NDBC Packet Drawer -->
-    <div id="rawDrawer" class="hidden pointer-events-auto hud-panel rounded-lg p-3.5 shadow-xl w-96 bg-stone-950/95 text-stone-100 border border-stone-700">
-      <div class="flex items-center justify-between pb-1.5 border-b border-stone-800 text-amber-400 text-xs">
-        <span id="rawUrl">ndbc.noaa.gov/data/realtime2/46001.txt</span>
-        <button id="closeRawBtn" class="text-stone-400 hover:text-white cursor-pointer">✕</button>
+    <!-- Thermal Palette Swatches + 0°C-32°C Bar -->
+    <div class="p-2.5 rounded-lg bg-white/50 border border-stone-900/10 mb-2.5">
+      <div class="flex items-center justify-between text-[11px] mb-1">
+        <span class="opacity-75">Thermal Palette</span>
+        <span id="paletteName" class="font-bold">Sub-Arctic Glacial</span>
       </div>
-      <div class="text-[11px] text-stone-400 mt-1.5" id="stationTimeRight">Captured: 08:30 UTC</div>
-      <p id="rawNotes" class="text-xs text-stone-300 my-2 leading-relaxed"></p>
-      <pre id="rawPre" class="text-xs leading-tight text-emerald-300 bg-stone-900 p-2.5 rounded border border-stone-800 overflow-x-auto whitespace-pre"></pre>
+      <div id="swatchRow" class="flex items-center gap-1 h-2.5 mb-2"></div>
+      <div class="relative pt-1">
+        <div class="h-1.5 w-full rounded-full" style="background: linear-gradient(90deg, #0b2545 0%, #1d5b9e 22%, #1b7a75 42%, #28664b 56%, #eab308 72%, #ed5c2b 88%, #8f2d1e 100%);"></div>
+        <div id="tempMarker" class="absolute top-0 w-2.5 h-2.5 rounded-full bg-white border-2 border-stone-900 shadow" style="left: 26%;"></div>
+        <div class="flex justify-between text-[9px] opacity-65 mt-1">
+          <span>0°C Polar</span>
+          <span>15°C Temperate</span>
+          <span>32°C Equatorial</span>
+        </div>
+      </div>
     </div>
+
+    <!-- Plane Spacing Slider -->
+    <div class="p-2.5 rounded-lg bg-white/50 border border-stone-900/10 mb-2.5">
+      <div class="flex items-center justify-between text-[11px] mb-1">
+        <span class="opacity-75">Isometric Plane Spacing</span>
+        <span id="explodeVal" class="font-bold">100%</span>
+      </div>
+      <input id="explodeSlider" type="range" min="45" max="155" value="100" class="w-full h-1.5 cursor-pointer" />
+    </div>
+
+    <!-- Concise Plane & Audio Stem Key -->
+    <div class="space-y-1 text-[11px] mb-2.5">
+      <div class="font-bold uppercase text-[10px] opacity-65 mb-1">Planes & Ambient Sound Stems</div>
+      <div class="flex justify-between py-1 border-b border-stone-900/10"><span><strong>50</strong> Wind & Gust (WSPD)</span><span class="opacity-75">♪ Coastal Breeze</span></div>
+      <div class="flex justify-between py-1 border-b border-stone-900/10"><span><strong>75</strong> Surface Chop (APD)</span><span class="opacity-75">♪ Harmonic Shimmer</span></div>
+      <div class="flex justify-between py-1 border-b border-stone-900/10"><span><strong>100</strong> Swell Crest (WVHT)</span><span class="opacity-75">♪ Deep Surf Wash</span></div>
+      <div class="flex justify-between py-1 border-b border-stone-900/10"><span><strong>125</strong> Wave Period (DPD)</span><span class="opacity-75">♪ Sub-Fifth Tide</span></div>
+      <div class="flex justify-between py-1"><span><strong>150</strong> Thermal Base (WTMP)</span><span class="opacity-75">♪ Warm Sea Drone</span></div>
+    </div>
+
+    <!-- Collapsible Raw NOAA Packet inside Drawer -->
+    <details class="text-[11px] bg-stone-900 text-stone-100 rounded-lg p-2.5">
+      <summary class="cursor-pointer font-bold text-amber-300 flex items-center justify-between">
+        <span>{ } Raw NOAA NDBC Packet</span>
+        <span id="stationTimeRight" class="text-[10px] text-stone-400 font-normal">08:30 UTC</span>
+      </summary>
+      <p id="rawNotes" class="text-[10px] text-stone-300 my-1.5 leading-relaxed"></p>
+      <pre id="rawPre" class="text-[10px] leading-tight text-emerald-300 bg-stone-950 p-2 rounded overflow-x-auto whitespace-pre"></pre>
+    </details>
   </div>
 
-  <!-- CONSOLIDATED BOTTOM DOCK: Centered Multi-Plane & Ambient Stem Mixer + Explode Slider -->
-  <footer class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 max-w-[96vw] pointer-events-none">
-    <div class="hud-panel rounded-xl px-3 py-2 pointer-events-auto shadow-sm flex flex-wrap items-center justify-center gap-2.5">
-      <div class="flex items-center gap-1.5 pr-1 border-r border-stone-900/15">
-        <span class="text-[11px] font-bold tracking-wider uppercase">Planes</span>
-        <span id="activeStemCount" class="text-[10px] px-1.5 py-0.5 rounded bg-stone-900/10 font-bold">5/5</span>
-      </div>
-
-      <div id="planeSliceBtns" class="flex flex-wrap items-center gap-1"></div>
-
-      <!-- Compact Explode Slider integrated directly into dock -->
-      <div class="flex items-center gap-2 pl-2 border-l border-stone-900/15 text-xs" title="Adjust spacing between the 5 isometric planes">
-        <span class="text-[10px] uppercase opacity-70">Spacing</span>
-        <input id="explodeSlider" type="range" min="45" max="155" value="100" class="w-20 h-1.5 cursor-pointer" />
-        <span id="explodeVal" class="text-[11px] font-bold w-8">100%</span>
-      </div>
-    </div>
+  <!-- ULTRA-COMPACT BOTTOM PILL: Multi-Select Plane Numbers Only (50 · 75 · 100 · 125 · 150) -->
+  <footer class="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+    <div id="planeSliceBtns" class="hud-pill rounded-full px-2 py-1 pointer-events-auto shadow-sm flex items-center gap-1"></div>
   </footer>
 
   <script>
@@ -454,15 +367,14 @@
     }
 
     const planeDefs = [
-      { code: '50',  name: 'WIND / GUST',  stem: 'Air Breeze',       desc: 'WSPD & GST turbulence' },
-      { code: '75',  name: 'SURFACE CHOP', stem: 'Harmonic Shimmer', desc: 'APD short ripple rings' },
-      { code: '100', name: 'SWELL CREST',  stem: 'Surf Wash',        desc: 'WVHT primary wave height' },
-      { code: '125', name: 'WAVE PERIOD',  stem: 'Deep Tide',        desc: 'DPD deep harmonic cycle' },
-      { code: '150', name: 'THERMAL BASE', stem: 'Warm Drone',       desc: 'WTMP concentric heat mass' }
+      { code: '50',  name: 'WIND / GUST',  stem: 'Air Breeze' },
+      { code: '75',  name: 'SURFACE CHOP', stem: 'Harmonic Shimmer' },
+      { code: '100', name: 'SWELL CREST',  stem: 'Surf Wash' },
+      { code: '125', name: 'WAVE PERIOD',  stem: 'Deep Tide' },
+      { code: '150', name: 'THERMAL BASE', stem: 'Warm Drone' }
     ];
 
     let activeBuoyIdx = 0;
-    // Multi-select set of active plane indices (0..4)
     let selectedPlanes = new Set([0, 1, 2, 3, 4]);
     let explodeFactor = 1.0;
 
@@ -487,13 +399,15 @@
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
 
-    // Drag to tilt isometric stack (also closes dropdowns when clicking canvas)
     const stationDropdown = document.getElementById('stationDropdown');
+    const infoDrawer = document.getElementById('infoDrawer');
+
     canvas.addEventListener('pointerdown', (e) => {
       isDragging = true;
       dragStartX = e.clientX - camYaw * 140;
       dragStartY = e.clientY - camPitch * 140;
       stationDropdown.classList.add('hidden');
+      infoDrawer.classList.add('hidden');
     });
     window.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
@@ -504,7 +418,18 @@
 
     document.getElementById('stationMenuBtn').addEventListener('click', (e) => {
       e.stopPropagation();
+      infoDrawer.classList.add('hidden');
       stationDropdown.classList.toggle('hidden');
+    });
+
+    document.getElementById('infoToggleBtn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      stationDropdown.classList.add('hidden');
+      infoDrawer.classList.toggle('hidden');
+    });
+
+    document.getElementById('closeInfoBtn').addEventListener('click', () => {
+      infoDrawer.classList.add('hidden');
     });
 
     document.getElementById('explodeSlider').addEventListener('input', (e) => {
@@ -512,7 +437,7 @@
       document.getElementById('explodeVal').textContent = `${e.target.value}%`;
     });
 
-    // Draw Compact 28x28 Bitmap Dot-Matrix Digit (1..7)
+    // Draw Compact 24x24 Bitmap Dot-Matrix Digit (1..7)
     const digitBitmaps = {
       1: ["00100","01100","00100","00100","00100","00100","01110"],
       2: ["01110","10001","00001","00110","01000","10000","11111"],
@@ -524,13 +449,13 @@
     };
 
     function drawBitmapNumber(n) {
-      bCtx.clearRect(0, 0, 28, 28);
+      bCtx.clearRect(0, 0, 24, 24);
       const grid = digitBitmaps[n] || digitBitmaps[2];
       for (let r = 0; r < 7; r++) {
         for (let c = 0; c < 5; c++) {
           if (grid[r][c] === '1') {
             bCtx.beginPath();
-            bCtx.arc(4.5 + c * 4.5, 3 + r * 3.6, 1.75, 0, Math.PI * 2);
+            bCtx.arc(4 + c * 4, 2.5 + r * 3.1, 1.5, 0, Math.PI * 2);
             bCtx.fillStyle = '#1c1917';
             bCtx.fill();
           }
@@ -538,7 +463,7 @@
       }
     }
 
-    // Flat, clean, high-legibility location directory inside popover
+    // Flat location directory inside popover
     function renderSpine() {
       const container = document.getElementById('spineContainer');
       container.innerHTML = '';
@@ -549,7 +474,7 @@
 
         const row = document.createElement('button');
         row.type = 'button';
-        row.className = `w-full text-left flex items-center justify-between gap-2 py-1.5 px-2.5 rounded transition cursor-pointer border ${
+        row.className = `w-full text-left flex items-center justify-between gap-2 py-1.5 px-2.5 rounded-lg transition cursor-pointer border ${
           isSel
             ? 'bg-stone-950/40 border-white/80 shadow-sm'
             : 'bg-black/10 border-transparent hover:bg-black/20'
@@ -586,17 +511,16 @@
       });
     }
 
-    // Multi-Select Plane & Audio Stem Toggle Bar
+    // Minimal Bottom Pill: ALL · 50 · 75 · 100 · 125 · 150
     function renderPlaneButtons() {
       const container = document.getElementById('planeSliceBtns');
       container.innerHTML = '';
 
       const allSelected = selectedPlanes.size === planeDefs.length;
-      document.getElementById('activeStemCount').textContent = `${selectedPlanes.size}/5`;
 
       const allBtn = document.createElement('button');
-      allBtn.className = `px-2 py-1 rounded text-[11px] font-bold transition cursor-pointer border ${
-        allSelected ? 'bg-stone-900 text-stone-50 border-stone-900' : 'bg-white/60 text-stone-800 border-stone-900/20 hover:bg-white'
+      allBtn.className = `px-2.5 py-1 rounded-full text-[11px] font-bold transition cursor-pointer ${
+        allSelected ? 'bg-stone-900 text-stone-50' : 'text-stone-700 hover:bg-stone-900/10'
       }`;
       allBtn.textContent = 'ALL';
       allBtn.onclick = () => {
@@ -608,17 +532,16 @@
       planeDefs.forEach((p, idx) => {
         const active = selectedPlanes.has(idx);
         const btn = document.createElement('button');
-        btn.className = `px-2 py-1 rounded text-left transition cursor-pointer border flex items-center gap-1.5 ${
+        btn.className = `px-2.5 py-1 rounded-full text-[11px] font-bold transition cursor-pointer flex items-center gap-1 ${
           active
-            ? 'bg-stone-900 text-stone-50 border-stone-900 shadow-sm'
-            : 'bg-white/45 text-stone-600 border-stone-900/15 hover:bg-white/80 opacity-75'
+            ? 'bg-stone-900 text-stone-50 shadow-xs'
+            : 'text-stone-500 hover:bg-stone-900/10 opacity-75'
         }`;
         btn.innerHTML = `
           <span class="w-1.5 h-1.5 rounded-full ${active ? 'bg-amber-400' : 'bg-stone-400'}"></span>
-          <span class="text-[11px] font-bold">${p.code}</span>
-          <span class="text-[10px] opacity-80 hidden sm:inline">${p.name}</span>
+          <span>${p.code}</span>
         `;
-        btn.title = `${p.code} // ${p.name} — Audio Stem: ${p.stem}`;
+        btn.title = `${p.code} // ${p.name} (${p.stem})`;
         btn.onclick = () => {
           if (selectedPlanes.has(idx)) {
             if (selectedPlanes.size > 1) selectedPlanes.delete(idx);
@@ -655,7 +578,7 @@
         renderSpine();
         if (activeBuoyIdx === idx) updateHUD(true);
       } catch (_) {
-        // Fallback to embedded NOAA snapshot when running locally without /api/buoy
+        // Fallback to embedded NOAA snapshot
       }
     }
 
@@ -666,14 +589,14 @@
 
       drawBitmapNumber(b.idx);
 
-      // Update Top-Left Mustard Pill
+      // Update Minimal Top-Left Picker Pill
       document.getElementById('activeStationDot').style.background = pal.rings[0];
       document.getElementById('activeStationName').textContent = b.short;
-      document.getElementById('activeStationId').textContent = `#${b.id}`;
-      document.getElementById('activeStationClock').textContent = `${localTime.full} (${localTime.utcLabel})`;
-      document.getElementById('activeStationCoords').textContent = `${b.lat}°N, ${Math.abs(b.lon)}°W`;
+      document.getElementById('activeStationClock').textContent = localTime.full;
 
-      // Update Compact Inline Telemetry Strip
+      // Update Info Drawer details
+      document.getElementById('drawerStationTitle').textContent = `#${b.id} • ${b.short}`;
+      document.getElementById('drawerStationSub').textContent = `${b.lat}°N, ${Math.abs(b.lon)}°W • ${b.pres} hPa • ${localTime.utcLabel}`;
       document.getElementById('metricWvht').textContent = `${b.wvht.toFixed(2)} m`;
       document.getElementById('metricPeriod').textContent = `${b.dpd.toFixed(1)}s / ${b.apd.toFixed(1)}s`;
       document.getElementById('metricWind').textContent = `${b.wspd.toFixed(1)} / ${b.gst.toFixed(1)} m/s`;
@@ -681,38 +604,20 @@
       document.getElementById('paletteName').textContent = pal.name;
 
       const swatchRow = document.getElementById('swatchRow');
-      swatchRow.innerHTML = pal.rings.map(c => `<div class="flex-1 h-full rounded-xs border border-black/20 transition-colors duration-300" style="background:${c}"></div>`).join('');
+      swatchRow.innerHTML = pal.rings.map(c => `<div class="flex-1 h-full rounded-xs border border-black/20" style="background:${c}"></div>`).join('');
 
-      // Update Guide & Raw drawers
-      document.getElementById('guideTempBadge').textContent = `${b.wtmp.toFixed(1)}°C • ${pal.name}`;
       const pct = Math.max(2, Math.min(96, (b.wtmp / 32) * 100));
-      document.getElementById('tempMarker').style.left = `calc(${pct}% - 6px)`;
+      document.getElementById('tempMarker').style.left = `calc(${pct}% - 5px)`;
 
-      document.getElementById('stationTimeRight').textContent = `Captured: ${b.timeUTC} • ${b.pres} hPa`;
-      document.getElementById('rawUrl').textContent = `ndbc.noaa.gov/data/realtime2/${b.id}.txt`;
+      document.getElementById('stationTimeRight').textContent = b.timeUTC;
       document.getElementById('rawNotes').textContent = b.notes;
       document.getElementById('rawPre').textContent = b.raw;
 
       if (!skipSync) syncLiveBuoy(activeBuoyIdx);
     }
 
-    // Drawers toggle
-    const rawDrawer = document.getElementById('rawDrawer');
-    const guideDrawer = document.getElementById('guideDrawer');
-    document.getElementById('rawLogBtn').onclick = () => {
-      guideDrawer.classList.add('hidden');
-      rawDrawer.classList.toggle('hidden');
-    };
-    document.getElementById('closeRawBtn').onclick = () => rawDrawer.classList.add('hidden');
-
-    document.getElementById('guideToggleBtn').onclick = () => {
-      rawDrawer.classList.add('hidden');
-      guideDrawer.classList.toggle('hidden');
-    };
-    document.getElementById('closeGuideBtn').onclick = () => guideDrawer.classList.add('hidden');
-
     // =========================================================================
-    // RELAXING 5-STEM AMBIENT WEB AUDIO SYNTHESIZER (No harsh pings!)
+    // RELAXING 5-STEM AMBIENT WEB AUDIO SYNTHESIZER
     // =========================================================================
     let audioCtx = null;
     let isPlaying = false;
@@ -722,7 +627,6 @@
       if (audioCtx) return;
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-      // Shared 3-second noise buffers (Soft Pink for Breeze Plane 50, Deep Brown for Surf Plane 100)
       const len = audioCtx.sampleRate * 3;
       const pinkBuf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
       const brownBuf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
@@ -739,7 +643,7 @@
         bOut[i] = lastBrown * 1.35;
       }
 
-      // STEM 0 (Plane 50 - WIND / GUST): Warm lowpass coastal breeze (no harsh hiss)
+      // STEM 0 (Plane 50 - WIND / GUST): Warm lowpass coastal breeze
       const windSrc = audioCtx.createBufferSource();
       windSrc.buffer = pinkBuf;
       windSrc.loop = true;
@@ -753,7 +657,7 @@
       windGain.connect(audioCtx.destination);
       windSrc.start();
 
-      // STEM 1 (Plane 75 - SURFACE CHOP): Gentle ambient harmonic Fifth shimmer pad (replaces chop ping)
+      // STEM 1 (Plane 75 - SURFACE CHOP): Gentle ambient harmonic Fifth shimmer pad
       const chopOsc = audioCtx.createOscillator();
       chopOsc.type = 'sine';
       chopOsc.frequency.value = 220;
@@ -811,7 +715,7 @@
       if (audioCtx.state === 'suspended') audioCtx.resume();
       isPlaying = !isPlaying;
       document.getElementById('audioIcon').textContent = isPlaying ? '🔊' : '🔇';
-      document.getElementById('audioLabel').textContent = isPlaying ? 'Mute Audio' : 'Start Audio';
+      document.getElementById('audioLabel').textContent = isPlaying ? 'Mute' : 'Audio';
       if (!isPlaying && stems) {
         const now = audioCtx.currentTime;
         stems.windGain.gain.setTargetAtTime(0.0001, now, 0.12);
@@ -823,7 +727,7 @@
     };
 
     // =========================================================================
-    // MAIN FULL-SCREEN ISOMETRIC + TEMPERATURE-DRIVEN CONCENTRIC RENDER LOOP
+    // MAIN FULL-SCREEN ISOMETRIC RENDER LOOP (Responsive for Mobile & Desktop)
     // =========================================================================
     let t = 0;
     function render() {
@@ -837,7 +741,6 @@
       const swellOmega = (14 / b.dpd) * 1.1;
       const chopOmega = (10 / b.apd) * 2.1;
 
-      // Update 5-Stem Ambient Web Audio Synthesizer
       if (isPlaying && audioCtx && stems) {
         const now = audioCtx.currentTime;
         const swellBreath = 0.5 + 0.5 * Math.sin(t * swellOmega);
@@ -845,7 +748,6 @@
         const gustWave = 0.5 + 0.5 * Math.sin(t * 0.9);
         const rootFreq = 92 + b.wtmp * 3.0;
 
-        // Plane 50 (idx 0): Soft coastal breeze
         if (selectedPlanes.has(0)) {
           const windFreq = 240 + b.wspd * 22 + (b.gst - b.wspd) * 35 * gustWave;
           const windVol = Math.min(0.14, 0.02 + (b.wspd / 18) * 0.09);
@@ -855,7 +757,6 @@
           stems.windGain.gain.setTargetAtTime(0.0001, now, 0.12);
         }
 
-        // Plane 75 (idx 1): Warm ambient harmonic shimmer (1.5x Fifth above thermal root, gently breathing)
         if (selectedPlanes.has(1)) {
           stems.chopOsc.frequency.setTargetAtTime(rootFreq * 1.5, now, 0.15);
           const shimmerVol = 0.006 + 0.018 * chopBreath;
@@ -864,7 +765,6 @@
           stems.chopGain.gain.setTargetAtTime(0.0001, now, 0.12);
         }
 
-        // Plane 100 (idx 2): Swell Crest brown-noise ocean surf wash
         if (selectedPlanes.has(2)) {
           const surfVol = Math.min(0.32, (0.05 + (b.wvht / 5.8) * 0.22) * (0.38 + 0.62 * swellBreath));
           const surfCutoff = 130 + b.wvht * 28 + swellBreath * 180;
@@ -874,7 +774,6 @@
           stems.surfGain.gain.setTargetAtTime(0.0001, now, 0.12);
         }
 
-        // Plane 125 (idx 3): Dominant Wave Period sub-harmonic tide pulse (0.75x sub-fourth)
         if (selectedPlanes.has(3)) {
           stems.periodOsc.frequency.setTargetAtTime(rootFreq * 0.75, now, 0.15);
           const pulseVol = 0.012 + 0.035 * Math.pow(swellBreath, 2);
@@ -883,7 +782,6 @@
           stems.periodGain.gain.setTargetAtTime(0.0001, now, 0.12);
         }
 
-        // Plane 150 (idx 4): Thermal Base continuous warm sine drone
         if (selectedPlanes.has(4)) {
           stems.thermalOsc.frequency.setTargetAtTime(rootFreq, now, 0.15);
           stems.thermalGain.gain.setTargetAtTime(0.038, now, 0.12);
@@ -892,17 +790,17 @@
         }
       }
 
-      // Responsive sizing for the 5 Isometric Planes with generous breathing room in the center
-      const planeSize = Math.min(W, H) * 0.46;
-      const baseSpacingX = Math.min(W * 0.088, 96) * explodeFactor * (1 + camYaw * 0.45);
-      const baseSpacingY = -14 * explodeFactor + camPitch * 45;
+      // Mobile-aware sizing so all 5 planes fit comfortably on portrait screens as well as desktop
+      const isPortrait = W < 640;
+      const planeSize = isPortrait ? Math.min(W * 0.54, H * 0.36) : Math.min(W, H) * 0.46;
+      const baseSpacingX = (isPortrait ? W * 0.085 : Math.min(W * 0.088, 96)) * explodeFactor * (1 + camYaw * 0.45);
+      const baseSpacingY = (isPortrait ? -18 : -14) * explodeFactor + camPitch * 45;
       const skewY = 0.30 + camPitch * 0.18;
 
       const totalStackW = baseSpacingX * 4 + planeSize;
       const startX = (W - totalStackW) * 0.50;
-      const startY = (H - planeSize - planeSize * skewY) * 0.50;
+      const startY = (H - planeSize - planeSize * skewY) * 0.52;
 
-      // Draw from Back Plane (150, index 4) to Front Plane (50, index 0)
       for (let pIdx = 4; pIdx >= 0; pIdx--) {
         const pDef = planeDefs[pIdx];
         const isActive = selectedPlanes.has(pIdx);
@@ -915,7 +813,6 @@
         ctx.globalAlpha = planeAlpha;
         ctx.transform(1, skewY, 0, 1, ox, oy);
 
-        // Translucent paper sheet fill + crisp architectural frame
         ctx.fillStyle = isActive ? 'rgba(245, 240, 232, 0.42)' : 'rgba(240, 235, 225, 0.15)';
         ctx.fillRect(0, 0, planeSize, planeSize);
 
@@ -923,20 +820,19 @@
         ctx.lineWidth = isActive ? 1.25 : 0.9;
         ctx.strokeRect(0, 0, planeSize, planeSize);
 
-        // Plane Number Label at bottom-left corner of each wireframe sheet (50, 75, 100, 125, 150)
         ctx.fillStyle = '#1c1917';
-        ctx.font = 'bold 13px monospace';
-        ctx.fillText(pDef.code, 4, planeSize + 16);
-        ctx.font = '11px monospace';
-        ctx.fillStyle = 'rgba(28, 25, 23, 0.65)';
-        ctx.fillText(pDef.name, 34, planeSize + 16);
+        ctx.font = isPortrait ? 'bold 10px monospace' : 'bold 13px monospace';
+        ctx.fillText(pDef.code, 2, planeSize + (isPortrait ? 12 : 16));
+        if (!isPortrait) {
+          ctx.font = '11px monospace';
+          ctx.fillStyle = 'rgba(28, 25, 23, 0.65)';
+          ctx.fillText(pDef.name, 34, planeSize + 16);
+        }
 
-        // 8x8 Dot Matrix inside each isometric sheet
         const gridN = 8;
         const pad = planeSize * 0.12;
         const step = (planeSize - pad * 2) / (gridN - 1);
 
-        // First pass: quiet cream reference circles
         for (let gx = 0; gx < gridN; gx++) {
           for (let gy = 0; gy < gridN; gy++) {
             const px = pad + gx * step;
@@ -948,7 +844,6 @@
           }
         }
 
-        // Second pass: Live Buoy Telemetry Concentric Dots & Overlapping Clusters
         const dirRad = (b.mwd * Math.PI) / 180;
         const windRad = (b.wdir * Math.PI) / 180;
 
@@ -957,7 +852,6 @@
             const nx = (gx / (gridN - 1)) * 2 - 1;
             const ny = (gy / (gridN - 1)) * 2 - 1;
 
-            // Wave propagation along real Mean Wave Direction (MWD) + Wind Chop along WDIR
             const waveProj = nx * Math.cos(dirRad) + ny * Math.sin(dirRad);
             const windProj = nx * Math.cos(windRad) + ny * Math.sin(windRad);
 
@@ -965,45 +859,39 @@
             const chopRipple = Math.cos(windProj * 4.2 + t * chopOmega - pIdx * 0.3) * (3.5 / b.apd);
             const combined = swellWave * 0.78 + chopRipple * 0.32;
 
-            // Threshold so waves form organic moving ridges/glyphs across the 5 planes
             const threshold = -0.15 - (b.wvht * 0.04);
             if (combined > threshold) {
               const px = pad + gx * step;
               const py = pad + gy * step;
 
-              // Progressive dilation from Plane 50 (crisp small dots) to Plane 150 (overlapping metaball clusters)
               const planeScale = 0.38 + pIdx * 0.34;
               const waveFactor = 0.55 + (b.wvht / 5.6) * 0.75;
-              const outerRadius = Math.max(2.5, step * 0.46 * (combined + 0.45) * planeScale * waveFactor);
+              const outerRadius = Math.max(2.0, step * 0.46 * (combined + 0.45) * planeScale * waveFactor);
 
-              // Concentric Thermal Rings colors driven by sea surface temperature
               const outerColor = pal.rings[(gx + pIdx) % pal.rings.length];
               const innerColor = pal.rings[(gy + pIdx + 2) % pal.rings.length];
               const coreColor = '#fdfaf2';
 
-              // Alternate between solid overlapping beads and open target rings
               const isTargetRing = (pIdx <= 1) && ((gx + gy) % 2 === 1);
 
               if (isTargetRing) {
                 ctx.beginPath();
                 ctx.arc(px, py, outerRadius * 0.85, 0, Math.PI * 2);
                 ctx.strokeStyle = outerColor;
-                ctx.lineWidth = 2.8;
+                ctx.lineWidth = isPortrait ? 2.0 : 2.8;
                 ctx.stroke();
 
                 ctx.beginPath();
-                ctx.arc(px, py, Math.max(2.0, outerRadius * 0.32), 0, Math.PI * 2);
+                ctx.arc(px, py, Math.max(1.5, outerRadius * 0.32), 0, Math.PI * 2);
                 ctx.fillStyle = innerColor;
                 ctx.fill();
               } else {
-                // Outer lush circle
                 ctx.beginPath();
                 ctx.arc(px, py, outerRadius, 0, Math.PI * 2);
                 ctx.fillStyle = outerColor;
                 ctx.fill();
 
-                // Concentric inner thermal ring when circle is large enough
-                if (outerRadius > 7.5) {
+                if (outerRadius > (isPortrait ? 5.0 : 7.5)) {
                   const innerRatio = Math.min(0.65, 0.30 + (b.wtmp / 32) * 0.32);
                   ctx.beginPath();
                   ctx.arc(px, py, outerRadius * innerRatio, 0, Math.PI * 2);
@@ -1011,8 +899,7 @@
                   ctx.fill();
                 }
 
-                // Crisp center pinhole dot pulsing with APD wind chop
-                const pinRadius = Math.max(1.5, 1.8 + Math.sin(t * chopOmega + gx + gy) * 0.9);
+                const pinRadius = Math.max(1.2, (isPortrait ? 1.4 : 1.8) + Math.sin(t * chopOmega + gx + gy) * 0.7);
                 ctx.beginPath();
                 ctx.arc(px, py, pinRadius, 0, Math.PI * 2);
                 ctx.fillStyle = coreColor;
