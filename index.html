@@ -3,7 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>BUOY FM // Isometric Parameter Matrix</title>
+  <title>BuoyFM // Isometric Ocean Telemetry</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bitcount+Prop+Single:wght@400..700&display=swap" rel="stylesheet" />
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -16,6 +19,9 @@
       background-color: #f0ebe1;
       color: #1c1917;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .font-bitcount {
+      font-family: 'Bitcount Prop Single', ui-monospace, monospace;
     }
     /* Subtle archival paper grain overlay */
     .paper-surface {
@@ -42,30 +48,36 @@
   <!-- FULL-SCREEN INTERACTIVE ISOMETRIC CANVAS -->
   <canvas id="isoCanvas" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing touch-none"></canvas>
 
-  <!-- ULTRA-MINIMAL TOP BAR: Small Buoy Picker (Left) + Minimal Audio/Info Icons (Right) -->
+  <!-- ULTRA-MINIMAL TOP BAR: BuoyFM Title + Small Buoy Picker (Left) + Minimal Audio/Info Icons (Right) -->
   <header class="absolute top-3 left-3 right-3 z-30 flex items-center justify-between gap-2 pointer-events-none">
 
-    <!-- SMALL BUOY PICKER PILL -->
-    <div class="relative pointer-events-auto">
-      <button id="stationMenuBtn" class="px-3 py-1.5 rounded-full flex items-center gap-2 text-left transition cursor-pointer shadow-sm border border-black/15" style="background: rgba(155, 137, 52, 0.95); color: #fdfaf2;">
-        <span id="activeStationDot" class="w-2 h-2 rounded-full border border-white/80 shrink-0"></span>
-        <span id="activeStationName" class="text-xs font-bold tracking-wide truncate max-w-[135px] sm:max-w-none">Gulf of Alaska</span>
-        <span id="activeStationClock" class="text-[11px] opacity-90 whitespace-nowrap">☾ 10:00 PM</span>
-        <span class="text-[10px] opacity-80">▾</span>
-      </button>
+    <!-- BRAND TITLE ("BuoyFM" in Bitcount font) + SMALL BUOY PICKER PILL -->
+    <div class="flex items-center gap-2.5 pointer-events-auto min-w-0">
+      <h1 class="font-bitcount text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 leading-none shrink-0 pl-1">
+        BuoyFM
+      </h1>
 
-      <!-- Popover Flat Station List -->
-      <div id="stationDropdown" class="hidden absolute left-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-24px)] rounded-xl p-2.5 shadow-xl z-40 border border-stone-900/20" style="background: rgba(155, 137, 52, 0.98); color: #fdfaf2; backdrop-filter: blur(12px);">
-        <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-1.5 px-1">
-          <span class="tracking-[0.14em] text-[10px] font-bold uppercase">L’ANNUEL OCÉANIQUE</span>
-          <span id="syncBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/25">NOAA LIVE</span>
+      <div class="relative min-w-0">
+        <button id="stationMenuBtn" class="px-3 py-1.5 rounded-full flex items-center gap-2 text-left transition cursor-pointer shadow-sm border border-black/15" style="background: rgba(155, 137, 52, 0.95); color: #fdfaf2;">
+          <span id="activeStationDot" class="w-2 h-2 rounded-full border border-white/80 shrink-0"></span>
+          <span id="activeStationName" class="text-xs font-bold tracking-wide truncate max-w-[115px] sm:max-w-none">Gulf of Alaska</span>
+          <span id="activeStationClock" class="text-[11px] opacity-90 whitespace-nowrap hidden xs:inline sm:inline">☾ 10:00 PM</span>
+          <span class="text-[10px] opacity-80">▾</span>
+        </button>
+
+        <!-- Popover Flat Station List -->
+        <div id="stationDropdown" class="hidden absolute left-0 top-full mt-2 w-72 sm:w-80 max-w-[calc(100vw-24px)] rounded-xl p-2.5 shadow-xl z-40 border border-stone-900/20" style="background: rgba(155, 137, 52, 0.98); color: #fdfaf2; backdrop-filter: blur(12px);">
+          <div class="flex items-center justify-between border-b border-white/25 pb-1.5 mb-1.5 px-1">
+            <span class="tracking-[0.14em] text-[10px] font-bold uppercase">L’ANNUEL OCÉANIQUE</span>
+            <span id="syncBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-black/25">NOAA LIVE</span>
+          </div>
+          <div id="spineContainer" class="space-y-1 max-h-64 overflow-y-auto"></div>
         </div>
-        <div id="spineContainer" class="space-y-1 max-h-64 overflow-y-auto"></div>
       </div>
     </div>
 
     <!-- MINIMAL ICON BUTTONS: Audio Toggle + Info Sheet Trigger -->
-    <div class="flex items-center gap-1.5 pointer-events-auto">
+    <div class="flex items-center gap-1.5 pointer-events-auto shrink-0">
       <button id="audioToggleBtn" class="h-8 px-3 rounded-full bg-stone-900 text-stone-50 text-xs font-bold hover:bg-stone-800 transition cursor-pointer flex items-center gap-1.5 shadow-sm" title="Toggle Ambient Ocean Synth">
         <span id="audioIcon" class="text-xs">🔇</span>
         <span id="audioLabel" class="text-[11px]">Audio</span>
@@ -80,8 +92,8 @@
   <!-- UNOBTRUSIVE POPOVER SHEET (Telemetry, Thermal Spectrum, Plane Guide, Spacing & Raw NOAA) -->
   <div id="infoDrawer" class="hidden absolute top-14 right-3 left-3 sm:left-auto z-30 sm:w-88 max-h-[76vh] overflow-y-auto hud-pill rounded-2xl p-4 shadow-xl pointer-events-auto">
     <div class="flex items-center justify-between pb-2 border-b border-stone-900/15">
-      <div class="flex items-center gap-2">
-        <canvas id="bitmapDigit" width="24" height="24" class="w-6 h-6 shrink-0"></canvas>
+      <div class="flex items-center gap-2.5">
+        <span id="drawerStationIdx" class="font-bitcount text-2xl font-bold text-stone-900 leading-none">01</span>
         <div>
           <div id="drawerStationTitle" class="text-xs font-bold uppercase">STATION #46001 • Gulf of Alaska</div>
           <div id="drawerStationSub" class="text-[10px] opacity-70">56.3°N, 148.0°W • 968.2 hPa</div>
@@ -387,8 +399,6 @@
 
     const canvas = document.getElementById('isoCanvas');
     const ctx = canvas.getContext('2d');
-    const bitmapCanvas = document.getElementById('bitmapDigit');
-    const bCtx = bitmapCanvas.getContext('2d');
 
     function resizeCanvas() {
       const dpr = window.devicePixelRatio || 1;
@@ -436,32 +446,6 @@
       explodeFactor = parseFloat(e.target.value) / 100;
       document.getElementById('explodeVal').textContent = `${e.target.value}%`;
     });
-
-    // Draw Compact 24x24 Bitmap Dot-Matrix Digit (1..7)
-    const digitBitmaps = {
-      1: ["00100","01100","00100","00100","00100","00100","01110"],
-      2: ["01110","10001","00001","00110","01000","10000","11111"],
-      3: ["01110","10001","00001","00110","00001","10001","01110"],
-      4: ["00010","00110","01010","10010","11111","00010","00010"],
-      5: ["11111","10000","11110","00001","00001","10001","01110"],
-      6: ["01110","10000","11110","10001","10001","10001","01110"],
-      7: ["11111","00001","00010","00100","01000","01000","01000"]
-    };
-
-    function drawBitmapNumber(n) {
-      bCtx.clearRect(0, 0, 24, 24);
-      const grid = digitBitmaps[n] || digitBitmaps[2];
-      for (let r = 0; r < 7; r++) {
-        for (let c = 0; c < 5; c++) {
-          if (grid[r][c] === '1') {
-            bCtx.beginPath();
-            bCtx.arc(4 + c * 4, 2.5 + r * 3.1, 1.5, 0, Math.PI * 2);
-            bCtx.fillStyle = '#1c1917';
-            bCtx.fill();
-          }
-        }
-      }
-    }
 
     // Flat location directory inside popover
     function renderSpine() {
@@ -587,14 +571,13 @@
       const pal = getThermalPalette(b.wtmp);
       const localTime = getBuoyLocalTime(b.tzOffset);
 
-      drawBitmapNumber(b.idx);
-
       // Update Minimal Top-Left Picker Pill
       document.getElementById('activeStationDot').style.background = pal.rings[0];
       document.getElementById('activeStationName').textContent = b.short;
       document.getElementById('activeStationClock').textContent = localTime.full;
 
       // Update Info Drawer details
+      document.getElementById('drawerStationIdx').textContent = String(b.idx).padStart(2, '0');
       document.getElementById('drawerStationTitle').textContent = `#${b.id} • ${b.short}`;
       document.getElementById('drawerStationSub').textContent = `${b.lat}°N, ${Math.abs(b.lon)}°W • ${b.pres} hPa • ${localTime.utcLabel}`;
       document.getElementById('metricWvht').textContent = `${b.wvht.toFixed(2)} m`;
@@ -820,9 +803,10 @@
         ctx.lineWidth = isActive ? 1.25 : 0.9;
         ctx.strokeRect(0, 0, planeSize, planeSize);
 
+        // Plane Number rendered in Bitcount font
         ctx.fillStyle = '#1c1917';
-        ctx.font = isPortrait ? 'bold 10px monospace' : 'bold 13px monospace';
-        ctx.fillText(pDef.code, 2, planeSize + (isPortrait ? 12 : 16));
+        ctx.font = isPortrait ? 'bold 12px "Bitcount Prop Single", monospace' : 'bold 15px "Bitcount Prop Single", monospace';
+        ctx.fillText(pDef.code, 2, planeSize + (isPortrait ? 13 : 17));
         if (!isPortrait) {
           ctx.font = '11px monospace';
           ctx.fillStyle = 'rgba(28, 25, 23, 0.65)';
