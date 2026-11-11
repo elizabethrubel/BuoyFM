@@ -102,8 +102,9 @@
         <span id="themeIcon">☀</span>
       </button>
 
-      <button id="aboutToggleBtn" class="glass-panel w-8 h-8 rounded-full text-xs font-bold hover:opacity-90 transition cursor-pointer flex items-center justify-center shadow-sm" title="About BuoyFM & How Data Is Displayed">
-        ?
+      <button id="aboutToggleBtn" class="glass-panel h-8 px-2.5 rounded-full text-xs font-bold hover:opacity-90 transition cursor-pointer flex items-center gap-1 shadow-sm" title="Visual Key & Guide">
+        <span>?</span>
+        <span class="hidden sm:inline text-[11px]">Key</span>
       </button>
     </div>
   </header>
@@ -278,43 +279,189 @@
   </div>
 
   <!-- ======================================================================= -->
-  <!-- '?' ABOUT MODAL: Explains what BuoyFM is & how data maps to planes/sound -->
+  <!-- VISUAL KEY & GUIDE PANEL:                                               -->
+  <!-- Full-screen on mobile (< md), Right Side Panel on desktop (>= md)       -->
   <!-- ======================================================================= -->
-  <div id="aboutModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 pointer-events-auto">
-    <div class="glass-panel rounded-2xl max-w-lg w-full max-h-[82dvh] overflow-y-auto p-5 shadow-2xl">
-      <div class="flex items-start justify-between gap-4 pb-3 border-b" style="border-color: var(--panel-border);">
-        <div>
-          <h2 class="font-bitcount text-2xl leading-none">About BuoyFM</h2>
-          <p class="text-xs opacity-75 mt-1">Ambient Ocean Telemetry Visualizer & Generative Synthesizer</p>
+  <aside id="guidePanel" class="hidden fixed inset-0 z-50 md:inset-auto md:top-14 md:right-3 md:bottom-16 md:w-80 md:z-20 glass-panel md:rounded-2xl p-4 md:p-3.5 flex flex-col justify-between shadow-2xl pointer-events-auto overflow-hidden" style="padding-top: max(1rem, env(safe-area-inset-top, 1rem)); padding-bottom: max(1rem, env(safe-area-inset-bottom, 1rem));">
+    <!-- Sticky Header -->
+    <div class="flex items-center justify-between pb-2.5 mb-2.5 border-b shrink-0" style="border-color: var(--panel-border);">
+      <div>
+        <h2 class="text-xs font-bold uppercase tracking-wider">How to Read BuoyFM</h2>
+        <p class="text-[10px] opacity-70">Visual Key & Sound Guide</p>
+      </div>
+      <button id="closeGuideBtn" class="px-2.5 py-1 rounded-full glass-card text-xs font-bold hover:opacity-100 cursor-pointer flex items-center gap-1">
+        <span class="md:hidden">✕ Close</span>
+        <span class="hidden md:inline">Hide ▸</span>
+      </button>
+    </div>
+
+    <!-- Scrollable Visual Legend Content -->
+    <div class="space-y-2.5 overflow-y-auto pr-0.5 text-xs leading-relaxed flex-1">
+      <p class="text-[11px] opacity-90">
+        <strong>BuoyFM</strong> turns live ocean conditions from floating sea buoys into a 5-layer visual stack and a relaxing soundscape.
+      </p>
+
+      <!-- KEY 1: BUBBLE SIZE = WAVE HEIGHT -->
+      <div class="p-2.5 rounded-xl glass-card space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-[11px] uppercase tracking-wider">1. Bubble Size = Wave Height</span>
         </div>
-        <button id="closeAboutBtn" class="w-7 h-7 rounded-full glass-card text-xs font-bold flex items-center justify-center cursor-pointer">✕</button>
+
+        <!-- Visual Diagram: Small -> Medium -> Large Overlapping Bubbles -->
+        <div class="grid grid-cols-3 gap-1.5 pt-1 pb-0.5 text-center items-end">
+          <div class="flex flex-col items-center gap-1">
+            <div class="h-11 flex items-center justify-center">
+              <svg width="40" height="40" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="13" fill="currentColor" fill-opacity="0.08" />
+                <circle id="keyBubbleSmall" cx="20" cy="20" r="5" fill="#3a86a8" />
+                <circle cx="20" cy="20" r="1.8" fill="#fdfaf2" />
+              </svg>
+            </div>
+            <div class="text-[10px] font-bold">Calm</div>
+            <div class="text-[9px] opacity-65">Under 1m</div>
+          </div>
+
+          <div class="flex flex-col items-center gap-1">
+            <div class="h-11 flex items-center justify-center">
+              <svg width="40" height="40" viewBox="0 0 40 40">
+                <circle id="keyBubbleMedOuter" cx="20" cy="20" r="11" fill="#2b72c4" />
+                <circle id="keyBubbleMedInner" cx="20" cy="20" r="6" fill="#56b4d3" />
+                <circle cx="20" cy="20" r="2" fill="#fdfaf2" />
+              </svg>
+            </div>
+            <div class="text-[10px] font-bold">Moderate</div>
+            <div class="text-[9px] opacity-65">2m – 3m</div>
+          </div>
+
+          <div class="flex flex-col items-center gap-1">
+            <div class="h-11 flex items-center justify-center">
+              <svg width="48" height="40" viewBox="0 0 48 40">
+                <circle id="keyBubbleBig1" cx="19" cy="20" r="15" fill="#2b72c4" fill-opacity="0.92" />
+                <circle id="keyBubbleBig2" cx="31" cy="20" r="13" fill="#3a86a8" fill-opacity="0.88" />
+                <circle id="keyBubbleBigInner" cx="19" cy="20" r="8" fill="#7fc8c2" />
+                <circle cx="19" cy="20" r="2.2" fill="#fdfaf2" />
+                <circle cx="31" cy="20" r="2" fill="#fdfaf2" />
+              </svg>
+            </div>
+            <div class="text-[10px] font-bold">Big Swell</div>
+            <div class="text-[9px] opacity-65">4m – 6m+</div>
+          </div>
+        </div>
+
+        <p class="text-[10px] opacity-80 leading-snug">
+          Taller waves make each bubble expand. In rough seas, neighboring bubbles grow large enough to touch and overlap.
+        </p>
       </div>
 
-      <div class="space-y-3 my-3.5 text-xs leading-relaxed">
-        <p class="opacity-90">
-          <strong>BuoyFM</strong> turns live meteorological readings from offshore <strong>NOAA National Data Buoy Center (NDBC)</strong> stations into a 5-layer isometric sculpture and a relaxing ambient soundscape.
+      <!-- KEY 2: RING SHAPES & PULSE SPEED -->
+      <div class="p-2.5 rounded-xl glass-card space-y-2">
+        <div class="font-bold text-[11px] uppercase tracking-wider">2. Ring Shapes & Speed</div>
+
+        <div class="space-y-2">
+          <!-- Hollow Ring vs Solid Circle -->
+          <div class="flex items-center gap-2.5">
+            <svg width="32" height="32" viewBox="0 0 32 32" class="shrink-0">
+              <circle id="keyTargetRing" cx="16" cy="16" r="11" fill="none" stroke="#56b4d3" stroke-width="2.5" />
+              <circle id="keyTargetDot" cx="16" cy="16" r="4" fill="#d9ed92" />
+            </svg>
+            <div class="text-[10px] leading-snug">
+              <strong>Hollow Target Rings:</strong> Show quick, wind-blown surface chop on the top layers.
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5">
+            <svg width="32" height="32" viewBox="0 0 32 32" class="shrink-0">
+              <circle id="keySolidOuter" cx="16" cy="16" r="12" fill="#2b72c4" />
+              <circle id="keySolidInner" cx="16" cy="16" r="6.5" fill="#56b4d3" />
+              <circle cx="16" cy="16" r="2.2" fill="#fdfaf2" />
+            </svg>
+            <div class="text-[10px] leading-snug">
+              <strong>Layered Solid Bubbles:</strong> Show deep ocean swell rolling beneath the surface.
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2.5">
+            <svg width="32" height="32" viewBox="0 0 32 32" class="shrink-0">
+              <path d="M2 16 Q5 8, 8 16 T14 16 T20 16 Q24 6, 28 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+            </svg>
+            <div class="text-[10px] leading-snug">
+              <strong>Pulse Speed = Time Between Waves:</strong> Short choppy waves (3–5 sec apart) ripple fast; long ocean swells (12–14 sec apart) breathe slowly.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KEY 3: COLOR = WATER TEMPERATURE -->
+      <div class="p-2.5 rounded-xl glass-card space-y-1.5">
+        <div class="font-bold text-[11px] uppercase tracking-wider">3. Color = Water Temperature</div>
+        <div class="grid grid-cols-3 gap-1.5 text-[10px] pt-0.5">
+          <div class="p-1.5 rounded-lg text-center text-white" style="background: #0b2545; border: 1px solid rgba(255,255,255,0.15);">
+            <div class="font-bold">Cold</div>
+            <div class="text-[9px] opacity-80">Navy • ~6°C</div>
+          </div>
+          <div class="p-1.5 rounded-lg text-center text-white" style="background: #1b6b63; border: 1px solid rgba(255,255,255,0.15);">
+            <div class="font-bold">Mild</div>
+            <div class="text-[9px] opacity-80">Teal • ~18°C</div>
+          </div>
+          <div class="p-1.5 rounded-lg text-center text-white" style="background: #6e1423; border: 1px solid rgba(255,255,255,0.15);">
+            <div class="font-bold">Warm</div>
+            <div class="text-[9px] opacity-80">Burgundy • 28°C+</div>
+          </div>
+        </div>
+        <p class="text-[10px] opacity-80 leading-snug">
+          Both the bubble colors and the dark background shift automatically from icy navy in Alaska to warm burgundy in the Caribbean.
         </p>
+      </div>
 
-        <div class="p-3 rounded-xl glass-card space-y-1.5">
-          <div class="font-bold uppercase text-[11px] tracking-wider">How the 5 Isometric Layers Work</div>
-          <p class="text-[11px] opacity-85">
-            Each floating sheet represents a slice of the ocean from the air above down to the deep thermal mass. Click or tap any combination of layer pills to solo or mix both the visual planes and their corresponding sound stems:
-          </p>
-          <ul class="space-y-1.5 text-[11px] pt-1">
-            <li>• <strong>Wind / Gust:</strong> High-frequency surface ripples aligned with wind direction (<code class="font-bold">WDIR</code>), paired with a soft pink-noise coastal breeze.</li>
-            <li>• <strong>Surface Chop:</strong> Center pinhole dots and target rings pulsing at the average wave period (<code class="font-bold">APD</code>), paired with a warm fifth harmonic shimmer.</li>
-            <li>• <strong>Swell Crest:</strong> Outer ring size dilating with significant wave height (<code class="font-bold">WVHT</code>) along mean wave direction (<code class="font-bold">MWD</code>), driving deep brown-noise ocean surf wash.</li>
-            <li>• <strong>Wave Period:</strong> The dominant swell period (<code class="font-bold">DPD</code>, 3s–14s) sets the breathing tempo across all layers and a slow sub-harmonic tide pulse.</li>
-            <li>• <strong>Thermal Base:</strong> Sea surface temperature (<code class="font-bold">WTMP</code>) shifts both the concentric ring palette and the ambient background hue—from deep navy in sub-arctic waters to warm burgundy in the tropics—while tuning the foundational sine drone.</li>
-          </ul>
+      <!-- KEY 4: THE 5 STACKED LAYERS & SOUNDS -->
+      <div class="p-2.5 rounded-xl glass-card space-y-1.5">
+        <div class="font-bold text-[11px] uppercase tracking-wider">4. The 5 Layers & Sounds</div>
+        <p class="text-[10px] opacity-80 leading-snug">
+          Tap any layer button at the bottom to solo or mix what you see and hear (top to bottom):
+        </p>
+        <div class="space-y-1 text-[10px] pt-0.5">
+          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
+            <strong>1. Wind / Gust</strong>
+            <span class="opacity-80">Wind ripples • Soft breeze</span>
+          </div>
+          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
+            <strong>2. Surface Chop</strong>
+            <span class="opacity-80">Hollow rings • Gentle chime</span>
+          </div>
+          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
+            <strong>3. Swell Crest</strong>
+            <span class="opacity-80">Wave size • Rolling surf</span>
+          </div>
+          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
+            <strong>4. Wave Period</strong>
+            <span class="opacity-80">Wave tempo • Deep tide pulse</span>
+          </div>
+          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
+            <strong>5. Thermal Base</strong>
+            <span class="opacity-80">Water temp • Warm low hum</span>
+          </div>
         </div>
+      </div>
 
-        <div class="p-3 rounded-xl glass-card text-[11px] opacity-85">
-          <strong>Interactions:</strong> Drag anywhere on the canvas to tilt the isometric stack. Use the <strong>☀ / ☾</strong> button in the header to switch between temperature-tinted Dark Mode (default) and archival paper Light Mode.
+      <!-- KEY 5: PUBLIC DATA & UPDATE FREQUENCY -->
+      <div class="p-2.5 rounded-xl glass-card space-y-1">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-[11px] uppercase tracking-wider">Public Ocean Data</span>
+          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Every 10–60 Min</span>
         </div>
+        <p class="text-[10px] opacity-85 leading-snug">
+          All buoy information is free and publicly available from the <strong>NOAA National Data Buoy Center</strong>. Sensors bolted to floating ocean buoys measure wind, waves, and water temperature and broadcast fresh readings via satellite <strong>every 10 to 60 minutes</strong>.
+        </p>
       </div>
     </div>
-  </div>
+
+    <!-- Mobile Bottom Close Button for easy thumb reach -->
+    <div class="md:hidden pt-2.5 mt-2 border-t shrink-0" style="border-color: var(--panel-border);">
+      <button id="closeGuideMobileBottomBtn" class="w-full py-2.5 rounded-xl font-bold text-xs cursor-pointer" style="background: var(--fg-color); color: var(--bg-color);">
+        Back to Visualization
+      </button>
+    </div>
+  </aside>
 
   <script>
     // Real NOAA NDBC telemetry rows + UTC offsets for real local time-of-day calculation
@@ -546,6 +693,7 @@
     let explodeFactor = 1.0;
     let isDarkMode = true; // Default is temperature-aligned Dark Mode
     let isDesktopSidebarOpen = true;
+    let isGuideOpen = window.innerWidth >= 768;
 
     // Interactive isometric camera tilt offset
     let camYaw = 0;
@@ -576,7 +724,7 @@
         const [pr, pg, pb] = hexToRgb(pal.darkPanel);
         root.style.setProperty('--bg-color', pal.darkBg);
         root.style.setProperty('--fg-color', '#f5f2eb');
-        root.style.setProperty('--panel-bg', `rgba(${pr}, ${pg}, ${pb}, 0.84)`);
+        root.style.setProperty('--panel-bg', `rgba(${pr}, ${pg}, ${pb}, 0.86)`);
         root.style.setProperty('--panel-border', 'rgba(255, 255, 255, 0.14)');
         root.style.setProperty('--card-bg', 'rgba(255, 255, 255, 0.06)');
         root.style.setProperty('--card-hover', 'rgba(255, 255, 255, 0.12)');
@@ -585,7 +733,7 @@
       } else {
         root.style.setProperty('--bg-color', '#f0ebe1');
         root.style.setProperty('--fg-color', '#1c1917');
-        root.style.setProperty('--panel-bg', 'rgba(240, 235, 225, 0.90)');
+        root.style.setProperty('--panel-bg', 'rgba(240, 235, 225, 0.92)');
         root.style.setProperty('--panel-border', 'rgba(28, 25, 23, 0.16)');
         root.style.setProperty('--card-bg', 'rgba(28, 25, 23, 0.05)');
         root.style.setProperty('--card-hover', 'rgba(28, 25, 23, 0.10)');
@@ -601,7 +749,7 @@
       renderSpine();
     });
 
-    // Desktop Sidebar Collapse / Expand
+    // Desktop Left Sidebar Collapse / Expand
     const desktopSidebar = document.getElementById('desktopSidebar');
     const desktopSidebarOpenBtn = document.getElementById('desktopSidebarOpenBtn');
 
@@ -636,17 +784,35 @@
       mobileBuoyDrawer.classList.add('hidden');
     });
 
-    // '?' About Modal Toggle
-    const aboutModal = document.getElementById('aboutModal');
-    document.getElementById('aboutToggleBtn').addEventListener('click', (e) => {
+    // '?' Visual Key & Guide Panel (Full-screen on Mobile, Right Side Panel on Desktop)
+    const guidePanel = document.getElementById('guidePanel');
+    const aboutToggleBtn = document.getElementById('aboutToggleBtn');
+
+    function setGuideOpen(open) {
+      isGuideOpen = open;
+      if (isGuideOpen) {
+        guidePanel.classList.remove('hidden');
+        mobileBuoyDrawer.classList.add('hidden');
+        aboutToggleBtn.style.background = 'var(--fg-color)';
+        aboutToggleBtn.style.color = 'var(--bg-color)';
+      } else {
+        guidePanel.classList.add('hidden');
+        aboutToggleBtn.style.background = '';
+        aboutToggleBtn.style.color = '';
+      }
+    }
+
+    setGuideOpen(isGuideOpen);
+
+    aboutToggleBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      aboutModal.classList.toggle('hidden');
+      setGuideOpen(!isGuideOpen);
     });
-    document.getElementById('closeAboutBtn').addEventListener('click', () => {
-      aboutModal.classList.add('hidden');
+    document.getElementById('closeGuideBtn').addEventListener('click', () => {
+      setGuideOpen(false);
     });
-    aboutModal.addEventListener('click', (e) => {
-      if (e.target === aboutModal) aboutModal.classList.add('hidden');
+    document.getElementById('closeGuideMobileBottomBtn').addEventListener('click', () => {
+      setGuideOpen(false);
     });
 
     // Canvas Dragging
@@ -851,6 +1017,18 @@
       document.getElementById('deskRawNotes').textContent = b.notes;
       document.getElementById('deskRawPre').textContent = b.raw;
 
+      // Sync Visual Key SVG sample bubbles to current thermal palette
+      document.getElementById('keyBubbleSmall').setAttribute('fill', pal.rings[1]);
+      document.getElementById('keyBubbleMedOuter').setAttribute('fill', pal.rings[0]);
+      document.getElementById('keyBubbleMedInner').setAttribute('fill', pal.rings[2]);
+      document.getElementById('keyBubbleBig1').setAttribute('fill', pal.rings[0]);
+      document.getElementById('keyBubbleBig2').setAttribute('fill', pal.rings[1]);
+      document.getElementById('keyBubbleBigInner').setAttribute('fill', pal.rings[3]);
+      document.getElementById('keyTargetRing').setAttribute('stroke', pal.rings[2]);
+      document.getElementById('keyTargetDot').setAttribute('fill', pal.rings[4]);
+      document.getElementById('keySolidOuter').setAttribute('fill', pal.rings[0]);
+      document.getElementById('keySolidInner').setAttribute('fill', pal.rings[2]);
+
       // Update Mobile Bottom Bar & Drawer Info
       document.getElementById('mobActiveDot').style.background = pal.rings[0];
       document.getElementById('mobActiveName').textContent = `${b.short} • ${b.wtmp.toFixed(1)}°C • ${b.wvht.toFixed(1)}m`;
@@ -1043,21 +1221,26 @@
 
       // Responsive Layout:
       // - On mobile (<768px): use a taller vertical cascade so the 5 isometric planes fill the tall portrait screen!
-      // - On desktop (>=768px): shift center right when the left sidebar is open so it never overlaps.
+      // - On desktop (>=768px): center cleanly in the available space between the open left/right side panels.
       const isMobile = W < 768;
+      const leftPad = (!isMobile && isDesktopSidebarOpen) ? 336 : 16;
+      const rightPad = (!isMobile && isGuideOpen) ? 336 : 16;
+      const availW = Math.max(280, W - leftPad - rightPad);
+
       const planeSize = isMobile
         ? Math.min(W * 0.68, H * 0.42)
-        : Math.min(W * 0.44, H * 0.50);
+        : Math.min(availW * 0.54, H * 0.50);
 
-      const baseSpacingX = (isMobile ? W * 0.055 : Math.min(W * 0.088, 98)) * explodeFactor * (1 + camYaw * 0.45);
+      const baseSpacingX = (isMobile ? W * 0.055 : Math.min(availW * 0.105, 98)) * explodeFactor * (1 + camYaw * 0.45);
       const baseSpacingY = (isMobile ? -H * 0.068 : -18) * explodeFactor + camPitch * 45;
       const skewY = (isMobile ? 0.24 : 0.30) + camPitch * 0.18;
 
       const totalStackW = baseSpacingX * 4 + planeSize;
       const totalStackH = planeSize + planeSize * skewY + Math.abs(baseSpacingY * 4);
 
-      const desktopOffset = (!isMobile && isDesktopSidebarOpen) ? 155 : 0;
-      const startX = (W - totalStackW) * 0.50 + desktopOffset;
+      const startX = isMobile
+        ? (W - totalStackW) * 0.50
+        : leftPad + (availW - totalStackW) * 0.50;
       const startY = isMobile
         ? (H - totalStackH) * 0.46 + Math.abs(baseSpacingY * 4)
         : (H - planeSize - planeSize * skewY) * 0.51;
