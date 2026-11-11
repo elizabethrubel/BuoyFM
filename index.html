@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BUOY FM // Isometric Parameter Matrix</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: #f0ebe1;
+      color: #1c1917;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    /* Subtle archival paper grain overlay */
+    .paper-surface {
+      background-color: #f0ebe1;
+      background-image: radial-gradient(rgba(28, 25, 23, 0.045) 1px, transparent 0);
+      background-size: 16px 16px;
+    }
+    .hud-panel {
+      background: rgba(240, 235, 225, 0.86);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(28, 25, 23, 0.18);
+    }
+    input[type="range"] {
+      accent-color: #1c1917;
+    }
+  </style>
+</head>
+<body class="paper-surface select-none relative w-screen h-screen overflow-hidden">
+
+  <!-- FULL-SCREEN INTERACTIVE ISOMETRIC CANVAS -->
+  <canvas id="isoCanvas" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"></canvas>
+
+  <!-- TOP-LEFT HUD: "PP Dotty Matrix" Parameter Header + Bitmap Number Readout (Ref 3) -->
+  <header class="absolute top-5 left-5 z-20 flex flex-col gap-3 pointer-events-none max-w-xs">
+    <div class="hud-panel rounded-lg p-3.5 pointer-events-auto shadow-sm">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <div class="text-xs leading-tight opacity-70">displayed<br/>parameter:</div>
+          <div id="paramTitle" class="text-sm font-bold mt-0.5 tracking-tight">swell × thermal rings</div>
+        </div>
+        <!-- Bitmap Dot-Matrix Station Number (inspired by the dotted '2' in image_3.png) -->
+        <canvas id="bitmapDigit" width="44" height="44" class="w-11 h-11 shrink-0"></canvas>
+      </div>
+
+      <!-- Color Variable Mode Switcher -->
+      <div class="mt-3 pt-2.5 border-t border-stone-900/15">
+        <div class="text-xs opacity-70 mb-1.5">colour encoding variable:</div>
+        <div class="grid grid-cols-3 gap-1" id="colorModeBtns"></div>
+      </div>
+
+      <!-- Plane Explode / Isometric Angle Sliders -->
+      <div class="mt-2.5 pt-2 border-t border-stone-900/15 space-y-1.5">
+        <div class="flex items-center justify-between text-xs">
+          <span class="opacity-75">plane spacing (explode)</span>
+          <span id="explodeVal" class="font-bold">100%</span>
+        </div>
+        <input id="explodeSlider" type="range" min="45" max="155" value="100" class="w-full h-1.5 cursor-pointer" />
+      </div>
+    </div>
+
+    <!-- LEFT SPATIAL SELECTOR: L'ANNUEL WORLD LATITUDE SPINE (Ref 1) -->
+    <aside class="hud-panel rounded-lg p-3.5 pointer-events-auto shadow-sm" style="background: rgba(155, 137, 52, 0.93); color: #fdfaf2;">
+      <div class="flex items-center justify-between border-b border-white/25 pb-2">
+        <div>
+          <h1 class="tracking-[0.2em] text-xs font-bold uppercase">L’ANNUEL OCÉANIQUE</h1>
+          <p class="text-xs opacity-80 mt-0.5">LATITUDE SPINE (W ← | → E)</p>
+        </div>
+        <span id="syncBadge" class="text-xs px-1.5 py-0.5 rounded bg-black/25">NOAA LIVE</span>
+      </div>
+
+      <!-- Buoy Spine Bars ordered North to South -->
+      <div id="spineContainer" class="my-2.5 space-y-1.5"></div>
+
+      <div class="border-t border-white/25 pt-2 text-xs">
+        <div id="spineFooterTitle" class="font-bold truncate">46001 • GULF OF ALASKA</div>
+        <div id="spineFooterCoords" class="opacity-85 mt-0.5">56.3°N, 148.0°W • 968.2 hPa Low</div>
+      </div>
+    </aside>
+  </header>
+
+  <!-- TOP-RIGHT HUD: Audio Synth Receiver + Raw NOAA Packet Inspector Button -->
+  <div class="absolute top-5 right-5 z-20 flex flex-col items-end gap-2.5">
+    <div class="hud-panel rounded-lg p-3 shadow-sm flex items-center gap-2">
+      <button id="audioToggleBtn" class="px-3 py-1.5 rounded bg-stone-900 text-stone-50 text-xs font-bold hover:bg-stone-800 transition cursor-pointer flex items-center gap-1.5">
+        <span id="audioIcon">🔇</span>
+        <span id="audioLabel">Start Shortwave Audio</span>
+      </button>
+      <button id="rawLogBtn" class="px-2.5 py-1.5 rounded border border-stone-900/30 bg-white/60 hover:bg-white text-xs font-bold transition cursor-pointer">
+        { } Raw NOAA .txt
+      </button>
+    </div>
+
+    <!-- Live Telemetry Readout Card -->
+    <div class="hud-panel rounded-lg p-3.5 shadow-sm w-72">
+      <div class="flex items-center justify-between border-b border-stone-900/15 pb-1.5 mb-2">
+        <span id="stationHeaderRight" class="text-xs font-bold uppercase">STATION #46001</span>
+        <span id="stationTimeRight" class="text-xs opacity-70">08:30 UTC</span>
+      </div>
+      <div class="grid grid-cols-2 gap-2 text-xs">
+        <div class="p-2 rounded bg-white/55 border border-stone-900/10">
+          <div class="opacity-65">WAVE (WVHT)</div>
+          <div id="metricWvht" class="text-sm font-bold mt-0.5">4.0 m</div>
+          <div class="text-xs opacity-70 mt-0.5">→ Outer Ring Size</div>
+        </div>
+        <div class="p-2 rounded bg-white/55 border border-stone-900/10">
+          <div class="opacity-65">SWELL / CHOP</div>
+          <div id="metricPeriod" class="text-sm font-bold mt-0.5">14s / 8.5s</div>
+          <div class="text-xs opacity-70 mt-0.5">→ Wave Speed</div>
+        </div>
+        <div class="p-2 rounded bg-white/55 border border-stone-900/10">
+          <div class="opacity-65">WIND / GUST</div>
+          <div id="metricWind" class="text-sm font-bold mt-0.5">8.0 / 12 m/s</div>
+          <div class="text-xs opacity-70 mt-0.5">→ Plane 50 Turbulence</div>
+        </div>
+        <div class="p-2 rounded bg-white/55 border border-stone-900/10">
+          <div class="opacity-65">WATER TEMP</div>
+          <div id="metricTemp" class="text-sm font-bold mt-0.5">8.5 °C</div>
+          <div class="text-xs opacity-70 mt-0.5">→ Concentric Hue</div>
+        </div>
+      </div>
+
+      <!-- Color Legend Bar (inspired by Ref 2 Concentric Rings) -->
+      <div class="mt-2.5 pt-2 border-t border-stone-900/15">
+        <div class="flex items-center justify-between text-xs mb-1">
+          <span class="opacity-75">active concentric palette</span>
+          <span id="paletteName" class="font-bold">Sub-Arctic Cobalt/Coral</span>
+        </div>
+        <div id="swatchRow" class="flex items-center gap-1.5 h-3"></div>
+      </div>
+    </div>
+
+    <!-- Collapsible Raw NOAA NDBC Packet Drawer -->
+    <div id="rawDrawer" class="hidden hud-panel rounded-lg p-3.5 shadow-lg w-96 bg-stone-950/95 text-stone-100 border border-stone-700">
+      <div class="flex items-center justify-between pb-1.5 border-b border-stone-800 text-amber-400 text-xs">
+        <span id="rawUrl">ndbc.noaa.gov/data/realtime2/46001.txt</span>
+        <button id="closeRawBtn" class="text-stone-400 hover:text-white cursor-pointer">✕</button>
+      </div>
+      <p id="rawNotes" class="text-xs text-stone-300 my-2 leading-relaxed"></p>
+      <pre id="rawPre" class="text-xs leading-tight text-emerald-300 bg-stone-900 p-2.5 rounded border border-stone-800 overflow-x-auto whitespace-pre"></pre>
+    </div>
+  </div>
+
+  <!-- BOTTOM BAR: "PP Dotty Matrix" Isometric Plane Slice Selector (50 · 75 · 100 · 125 · 150) -->
+  <footer class="absolute bottom-5 left-5 right-5 z-20 flex flex-wrap items-end justify-between gap-4 pointer-events-none">
+    <div class="hud-panel rounded-lg px-4 py-2.5 pointer-events-auto shadow-sm flex flex-wrap items-center gap-3">
+      <div class="text-xs font-bold tracking-wider uppercase mr-1">PP // Dotty Matrix Planes:</div>
+      <div id="planeSliceBtns" class="flex flex-wrap items-center gap-1.5"></div>
+    </div>
+
+    <div class="hud-panel rounded-lg px-3.5 py-2 pointer-events-auto shadow-sm text-xs opacity-80">
+      <span>Drag canvas to tilt isometric perspective • Click a plane (50–150) to solo its telemetry layer</span>
+    </div>
+  </footer>
+
+  <script>
+    // Real NOAA NDBC telemetry rows captured 2026-11-10 08:20-09:00 UTC + Open-Meteo Marine fallback
+    const buoys = [
+      {
+        idx: 1,
+        id: '46001',
+        short: 'ALASKA',
+        name: 'Gulf of Alaska (175 NM SE of Kodiak)',
+        lat: 56.3, lon: -148.0, side: 'left',
+        timeUTC: '08:30 / 08:20 UTC',
+        wvht: 4.0, dpd: 14.0, apd: 8.5, mwd: 102,
+        wdir: 220, wspd: 8.0, gst: 12.0,
+        pres: 968.2, ptdy: +4.4, atmp: 7.8, wtmp: 8.5,
+        paletteName: 'Sub-Arctic Cobalt & Rust',
+        // Concentric ring colors inspired by image_2.png tuned to cold water (8.5°C)
+        rings: ['#1d5b9e', '#28664b', '#ed5c2b', '#f28bb2', '#eab308'],
+        notes: 'Row 08:30 has WVHT=MM because NOAA buoys only compute wave spectra at :20 and :50. Parser merges 08:30 wind (8.0 m/s, 968.2 hPa storm low) with 08:20 wave height (4.0m @ 14s).',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 30 220  8.0 12.0   MM  MM  MM  MM  968.2  7.8  8.5   MM
+2026 11 10 08 20 220  8.0 12.0  4.0  14 8.5 102  968.1  7.6  8.5   MM
+2026 11 10 08 00 220  9.0 12.0   MM  MM  MM  MM  967.5  7.8  8.5 +4.4`
+      },
+      {
+        idx: 2,
+        id: '62105',
+        short: 'UK CELTIC',
+        name: 'Seven Stones Lightvessel (Off Land’s End, UK)',
+        lat: 50.1, lon: -6.1, side: 'right',
+        timeUTC: '09:00 UTC + Open-Meteo',
+        wvht: 2.04, dpd: 8.8, apd: 7.75, mwd: 175,
+        wdir: 70, wspd: 11.8, gst: 13.8,
+        pres: 1011.5, ptdy: +0.3, atmp: 11.1, wtmp: 12.1,
+        paletteName: 'Celtic Forest & Cobalt',
+        rings: ['#28664b', '#1d5b9e', '#f28bb2', '#ed5c2b', '#eab308'],
+        notes: 'Seven Stones Lightvessel reports live wind (11.8 m/s) and water temp (12.1°C) to NOAA, while wave height is enriched live from Open-Meteo Marine (2.04m @ 8.8s).',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP DEWP
+2026 11 10 09 00  70 11.8   MM   MM  MM  MM  MM 1011.5 11.1 12.1  6.8
+2026 11 10 08 00  70 10.3   MM   MM  MM  MM  MM 1011.5 11.4 12.1  6.1
+[+ Open-Meteo Marine @ 50.12°N, -6.12°W]: WVHT=2.04m, DPD=8.8s, APD=7.75s`
+      },
+      {
+        idx: 3,
+        id: '46005',
+        short: 'WASH 5.6m',
+        name: 'West Washington (300 NM West of Aberdeen)',
+        lat: 46.1, lon: -131.0, side: 'left',
+        timeUTC: '08:40 / 08:20 UTC',
+        wvht: 5.6, dpd: 14.0, apd: 9.0, mwd: 268,
+        wdir: 210, wspd: 12.0, gst: 15.0,
+        pres: 1002.1, ptdy: -1.4, atmp: 14.5, wtmp: 13.3,
+        paletteName: 'Heavy Gale Vermilion & Gold',
+        rings: ['#ed5c2b', '#8f2d1e', '#f28bb2', '#eab308', '#1d5b9e'],
+        notes: 'Heavy North Pacific storm swell! 5.6-meter (18.4 ft) significant wave height with 15.0 m/s gusts—causing the concentric circles on Planes 100–150 to dilate and fuse into dense columns.',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 40 210 12.0 15.0   MM  MM  MM  MM 1002.1 14.5 13.3   MM
+2026 11 10 08 20 200 10.0 12.0  5.6  14 9.0 268 1001.9 14.4   MM   MM
+2026 11 10 08 00 200 11.0 14.0   MM  MM  MM  MM 1001.1 14.4 13.2 -1.4`
+      },
+      {
+        idx: 4,
+        id: '44013',
+        short: 'BOSTON',
+        name: 'Boston Approach (16 NM East of Boston)',
+        lat: 42.3, lon: -70.6, side: 'right',
+        timeUTC: '08:50 / 08:40 UTC',
+        wvht: 0.7, dpd: 3.0, apd: 3.3, mwd: 287,
+        wdir: 260, wspd: 8.0, gst: 10.0,
+        pres: 1011.3, ptdy: +0.5, atmp: 10.1, wtmp: 12.5,
+        paletteName: 'Harbor Slate & Ochre',
+        rings: ['#1d5b9e', '#eab308', '#28664b', '#ed5c2b', '#f28bb2'],
+        notes: 'Protected bay chop: very low 0.7m wave height with a rapid 3.0-second dominant period. Notice how the dots stay crisp and separated with rapid micro-pulsing.',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 50 260  8.0 10.0  0.7   3 3.3 287 1011.3   MM   MM   MM
+2026 11 10 08 40 270  9.0 11.0   MM  MM  MM  MM 1011.3 10.1 12.5   MM`
+      },
+      {
+        idx: 5,
+        id: '46026',
+        short: 'SAN FRAN',
+        name: 'San Francisco Bar (18 NM West of Golden Gate)',
+        lat: 37.8, lon: -122.8, side: 'left',
+        timeUTC: '08:40 / 08:30 UTC',
+        wvht: 2.7, dpd: 14.0, apd: 8.4, mwd: 274,
+        wdir: 340, wspd: 8.0, gst: 10.0,
+        pres: 1021.4, ptdy: +0.7, atmp: 16.5, wtmp: 18.3,
+        paletteName: 'Pacific Fog & Coral',
+        rings: ['#ed5c2b', '#f28bb2', '#1d5b9e', '#28664b', '#eab308'],
+        notes: 'Long 14-second Pacific groundswell (2.7m) rolling toward the Golden Gate Bridge under high barometric pressure (1021.4 hPa).',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 40  MM   MM   MM  2.7  14 8.4 274     MM   MM   MM   MM
+2026 11 10 08 30 340  8.0 10.0   MM  MM  MM  MM 1021.4   MM 18.3   MM`
+      },
+      {
+        idx: 6,
+        id: '51001',
+        short: 'HAWAII',
+        name: 'NW Hawaii (186 NM NW of Kauai)',
+        lat: 24.4, lon: -162.0, side: 'left',
+        timeUTC: '08:20 UTC',
+        wvht: 2.2, dpd: 11.0, apd: 6.8, mwd: 314,
+        wdir: 60, wspd: 8.0, gst: 10.0,
+        pres: 1021.6, ptdy: +1.5, atmp: 24.7, wtmp: 25.4,
+        paletteName: 'Tropical Pink, Coral & Gold',
+        rings: ['#f28bb2', '#ed5c2b', '#eab308', '#1d5b9e', '#28664b'],
+        notes: 'Warm 25.4°C Pacific water shifts the concentric rings into vibrant pinks, corals, and mustard gold.',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 20  60  8.0 10.0  2.2  11 6.8 314 1021.6 24.7 25.4   MM
+2026 11 10 08 00  50  8.0 11.0   MM  MM  MM  MM 1021.6 24.4 25.4 +1.5`
+      },
+      {
+        idx: 7,
+        id: '42058',
+        short: 'CARIBBEAN',
+        name: 'Central Caribbean (210 NM South of Haiti)',
+        lat: 14.9, lon: -75.0, side: 'right',
+        timeUTC: '08:40 / 08:20 UTC',
+        wvht: 1.5, dpd: 6.0, apd: 4.4, mwd: 99,
+        wdir: 70, wspd: 9.0, gst: 11.0,
+        pres: 1010.5, ptdy: -1.2, atmp: 29.3, wtmp: 29.6,
+        paletteName: 'Equatorial Sun & Terracotta',
+        rings: ['#ed5c2b', '#eab308', '#f28bb2', '#8f2d1e', '#28664b'],
+        notes: '29.6°C sea surface temperature—the warmest station on the spine—driving wide inner thermal rings and brisk 4.4s trade-wind chop.',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 40  70  9.0 11.0  1.5  MM 4.4  99 1010.5 29.3 29.6   MM
+2026 11 10 08 20  60  9.0 11.0  1.4   6 4.5  93 1010.6 29.3 29.6   MM`
+      }
+    ];
+
+    const planeDefs = [
+      { code: '50',  name: 'WIND / GUST',  desc: 'WSPD & GST turbulence' },
+      { code: '75',  name: 'SURFACE CHOP', desc: 'APD short ripple rings' },
+      { code: '100', name: 'SWELL CREST',  desc: 'WVHT primary wave height' },
+      { code: '125', name: 'WAVE PERIOD',  desc: 'DPD deep harmonic cycle' },
+      { code: '150', name: 'THERMAL BASE', desc: 'WTMP concentric heat mass' }
+    ];
+
+    const colorModes = [
+      { id: 'thermal', label: 'Thermal Rings' },
+      { id: 'plane',   label: 'By Plane (50-150)' },
+      { id: 'mono',    label: 'Studio Ink + Coral' }
+    ];
+
+    let activeBuoyIdx = 0;
+    let activeColorMode = 'thermal';
+    let soloPlaneIdx = null; // null = all 5 planes visible
+    let explodeFactor = 1.0;
+
+    // Interactive camera drag offset
+    let camYaw = 0;
+    let camPitch = 0;
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+
+    const canvas = document.getElementById('isoCanvas');
+    const ctx = canvas.getContext('2d');
+    const bitmapCanvas = document.getElementById('bitmapDigit');
+    const bCtx = bitmapCanvas.getContext('2d');
+
+    function resizeCanvas() {
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = window.innerWidth * dpr;
+      canvas.height = window.innerHeight * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    // Drag to tilt isometric stack
+    canvas.addEventListener('pointerdown', (e) => {
+      isDragging = true;
+      dragStartX = e.clientX - camYaw * 140;
+      dragStartY = e.clientY - camPitch * 140;
+    });
+    window.addEventListener('pointermove', (e) => {
+      if (!isDragging) return;
+      camYaw = Math.max(-0.45, Math.min(0.45, (e.clientX - dragStartX) / 140));
+      camPitch = Math.max(-0.35, Math.min(0.35, (e.clientY - dragStartY) / 140));
+    });
+    window.addEventListener('pointerup', () => { isDragging = false; });
+
+    document.getElementById('explodeSlider').addEventListener('input', (e) => {
+      explodeFactor = parseFloat(e.target.value) / 100;
+      document.getElementById('explodeVal').textContent = `${e.target.value}%`;
+    });
+
+    // Draw Bitmap Dot-Matrix Digit (1..7) like the dotted "2" in image_3.png
+    const digitBitmaps = {
+      1: ["00100","01100","00100","00100","00100","00100","01110"],
+      2: ["01110","10001","00001","00110","01000","10000","11111"],
+      3: ["01110","10001","00001","00110","00001","10001","01110"],
+      4: ["00010","00110","01010","10010","11111","00010","00010"],
+      5: ["11111","10000","11110","00001","00001","10001","01110"],
+      6: ["01110","10000","11110","10001","10001","10001","01110"],
+      7: ["11111","00001","00010","00100","01000","01000","01000"]
+    };
+
+    function drawBitmapNumber(n) {
+      bCtx.clearRect(0, 0, 44, 44);
+      const grid = digitBitmaps[n] || digitBitmaps[2];
+      for (let r = 0; r < 7; r++) {
+        for (let c = 0; c < 5; c++) {
+          if (grid[r][c] === '1') {
+            bCtx.beginPath();
+            bCtx.arc(8 + c * 6.5, 5 + r * 5.6, 2.7, 0, Math.PI * 2);
+            bCtx.fillStyle = '#1c1917';
+            bCtx.fill();
+          }
+        }
+      }
+    }
+
+    function renderColorModeButtons() {
+      const el = document.getElementById('colorModeBtns');
+      el.innerHTML = '';
+      colorModes.forEach(cm => {
+        const btn = document.createElement('button');
+        const active = cm.id === activeColorMode;
+        btn.className = `px-2 py-1 rounded text-xs font-bold transition cursor-pointer border ${
+          active ? 'bg-stone-900 text-stone-50 border-stone-900' : 'bg-white/60 text-stone-800 border-stone-900/20 hover:bg-white'
+        }`;
+        btn.textContent = cm.label;
+        btn.onclick = () => {
+          activeColorMode = cm.id;
+          renderColorModeButtons();
+        };
+        el.appendChild(btn);
+      });
+    }
+
+    function renderSpine() {
+      const container = document.getElementById('spineContainer');
+      container.innerHTML = '';
+      buoys.forEach((b, idx) => {
+        const isSel = idx === activeBuoyIdx;
+        const maxW = Math.min(100, Math.max(45, Math.round((Math.abs(b.lon) / 165) * 100)));
+        const fillW = Math.min(100, Math.max(16, Math.round((b.wvht / 5.8) * 100)));
+
+        const row = document.createElement('div');
+        row.className = `grid grid-cols-12 items-center cursor-pointer py-1 px-1.5 rounded transition ${
+          isSel ? 'bg-black/25' : 'hover:bg-black/10'
+        }`;
+        row.onclick = () => {
+          activeBuoyIdx = idx;
+          renderSpine();
+          updateHUD();
+        };
+
+        const barGauge = `
+          <div class="w-full flex ${b.side === 'left' ? 'justify-end' : 'justify-start'}">
+            <div style="width:${maxW}%" class="h-3.5 border ${isSel ? 'border-white' : 'border-white/75'} relative">
+              <div style="width:${fillW}%" class="h-full ${isSel ? 'bg-white' : 'bg-white/65'}"></div>
+            </div>
+          </div>
+        `;
+
+        if (b.side === 'left') {
+          row.innerHTML = `
+            <div class="col-span-5 flex items-center justify-end gap-1.5 pr-1">
+              <span class="text-xs truncate ${isSel ? 'font-bold underline' : 'opacity-90'}">${b.short}</span>
+              <div class="w-14 shrink-0">${barGauge}</div>
+            </div>
+            <div class="col-span-2 flex justify-center">
+              <div class="w-2 border-l border-r border-white/85 h-4 ${isSel ? 'bg-white' : ''}"></div>
+            </div>
+            <div class="col-span-5 pl-1 text-xs opacity-80 flex justify-between">
+              <span>${b.lat}°N</span>
+              <span>${b.wvht.toFixed(1)}m</span>
+            </div>
+          `;
+        } else {
+          row.innerHTML = `
+            <div class="col-span-5 pr-1 text-xs opacity-80 flex justify-between">
+              <span>${b.wvht.toFixed(1)}m</span>
+              <span>${b.lat}°N</span>
+            </div>
+            <div class="col-span-2 flex justify-center">
+              <div class="w-2 border-l border-r border-white/85 h-4 ${isSel ? 'bg-white' : ''}"></div>
+            </div>
+            <div class="col-span-5 flex items-center justify-start gap-1.5 pl-1">
+              <div class="w-14 shrink-0">${barGauge}</div>
+              <span class="text-xs truncate ${isSel ? 'font-bold underline' : 'opacity-90'}">${b.short}</span>
+            </div>
+          `;
+        }
+        container.appendChild(row);
+      });
+    }
+
+    function renderPlaneButtons() {
+      const container = document.getElementById('planeSliceBtns');
+      container.innerHTML = '';
+
+      const allBtn = document.createElement('button');
+      const allActive = soloPlaneIdx === null;
+      allBtn.className = `px-2.5 py-1 rounded text-xs font-bold transition cursor-pointer border ${
+        allActive ? 'bg-stone-900 text-stone-50 border-stone-900' : 'bg-white/60 text-stone-800 border-stone-900/20 hover:bg-white'
+      }`;
+      allBtn.textContent = 'ALL (50–150)';
+      allBtn.onclick = () => {
+        soloPlaneIdx = null;
+        renderPlaneButtons();
+      };
+      container.appendChild(allBtn);
+
+      planeDefs.forEach((p, idx) => {
+        const btn = document.createElement('button');
+        const active = soloPlaneIdx === idx;
+        btn.className = `px-2.5 py-1 rounded text-xs font-bold transition cursor-pointer border ${
+          active ? 'bg-stone-900 text-stone-50 border-stone-900' : 'bg-white/60 text-stone-800 border-stone-900/20 hover:bg-white'
+        }`;
+        btn.textContent = `${p.code} // ${p.name}`;
+        btn.onclick = () => {
+          soloPlaneIdx = (soloPlaneIdx === idx) ? null : idx;
+          renderPlaneButtons();
+        };
+        container.appendChild(btn);
+      });
+    }
+
+    function updateHUD() {
+      const b = buoys[activeBuoyIdx];
+      drawBitmapNumber(b.idx);
+
+      document.getElementById('spineFooterTitle').textContent = `${b.id} • ${b.short}`;
+      document.getElementById('spineFooterCoords').textContent = `${b.lat}°N, ${Math.abs(b.lon)}°W • ${b.pres} hPa`;
+
+      document.getElementById('stationHeaderRight').textContent = `STATION #${b.id} (${b.short})`;
+      document.getElementById('stationTimeRight').textContent = b.timeUTC;
+      document.getElementById('metricWvht').textContent = `${b.wvht.toFixed(2)} m`;
+      document.getElementById('metricPeriod').textContent = `${b.dpd.toFixed(1)}s / ${b.apd.toFixed(1)}s`;
+      document.getElementById('metricWind').textContent = `${b.wspd.toFixed(1)} / ${b.gst.toFixed(1)} m/s`;
+      document.getElementById('metricTemp').textContent = `${b.wtmp.toFixed(1)} °C`;
+      document.getElementById('paletteName').textContent = b.paletteName;
+
+      const swatchRow = document.getElementById('swatchRow');
+      swatchRow.innerHTML = b.rings.map(c => `<div class="flex-1 h-full rounded-sm border border-black/15" style="background:${c}"></div>`).join('');
+
+      document.getElementById('rawUrl').textContent = `ndbc.noaa.gov/data/realtime2/${b.id}.txt`;
+      document.getElementById('rawNotes').textContent = b.notes;
+      document.getElementById('rawPre').textContent = b.raw;
+    }
+
+    // Toggle Raw NOAA Log drawer
+    const rawDrawer = document.getElementById('rawDrawer');
+    document.getElementById('rawLogBtn').onclick = () => rawDrawer.classList.toggle('hidden');
+    document.getElementById('closeRawBtn').onclick = () => rawDrawer.classList.add('hidden');
+
+    // Web Audio API Synthesizer
+    let audioCtx = null;
+    let isPlaying = false;
+    let filterNode = null;
+    let gainNode = null;
+    let droneOsc = null;
+    let droneGain = null;
+
+    function initAudio() {
+      if (audioCtx) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const len = audioCtx.sampleRate * 2;
+      const buf = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+      const out = buf.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i < len; i++) {
+        const w = Math.random() * 2 - 1;
+        b0 = 0.997 * b0 + w * 0.099;
+        b1 = 0.963 * b1 + w * 0.296;
+        b2 = 0.570 * b2 + w * 1.052;
+        out[i] = (b0 + b1 + b2 + w * 0.18) * 0.08;
+      }
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.loop = true;
+
+      filterNode = audioCtx.createBiquadFilter();
+      filterNode.type = 'lowpass';
+      filterNode.frequency.value = 320;
+
+      gainNode = audioCtx.createGain();
+      gainNode.gain.value = 0.001;
+
+      droneOsc = audioCtx.createOscillator();
+      droneOsc.type = 'sine';
+      droneOsc.frequency.value = 110;
+
+      droneGain = audioCtx.createGain();
+      droneGain.gain.value = 0.001;
+
+      src.connect(filterNode);
+      filterNode.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+
+      droneOsc.connect(droneGain);
+      droneGain.connect(audioCtx.destination);
+
+      src.start();
+      droneOsc.start();
+    }
+
+    document.getElementById('audioToggleBtn').onclick = () => {
+      initAudio();
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      isPlaying = !isPlaying;
+      document.getElementById('audioIcon').textContent = isPlaying ? '🔊' : '🔇';
+      document.getElementById('audioLabel').textContent = isPlaying ? 'Mute Receiver' : 'Start Shortwave Audio';
+      if (!isPlaying && gainNode) {
+        gainNode.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.1);
+        droneGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.1);
+      }
+    };
+
+    // Main Full-Screen Isometric + Concentric Color Render Loop
+    let t = 0;
+    function render() {
+      t += 0.022;
+      const b = buoys[activeBuoyIdx];
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      ctx.clearRect(0, 0, W, H);
+
+      const swellOmega = (14 / b.dpd) * 1.1;
+      const chopOmega = (10 / b.apd) * 2.1;
+
+      // Update Web Audio if active
+      if (isPlaying && audioCtx) {
+        const now = audioCtx.currentTime;
+        const breath = 0.5 + 0.5 * Math.sin(t * swellOmega);
+        const vol = Math.min(0.35, (0.06 + (b.wvht / 6.0) * 0.24) * (0.4 + 0.6 * breath));
+        const cutoff = 160 + b.wspd * 22 + breath * 260;
+        filterNode.frequency.setTargetAtTime(cutoff, now, 0.08);
+        gainNode.gain.setTargetAtTime(vol, now, 0.08);
+        droneOsc.frequency.setTargetAtTime(95 + b.wtmp * 3.8, now, 0.1);
+        droneGain.gain.setTargetAtTime(0.03, now, 0.1);
+      }
+
+      // Responsive sizing for the 5 Isometric Planes centered on screen
+      const planeSize = Math.min(W, H) * 0.43;
+      const baseSpacingX = Math.min(W * 0.082, 88) * explodeFactor * (1 + camYaw * 0.45);
+      const baseSpacingY = -14 * explodeFactor + camPitch * 45;
+      const skewY = 0.30 + camPitch * 0.18;
+
+      const totalStackW = baseSpacingX * 4 + planeSize;
+      const startX = (W - totalStackW) * 0.52;
+      const startY = (H - planeSize - planeSize * skewY) * 0.50;
+
+      // Draw from Back Plane (150, index 4) to Front Plane (50, index 0)
+      for (let pIdx = 4; pIdx >= 0; pIdx--) {
+        const pDef = planeDefs[pIdx];
+        const isDimmed = (soloPlaneIdx !== null && soloPlaneIdx !== pIdx);
+        const planeAlpha = isDimmed ? 0.14 : 1.0;
+
+        const ox = startX + pIdx * baseSpacingX;
+        const oy = startY + pIdx * baseSpacingY;
+
+        ctx.save();
+        ctx.globalAlpha = planeAlpha;
+        ctx.transform(1, skewY, 0, 1, ox, oy);
+
+        // Translucent paper sheet fill + crisp architectural frame (like image_3.png)
+        ctx.fillStyle = isDimmed ? 'rgba(240, 235, 225, 0.15)' : 'rgba(245, 240, 232, 0.42)';
+        ctx.fillRect(0, 0, planeSize, planeSize);
+
+        ctx.strokeStyle = isDimmed ? 'rgba(28, 25, 23, 0.25)' : 'rgba(28, 25, 23, 0.68)';
+        ctx.lineWidth = (soloPlaneIdx === pIdx) ? 2.2 : 1.15;
+        ctx.strokeRect(0, 0, planeSize, planeSize);
+
+        // Bitmap Plane Number Label at bottom-left corner of each wireframe sheet (50, 75, 100, 125, 150)
+        ctx.fillStyle = '#1c1917';
+        ctx.font = 'bold 13px monospace';
+        ctx.fillText(pDef.code, 4, planeSize + 16);
+        ctx.font = '11px monospace';
+        ctx.fillStyle = 'rgba(28, 25, 23, 0.65)';
+        ctx.fillText(pDef.name, 34, planeSize + 16);
+
+        // 8x8 Dot Matrix inside each isometric sheet
+        const gridN = 8;
+        const pad = planeSize * 0.12;
+        const step = (planeSize - pad * 2) / (gridN - 1);
+
+        // First pass: quiet cream reference circles (like image_2.png background matrix)
+        for (let gx = 0; gx < gridN; gx++) {
+          for (let gy = 0; gy < gridN; gy++) {
+            const px = pad + gx * step;
+            const py = pad + gy * step;
+            ctx.beginPath();
+            ctx.arc(px, py, step * 0.36, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255, 252, 245, 0.48)';
+            ctx.fill();
+          }
+        }
+
+        // Second pass: Live Buoy Telemetry Concentric Dots & Overlapping Clusters
+        const dirRad = (b.mwd * Math.PI) / 180;
+        const windRad = (b.wdir * Math.PI) / 180;
+
+        for (let gx = 0; gx < gridN; gx++) {
+          for (let gy = 0; gy < gridN; gy++) {
+            const nx = (gx / (gridN - 1)) * 2 - 1;
+            const ny = (gy / (gridN - 1)) * 2 - 1;
+
+            // Wave propagation along real Mean Wave Direction (MWD) + Wind Chop along WDIR
+            const waveProj = nx * Math.cos(dirRad) + ny * Math.sin(dirRad);
+            const windProj = nx * Math.cos(windRad) + ny * Math.sin(windRad);
+
+            const swellWave = Math.sin(waveProj * 2.4 - t * swellOmega + pIdx * 0.48);
+            const chopRipple = Math.cos(windProj * 4.2 + t * chopOmega - pIdx * 0.3) * (3.5 / b.apd);
+            const combined = swellWave * 0.78 + chopRipple * 0.32;
+
+            // Threshold so waves form organic moving ridges/glyphs across the 5 planes
+            const threshold = -0.15 - (b.wvht * 0.04);
+            if (combined > threshold) {
+              const px = pad + gx * step;
+              const py = pad + gy * step;
+
+              // Progressive dilation from Plane 50 (crisp small dots) to Plane 150 (overlapping metaball clusters)
+              const planeScale = 0.38 + pIdx * 0.34;
+              const waveFactor = 0.55 + (b.wvht / 5.6) * 0.75;
+              const outerRadius = Math.max(2.5, step * 0.46 * (combined + 0.45) * planeScale * waveFactor);
+
+              // Pick Concentric Colors based on activeColorMode
+              let outerColor, innerColor, coreColor;
+              if (activeColorMode === 'thermal') {
+                outerColor = b.rings[(gx + pIdx) % b.rings.length];
+                innerColor = b.rings[(gy + pIdx + 2) % b.rings.length];
+                coreColor = '#fdfaf2';
+              } else if (activeColorMode === 'plane') {
+                outerColor = b.rings[pIdx % b.rings.length];
+                innerColor = b.rings[(pIdx + 2) % b.rings.length];
+                coreColor = '#1c1917';
+              } else {
+                // Studio Ink + Coral accent (hybrid of image_3 and image_2)
+                const gray = 22 + pIdx * 22;
+                outerColor = (combined > 0.55) ? '#ed5c2b' : `rgb(${gray}, ${gray}, ${gray})`;
+                innerColor = (combined > 0.35) ? '#f28bb2' : '#eab308';
+                coreColor = '#fdfaf2';
+              }
+
+              // Alternate between solid overlapping beads and open target rings (like image_2.png)
+              const isTargetRing = (pIdx <= 1) && ((gx + gy) % 2 === 1);
+
+              if (isTargetRing) {
+                ctx.beginPath();
+                ctx.arc(px, py, outerRadius * 0.85, 0, Math.PI * 2);
+                ctx.strokeStyle = outerColor;
+                ctx.lineWidth = 2.8;
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.arc(px, py, Math.max(2.0, outerRadius * 0.32), 0, Math.PI * 2);
+                ctx.fillStyle = innerColor;
+                ctx.fill();
+              } else {
+                // Outer lush circle (dilates and overlaps on back planes 100, 125, 150)
+                ctx.beginPath();
+                ctx.arc(px, py, outerRadius, 0, Math.PI * 2);
+                ctx.fillStyle = outerColor;
+                ctx.fill();
+
+                // Concentric inner thermal ring when circle is large enough
+                if (outerRadius > 7.5) {
+                  const innerRatio = Math.min(0.65, 0.30 + (b.wtmp / 32) * 0.32);
+                  ctx.beginPath();
+                  ctx.arc(px, py, outerRadius * innerRatio, 0, Math.PI * 2);
+                  ctx.fillStyle = innerColor;
+                  ctx.fill();
+                }
+
+                // Crisp center pinhole dot pulsing with APD wind chop
+                const pinRadius = Math.max(1.5, 1.8 + Math.sin(t * chopOmega + gx + gy) * 0.9);
+                ctx.beginPath();
+                ctx.arc(px, py, pinRadius, 0, Math.PI * 2);
+                ctx.fillStyle = coreColor;
+                ctx.fill();
+              }
+            }
+          }
+        }
+
+        ctx.restore();
+      }
+
+      requestAnimationFrame(render);
+    }
+
+    renderColorModeButtons();
+    renderSpine();
+    renderPlaneButtons();
+    updateHUD();
+    render();
+  </script>
+</body>
+</html>
