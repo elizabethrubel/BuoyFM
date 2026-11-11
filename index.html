@@ -697,7 +697,35 @@
       });
     }
 
-    function updateHUD() {
+    async function syncLiveBuoy(idx) {
+      const b = buoys[idx];
+      if (!b || b._synced) return;
+      b._synced = true;
+      try {
+        const res = await fetch(`/api/buoy?id=${encodeURIComponent(b.id)}&lat=${b.lat}&lon=${b.lon}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data.wvht != null) b.wvht = data.wvht;
+        if (data.dpd != null) b.dpd = data.dpd;
+        if (data.apd != null) b.apd = data.apd;
+        if (data.mwd != null) b.mwd = data.mwd;
+        if (data.wdir != null) b.wdir = data.wdir;
+        if (data.wspd != null) b.wspd = data.wspd;
+        if (data.gst != null) b.gst = data.gst;
+        if (data.pres != null) b.pres = data.pres;
+        if (data.wtmp != null) b.wtmp = data.wtmp;
+        if (data.timeUTC) b.timeUTC = data.timeUTC;
+        if (data.raw) b.raw = data.raw;
+        const badge = document.getElementById('syncBadge');
+        if (badge) badge.textContent = 'NOAA LIVE';
+        renderSpine();
+        if (activeBuoyIdx === idx) updateHUD(true);
+      } catch (_) {
+        // Fallback to embedded NOAA snapshot when running locally without /api/buoy
+      }
+    }
+
+    function updateHUD(skipSync = false) {
       const b = buoys[activeBuoyIdx];
       const pal = getThermalPalette(b.wtmp);
       const localTime = getBuoyLocalTime(b.tzOffset);
@@ -728,6 +756,8 @@
       document.getElementById('rawUrl').textContent = `ndbc.noaa.gov/data/realtime2/${b.id}.txt`;
       document.getElementById('rawNotes').textContent = b.notes;
       document.getElementById('rawPre').textContent = b.raw;
+
+      if (!skipSync) syncLiveBuoy(activeBuoyIdx);
     }
 
     // Drawers toggle
