@@ -136,27 +136,27 @@
           <span id="syncBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded glass-card">NOAA LIVE</span>
         </div>
 
-        <!-- 2x2 Telemetry Cards with Descriptive Layer Names -->
+        <!-- 2x2 Telemetry Cards with Compass Wave & Wind Directions -->
         <div class="grid grid-cols-2 gap-1.5 text-xs">
           <div class="p-2 rounded-lg glass-card">
             <div class="text-[10px] opacity-65">Wave Height</div>
             <div id="deskWvht" class="font-bold text-sm mt-0.5">4.00 m</div>
-            <div class="text-[9px] opacity-60">Swell Crest</div>
+            <div id="deskTrendSub" class="text-[9px] opacity-65">+1.6m vs 4h ago</div>
           </div>
           <div class="p-2 rounded-lg glass-card">
             <div class="text-[10px] opacity-65">Swell / Chop</div>
             <div id="deskPeriod" class="font-bold text-sm mt-0.5">14.0s / 8.5s</div>
-            <div class="text-[9px] opacity-60">Wave Period</div>
+            <div id="deskWaveDir" class="text-[9px] opacity-65">Wave Dir • ESE 102°</div>
           </div>
           <div class="p-2 rounded-lg glass-card">
             <div class="text-[10px] opacity-65">Wind / Gust</div>
             <div id="deskWind" class="font-bold text-sm mt-0.5">8.0 / 12.0 m/s</div>
-            <div class="text-[9px] opacity-60">Air Breeze</div>
+            <div id="deskWindDir" class="text-[9px] opacity-65">Wind Dir • SW 220°</div>
           </div>
           <div class="p-2 rounded-lg glass-card">
             <div class="text-[10px] opacity-65">Water Temp</div>
             <div id="deskTemp" class="font-bold text-sm mt-0.5">8.5 °C</div>
-            <div class="text-[9px] opacity-60">Thermal Base</div>
+            <div id="deskPresSub" class="text-[9px] opacity-65">968.2 hPa</div>
           </div>
         </div>
 
@@ -192,7 +192,7 @@
     <div class="glass-panel rounded-full px-3 py-1.5 pointer-events-auto shadow-lg flex items-center gap-2">
       <div id="desktopPlaneBtns" class="flex items-center gap-1.5"></div>
       <div class="h-4 w-px bg-current opacity-20 mx-1"></div>
-      <div class="flex items-center gap-2 text-[11px] pl-0.5 pr-1 shrink-0" title="Adjust spacing between planes">
+      <div class="flex items-center gap-2 text-[11px] pl-0.5 pr-1 shrink-0" title="Adjust spacing between time planes">
         <span class="opacity-75 font-medium whitespace-nowrap">Plane Spacing</span>
         <input id="deskExplodeSlider" type="range" min="45" max="155" value="100" class="w-20 h-1 cursor-pointer accent-amber-400" />
         <span id="deskExplodeVal" class="font-bold w-8 text-right">100%</span>
@@ -201,49 +201,52 @@
   </footer>
 
   <!-- ======================================================================= -->
+  <!-- MOBILE MAIN-SCREEN TELEMETRY HUD (Visible when Buoy Selector is closed) -->
+  <!-- ======================================================================= -->
+  <section id="mobileTelemetryHud" class="md:hidden fixed top-13 left-3 right-3 z-20 pointer-events-none">
+    <div class="glass-panel rounded-2xl p-2 shadow-lg pointer-events-auto">
+      <div class="grid grid-cols-4 gap-1.5 text-xs">
+        <div class="p-1.5 rounded-lg glass-card">
+          <div class="text-[9px] opacity-65 truncate">Wave Height</div>
+          <div id="mobWvht" class="font-bold text-xs mt-0.5 truncate">4.00 m</div>
+          <div id="mobTrendSub" class="text-[8px] opacity-65 truncate">+1.6m / 4h</div>
+        </div>
+        <div class="p-1.5 rounded-lg glass-card">
+          <div class="text-[9px] opacity-65 truncate">Swell / Chop</div>
+          <div id="mobPeriod" class="font-bold text-xs mt-0.5 truncate">14.0s / 8.5s</div>
+          <div id="mobWaveDir" class="text-[8px] opacity-65 truncate">ESE 102°</div>
+        </div>
+        <div class="p-1.5 rounded-lg glass-card">
+          <div class="text-[9px] opacity-65 truncate">Wind / Gust</div>
+          <div id="mobWind" class="font-bold text-xs mt-0.5 truncate">8.0 / 12.0</div>
+          <div id="mobWindDir" class="text-[8px] opacity-65 truncate">SW 220°</div>
+        </div>
+        <div class="p-1.5 rounded-lg glass-card">
+          <div class="text-[9px] opacity-65 truncate">Water Temp</div>
+          <div id="mobTemp" class="font-bold text-xs mt-0.5 truncate">8.5 °C</div>
+          <div id="mobPresSub" class="text-[8px] opacity-65 truncate">968.2 hPa</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================================= -->
   <!-- MOBILE STICKY BOTTOM DOCK: Plane Spacing + Filters + Buoy Dropdown      -->
   <!-- ======================================================================= -->
   <div class="md:hidden fixed bottom-0 left-0 right-0 z-30 flex flex-col pointer-events-none" style="padding-bottom: env(safe-area-inset-bottom, 0px);">
 
-    <!-- Expandable Mobile Dropdown Sheet (Buoy List + Selected Buoy Info) -->
-    <div id="mobileBuoyDrawer" class="hidden pointer-events-auto glass-panel mx-2 mb-2 rounded-2xl p-3.5 shadow-2xl max-h-[68dvh] overflow-y-auto">
+    <!-- Expandable Mobile Dropdown Sheet (Buoy List Only; Auto-Closes on Select) -->
+    <div id="mobileBuoyDrawer" class="hidden pointer-events-auto glass-panel mx-2 mb-2 rounded-2xl p-3.5 shadow-2xl max-h-[62dvh] overflow-y-auto">
       <div class="flex items-center justify-between pb-2 mb-2 border-b" style="border-color: var(--panel-border);">
         <div>
-          <div class="text-xs font-bold tracking-wide">Ocean Buoys</div>
-          <div class="text-[10px] opacity-75">Tap a station • Local solar time</div>
+          <div class="text-xs font-bold tracking-wide">Select Ocean Buoy</div>
+          <div class="text-[10px] opacity-75">Tap a station to view its 5-hour stack</div>
         </div>
         <button id="closeMobileDrawerBtn" class="w-7 h-7 rounded-full glass-card text-xs font-bold flex items-center justify-center cursor-pointer">✕</button>
       </div>
 
       <!-- Mobile Buoy List -->
-      <div id="mobileSpineList" class="space-y-1 mb-3"></div>
-
-      <!-- Mobile Selected Buoy Telemetry Readout -->
-      <div class="pt-2.5 border-t space-y-2" style="border-color: var(--panel-border);">
-        <div class="flex items-center justify-between">
-          <span id="mobStationTitle" class="text-xs font-bold">#46001 • Gulf of Alaska</span>
-          <span id="mobStationCoords" class="text-[10px] opacity-75">56.3°N, 148.0°W</span>
-        </div>
-
-        <div class="grid grid-cols-2 gap-1.5 text-xs">
-          <div class="p-2 rounded-lg glass-card">
-            <div class="text-[10px] opacity-65">Wave Height</div>
-            <div id="mobWvht" class="font-bold text-sm">4.00 m</div>
-          </div>
-          <div class="p-2 rounded-lg glass-card">
-            <div class="text-[10px] opacity-65">Swell / Chop</div>
-            <div id="mobPeriod" class="font-bold text-sm">14.0s / 8.5s</div>
-          </div>
-          <div class="p-2 rounded-lg glass-card">
-            <div class="text-[10px] opacity-65">Wind / Gust</div>
-            <div id="mobWind" class="font-bold text-sm">8.0 / 12.0 m/s</div>
-          </div>
-          <div class="p-2 rounded-lg glass-card">
-            <div class="text-[10px] opacity-65">Water Temp</div>
-            <div id="mobTemp" class="font-bold text-sm">8.5 °C</div>
-          </div>
-        </div>
-      </div>
+      <div id="mobileSpineList" class="space-y-1"></div>
     </div>
 
     <!-- Mobile Plane Spacing Bar (Right above the layer filter chips) -->
@@ -255,7 +258,7 @@
       </div>
     </div>
 
-    <!-- Horizontally Scrollable Layer Terms Bar (Always visible above bottom selector) -->
+    <!-- Horizontally Scrollable Time Plane Bar (Always visible above bottom selector) -->
     <div id="mobilePlaneBtns" class="pointer-events-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar px-3 py-1.5"></div>
 
     <!-- Full-Width Bottom Buoy Dropdown (Caret on the left, no "Select Buoy" label) -->
@@ -266,7 +269,7 @@
           <span id="mobActiveDot" class="w-3 h-3 rounded-full shrink-0 border border-white/80"></span>
           <div class="truncate">
             <div class="text-xs font-bold truncate" id="mobActiveName">Gulf of Alaska</div>
-            <div class="text-[10px] opacity-75 truncate" id="mobActiveStats">8.5°C • 4.0m waves • #46001</div>
+            <div class="text-[10px] opacity-75 truncate" id="mobActiveStats">#46001 • 56.3°N, 148.0°W • NOAA Live</div>
           </div>
         </div>
         <div class="text-right shrink-0">
@@ -297,7 +300,7 @@
     <!-- Scrollable Visual Legend Content -->
     <div class="space-y-2.5 overflow-y-auto pr-0.5 text-xs leading-relaxed flex-1">
       <p class="text-[11px] opacity-90">
-        <strong>BuoyFM</strong> turns live ocean conditions from floating sea buoys into a 5-layer visual stack and a relaxing soundscape.
+        <strong>BuoyFM</strong> turns live ocean telemetry from floating sea buoys into a 5-hour time-series stack and a generative ambient soundscape.
       </p>
 
       <!-- KEY 1: BUBBLE SIZE = WAVE HEIGHT -->
@@ -352,11 +355,23 @@
         </p>
       </div>
 
-      <!-- KEY 2: RING SHAPES & PULSE SPEED -->
+      <!-- KEY 2: WAVE TRAVEL DIRECTION, SHAPES & SPEED -->
       <div class="p-2.5 rounded-xl glass-card space-y-2">
-        <div class="font-bold text-[11px] uppercase tracking-wider">2. Ring Shapes & Speed</div>
+        <div class="font-bold text-[11px] uppercase tracking-wider">2. Wave Direction, Shapes & Speed</div>
 
         <div class="space-y-2">
+          <!-- Compass Wave & Wind Travel Direction -->
+          <div class="flex items-center gap-2.5">
+            <svg width="32" height="32" viewBox="0 0 32 32" class="shrink-0">
+              <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" stroke-opacity="0.25" stroke-dasharray="2 2" />
+              <line x1="7" y1="23" x2="23" y2="9" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+              <polyline points="17,8 24,8 23,15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+            <div class="text-[10px] leading-snug">
+              <strong>Ripple Travel = Wave &amp; Wind Direction:</strong> Dots stay anchored on the grid, but their sizes ripple across the plane along the buoy's compass <strong>Wave Direction (`MWD`)</strong> and <strong>Wind Direction (`WDIR`)</strong>.
+            </div>
+          </div>
+
           <!-- Hollow Ring vs Solid Circle -->
           <div class="flex items-center gap-2.5">
             <svg width="32" height="32" viewBox="0 0 32 32" class="shrink-0">
@@ -364,7 +379,7 @@
               <circle id="keyTargetDot" cx="16" cy="16" r="4" fill="#d9ed92" />
             </svg>
             <div class="text-[10px] leading-snug">
-              <strong>Hollow Target Rings:</strong> Show quick, wind-blown surface chop on the top layers.
+              <strong>Hollow Target Rings:</strong> Appear when brisk surface wind (`WSPD`) whips up short, choppy surface ripples.
             </div>
           </div>
 
@@ -375,7 +390,7 @@
               <circle cx="16" cy="16" r="2.2" fill="#fdfaf2" />
             </svg>
             <div class="text-[10px] leading-snug">
-              <strong>Layered Solid Bubbles:</strong> Show deep ocean swell rolling beneath the surface.
+              <strong>Layered Solid Bubbles:</strong> Show deep ocean groundswell rolling beneath the wind chop.
             </div>
           </div>
 
@@ -384,7 +399,7 @@
               <path d="M2 16 Q5 8, 8 16 T14 16 T20 16 Q24 6, 28 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
             </svg>
             <div class="text-[10px] leading-snug">
-              <strong>Pulse Speed = Time Between Waves:</strong> Short choppy waves (3–5 sec apart) ripple fast; long ocean swells (12–14 sec apart) breathe slowly.
+              <strong>Pulse Speed = Wave Period:</strong> Short choppy waves (3–5 sec apart) ripple rapidly; long groundswells (12–16 sec apart) breathe slowly.
             </div>
           </div>
         </div>
@@ -412,34 +427,29 @@
         </p>
       </div>
 
-      <!-- KEY 4: THE 5 STACKED LAYERS & SOUNDS -->
+      <!-- KEY 4: THE 5 TIME PLANES (NOW -> -4 HR) -->
       <div class="p-2.5 rounded-xl glass-card space-y-1.5">
-        <div class="font-bold text-[11px] uppercase tracking-wider">4. The 5 Layers & Sounds</div>
+        <div class="font-bold text-[11px] uppercase tracking-wider">4. The 5 Time Planes (Now → -4 Hr)</div>
         <p class="text-[10px] opacity-80 leading-snug">
-          Tap any layer button at the bottom to solo or mix what you see and hear (top to bottom):
+          Each sheet in the 3D stack is an hourly snapshot from the buoy's logbook, ordered from <strong>Now</strong> (front) to <strong>4 Hours Ago</strong> (back):
         </p>
         <div class="space-y-1 text-[10px] pt-0.5">
           <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
-            <strong>1. Wind / Gust</strong>
-            <span class="opacity-80">Wind ripples • Soft breeze</span>
+            <strong>1. Now (Front)</strong>
+            <span class="opacity-80">Latest live satellite reading</span>
           </div>
           <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
-            <strong>2. Surface Chop</strong>
-            <span class="opacity-80">Hollow rings • Gentle chime</span>
+            <strong>2. -1 Hr to -3 Hr</strong>
+            <span class="opacity-80">Recent hourly trend &amp; wind shifts</span>
           </div>
           <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
-            <strong>3. Swell Crest</strong>
-            <span class="opacity-80">Wave size • Rolling surf</span>
-          </div>
-          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
-            <strong>4. Wave Period</strong>
-            <span class="opacity-80">Wave tempo • Deep tide pulse</span>
-          </div>
-          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
-            <strong>5. Thermal Base</strong>
-            <span class="opacity-80">Water temp • Warm low hum</span>
+            <strong>3. -4 Hr (Back)</strong>
+            <span class="opacity-80">Baseline sea state 4 hours earlier</span>
           </div>
         </div>
+        <p class="text-[10px] opacity-80 leading-snug pt-0.5">
+          Compare bubble sizes front-to-back to see if a storm is <strong>building</strong> (growing toward the front) or <strong>calming down</strong>. Tap any hour pill at the bottom to solo or compare snapshots.
+        </p>
       </div>
 
       <!-- KEY 5: PUBLIC DATA & UPDATE FREQUENCY -->
@@ -454,16 +464,289 @@
       </div>
     </div>
 
-    <!-- Mobile Bottom Close Button for easy thumb reach -->
-    <div class="md:hidden pt-2.5 mt-2 border-t shrink-0" style="border-color: var(--panel-border);">
-      <button id="closeGuideMobileBottomBtn" class="w-full py-2.5 rounded-xl font-bold text-xs cursor-pointer" style="background: var(--fg-color); color: var(--bg-color);">
-        Back to Visualization
+    <!-- Footer Actions: Replay Full-Screen Intro + Mobile Close -->
+    <div class="pt-2.5 mt-2 border-t shrink-0 flex items-center gap-2" style="border-color: var(--panel-border);">
+      <button id="replayOnboardingBtn" class="flex-1 py-2 rounded-xl glass-card font-semibold text-xs hover:opacity-100 opacity-85 cursor-pointer">
+        ✦ Replay Full-Screen Intro
+      </button>
+      <button id="closeGuideMobileBottomBtn" class="md:hidden flex-1 py-2 rounded-xl font-bold text-xs cursor-pointer" style="background: var(--fg-color); color: var(--bg-color);">
+        Back to View
       </button>
     </div>
   </aside>
 
+  <!-- ======================================================================= -->
+  <!-- FULL-SCREEN ONBOARDING EXPERIENCE (Skippable 3-Step Visual Walkthrough) -->
+  <!-- ======================================================================= -->
+  <div id="onboardingOverlay" class="fixed inset-0 z-50 glass-panel flex flex-col justify-between p-4 sm:p-8 overflow-y-auto pointer-events-auto" style="padding-top: max(1.25rem, env(safe-area-inset-top, 1.25rem)); padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));">
+    <!-- Top Bar: Brand + Step Pill + Skip Button -->
+    <div class="w-full max-w-3xl mx-auto flex items-center justify-between gap-3 shrink-0">
+      <div class="flex items-center gap-2.5">
+        <span class="font-bitcount text-2xl sm:text-3xl tracking-tight leading-none">BuoyFM</span>
+        <span id="onboardStepBadge" class="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full glass-card opacity-85">
+          Step 1 of 3
+        </span>
+      </div>
+      <button id="skipOnboardingBtn" type="button" class="px-3.5 py-1.5 rounded-full glass-card text-xs font-semibold hover:opacity-100 opacity-85 transition cursor-pointer flex items-center gap-1.5">
+        <span>Skip to Visualization</span>
+        <span>→</span>
+      </button>
+    </div>
+
+    <!-- Center Slide Container -->
+    <div class="w-full max-w-3xl mx-auto my-auto py-4">
+
+      <!-- SLIDE 1: WHAT IS BUOYFM? -->
+      <div id="onboardSlide0" class="space-y-5">
+        <div class="text-center space-y-2 max-w-xl mx-auto">
+          <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full glass-card text-[11px] font-semibold text-amber-300">
+            <span>●</span>
+            <span>Live NOAA Ocean Telemetry Receiver</span>
+          </div>
+          <h2 class="text-2xl sm:text-4xl font-bold tracking-tight leading-tight">
+            What is BuoyFM?
+          </h2>
+          <p class="text-xs sm:text-sm opacity-85 leading-relaxed">
+            Across the Atlantic, Pacific, and Caribbean, floating <strong>NOAA weather buoys</strong> measure wind, waves, and sea temperature every 10–60 minutes. <strong>BuoyFM</strong> turns those live satellite readings into an interactive 3D visual stack and ambient ocean soundscape.
+          </p>
+        </div>
+
+        <!-- 3-Column Visual Flow -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+          <div class="p-4 rounded-2xl glass-card flex flex-col items-center text-center gap-2.5">
+            <div class="w-12 h-12 rounded-2xl bg-sky-500/15 border border-sky-400/30 flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M3 21 Q8 17, 14 21 T25 21" stroke="#38bdf8" stroke-width="2" stroke-linecap="round" />
+                <polygon points="14,5 9,18 19,18" fill="#38bdf8" fill-opacity="0.35" stroke="#38bdf8" stroke-width="1.6" />
+                <circle cx="14" cy="5" r="2" fill="#fde047" />
+              </svg>
+            </div>
+            <div class="font-bold text-sm">1. Floating Sea Buoys</div>
+            <p class="text-[11px] opacity-80 leading-relaxed">
+              Pick from 7 real ocean stations—from icy storm lows in the <strong>Gulf of Alaska</strong> to warm trade winds in the <strong>Caribbean</strong>.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-2xl glass-card flex flex-col items-center text-center gap-2.5">
+            <div class="w-12 h-12 rounded-2xl bg-teal-500/15 border border-teal-400/30 flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <rect x="4" y="9" width="11" height="11" transform="skewY(14)" stroke="#2dd4bf" stroke-width="1.6" fill="#2dd4bf" fill-opacity="0.15" />
+                <rect x="9" y="6" width="11" height="11" transform="skewY(14)" stroke="#38bdf8" stroke-width="1.6" fill="#38bdf8" fill-opacity="0.2" />
+                <rect x="14" y="3" width="11" height="11" transform="skewY(14)" stroke="#f5f2eb" stroke-width="1.8" fill="#f5f2eb" fill-opacity="0.2" />
+              </svg>
+            </div>
+            <div class="font-bold text-sm">2. 5-Hour Time Stack</div>
+            <p class="text-[11px] opacity-80 leading-relaxed">
+              Each plane in the center is an hourly snapshot (<strong>Now</strong> back to <strong>4 Hours Ago</strong>) so you can see how the sea state is evolving.
+            </p>
+          </div>
+
+          <div class="p-4 rounded-2xl glass-card flex flex-col items-center text-center gap-2.5">
+            <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center">
+              <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+                <path d="M4 14 Q7 6, 10 14 T16 14 Q19 4, 22 14 T26 14" stroke="#fbbf24" stroke-width="2" stroke-linecap="round" />
+              </svg>
+            </div>
+            <div class="font-bold text-sm">3. Ambient Ocean Synth</div>
+            <p class="text-[11px] opacity-80 leading-relaxed">
+              Turn on <strong>Audio</strong> to hear live wave height, swell tempo, wind breeze, and water temperature modulate a generative synthesizer.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: HOW TO READ THE VISUALIZATION (4 VISUAL CUES) -->
+      <div id="onboardSlide1" class="hidden space-y-5">
+        <div class="text-center space-y-1.5 max-w-xl mx-auto">
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+            How to Read Each Plane
+          </h2>
+          <p class="text-xs sm:text-sm opacity-80">
+            Every plane uses <strong>4 simple visual cues</strong> to show the ocean conditions at that hour:
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <!-- Cue 1: Bubble Size = Wave Height -->
+          <div class="p-3.5 rounded-2xl glass-card flex items-center gap-3.5">
+            <div class="w-16 h-16 rounded-xl bg-black/20 flex items-center justify-center shrink-0">
+              <svg width="56" height="44" viewBox="0 0 56 44">
+                <circle cx="13" cy="22" r="5" fill="#38bdf8" />
+                <circle cx="13" cy="22" r="1.8" fill="#fdfaf2" />
+                <circle cx="38" cy="22" r="14" fill="#2b72c4" fill-opacity="0.9" />
+                <circle cx="38" cy="22" r="8" fill="#56b4d3" />
+                <circle cx="38" cy="22" r="2.2" fill="#fdfaf2" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <div class="font-bold text-sm">1. Bubble Size = Wave Height</div>
+              <p class="text-[11px] opacity-80 leading-snug">
+                Calm seas (<strong>&lt;1m</strong>) draw small, separated dots. In heavy swells (<strong>4m–6m+</strong>), bubbles dilate and overlap.
+              </p>
+            </div>
+          </div>
+
+          <!-- Cue 2: Ripple Travel = Wave & Wind Direction -->
+          <div class="p-3.5 rounded-2xl glass-card flex items-center gap-3.5">
+            <div class="w-16 h-16 rounded-xl bg-black/20 flex items-center justify-center shrink-0">
+              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+                <circle cx="24" cy="24" r="18" stroke="currentColor" stroke-opacity="0.25" stroke-dasharray="3 3" />
+                <line x1="12" y1="34" x2="34" y2="14" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" />
+                <polyline points="25,13 35,13 34,23" stroke="#38bdf8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <div class="font-bold text-sm">2. Travel = Wave &amp; Wind Direction</div>
+              <p class="text-[11px] opacity-80 leading-snug">
+                Dots stay anchored on the grid, while wave crests roll across the plane along the buoy's compass <strong>Wave (`MWD`)</strong> and <strong>Wind (`WDIR`)</strong> angles.
+              </p>
+            </div>
+          </div>
+
+          <!-- Cue 3: Hollow Rings vs Solid Circles & Tempo -->
+          <div class="p-3.5 rounded-2xl glass-card flex items-center gap-3.5">
+            <div class="w-16 h-16 rounded-xl bg-black/20 flex items-center justify-center shrink-0">
+              <svg width="56" height="44" viewBox="0 0 56 44">
+                <circle cx="16" cy="22" r="10" fill="none" stroke="#56b4d3" stroke-width="2.5" />
+                <circle cx="16" cy="22" r="3.5" fill="#d9ed92" />
+                <circle cx="40" cy="22" r="11" fill="#2b72c4" />
+                <circle cx="40" cy="22" r="6" fill="#56b4d3" />
+                <circle cx="40" cy="22" r="2" fill="#fdfaf2" />
+              </svg>
+            </div>
+            <div class="space-y-1">
+              <div class="font-bold text-sm">3. Rings &amp; Speed = Chop vs. Swell</div>
+              <p class="text-[11px] opacity-80 leading-snug">
+                <strong>Hollow rings</strong> show brisk surface wind chop; <strong>solid circles</strong> show deep groundswell. Fast ripples = short wave period (3–5s); slow breathing = long swell (12–16s).
+              </p>
+            </div>
+          </div>
+
+          <!-- Cue 4: Color = Water Temperature -->
+          <div class="p-3.5 rounded-2xl glass-card flex items-center gap-3.5">
+            <div class="w-16 h-16 rounded-xl bg-black/20 flex flex-col items-center justify-center gap-1.5 p-2 shrink-0">
+              <div class="w-full h-3 rounded-full" style="background: #1d5b9e;"></div>
+              <div class="w-full h-3 rounded-full" style="background: #2a9d8f;"></div>
+              <div class="w-full h-3 rounded-full" style="background: #ed5c2b;"></div>
+            </div>
+            <div class="space-y-1">
+              <div class="font-bold text-sm">4. Color = Water Temperature</div>
+              <p class="text-[11px] opacity-80 leading-snug">
+                Colors shift automatically from sub-arctic <strong>Navy (~6°C)</strong> to temperate <strong>Teal (~18°C)</strong> to tropical <strong>Coral &amp; Burgundy (28°C+)</strong>.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: READING THE 5-HOUR TIME STACK -->
+      <div id="onboardSlide2" class="hidden space-y-5">
+        <div class="text-center space-y-1.5 max-w-xl mx-auto">
+          <h2 class="text-2xl sm:text-3xl font-bold tracking-tight">
+            Reading the 5-Hour Time Stack
+          </h2>
+          <p class="text-xs sm:text-sm opacity-80">
+            The 5 planes show <strong>Now (front)</strong> back to <strong>4 Hours Ago (back)</strong>, so the 3D shape reveals the trend at a glance:
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <!-- Building Storm Diagram -->
+          <div class="p-4 rounded-2xl glass-card space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm">Building Storm</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-semibold">Growing Toward Front</span>
+            </div>
+            <div class="h-24 rounded-xl bg-black/20 flex items-center justify-center px-4">
+              <svg width="220" height="76" viewBox="0 0 220 76">
+                <!-- -4h back to Now front -->
+                <circle cx="32" cy="38" r="6" fill="#3a86a8" fill-opacity="0.5" />
+                <text x="32" y="64" text-anchor="middle" fill="currentColor" font-size="9" opacity="0.65">-4 Hr</text>
+                <circle cx="70" cy="38" r="9" fill="#3a86a8" fill-opacity="0.65" />
+                <text x="70" y="64" text-anchor="middle" fill="currentColor" font-size="9" opacity="0.65">-3 Hr</text>
+                <circle cx="110" cy="38" r="12" fill="#2b72c4" fill-opacity="0.75" />
+                <text x="110" y="64" text-anchor="middle" fill="currentColor" font-size="9" opacity="0.65">-2 Hr</text>
+                <circle cx="150" cy="38" r="16" fill="#2b72c4" fill-opacity="0.88" />
+                <text x="150" y="64" text-anchor="middle" fill="currentColor" font-size="9" opacity="0.65">-1 Hr</text>
+                <circle cx="192" cy="38" r="21" fill="#56b4d3" />
+                <circle cx="192" cy="38" r="11" fill="#7fc8c2" />
+                <circle cx="192" cy="38" r="3" fill="#fdfaf2" />
+                <text x="192" y="68" text-anchor="middle" fill="currentColor" font-size="9" font-weight="bold">NOW</text>
+              </svg>
+            </div>
+            <p class="text-[11px] opacity-80 leading-snug">
+              When bubbles on the front <strong>Now</strong> plane are larger than on <strong>-4 Hr</strong>, waves are actively building (e.g., <strong>#46001 Gulf of Alaska</strong>).
+            </p>
+          </div>
+
+          <!-- Calming Seas Diagram -->
+          <div class="p-4 rounded-2xl glass-card space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm">Calming Seas</span>
+              <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-semibold">Tapering Toward Front</span>
+            </div>
+            <div class="h-24 rounded-xl bg-black/20 flex items-center justify-center px-4">
+              <svg width="220" height="76" viewBox="0 0 220 76">
+                <circle cx="32" cy="38" r="20" fill="#2b72c4" fill-opacity="0.6" />
+                <circle cx="32" cy="38" r="10" fill="#56b4d3" fill-opacity="0.6" />
+                <text x="32" y="68" text-anchor="middle" fill="currentColor" font-size="9" opacity="0.65">-4 Hr</text>
+                <circle cx="74" cy="38" r="16" fill="#2b72c4" fill-opacity="0.7" />
+                <text x="74" y="64" text-anchor="middle" fill="currentColor" font-size="9" opacity="0.65">-3 Hr</text>
+                <circle cx="114" cy="38" r="12" fill="#3a86a8" fill-opacity="0.8" />
+                <text x="114" y="64" text-anchor="middle" fill="currentColor" font-size="9" opacity="0.65">-2 Hr</text>
+                <circle cx="152" cy="38" r="9" fill="#3a86a8" fill-opacity="0.9" />
+                <text x="152" y="64" text-anchor="middle" fill="currentColor" font-size="9" opacity="0.65">-1 Hr</text>
+                <circle cx="192" cy="38" r="6" fill="#56b4d3" />
+                <circle cx="192" cy="38" r="2" fill="#fdfaf2" />
+                <text x="192" y="64" text-anchor="middle" fill="currentColor" font-size="9" font-weight="bold">NOW</text>
+              </svg>
+            </div>
+            <p class="text-[11px] opacity-80 leading-snug">
+              When the back planes are larger and the front <strong>Now</strong> plane is small, a storm has passed and seas are subsiding (e.g., <strong>#44013 Boston Harbor</strong>).
+            </p>
+          </div>
+        </div>
+
+        <!-- Quick Interactive Tips Bar -->
+        <div class="grid grid-cols-3 gap-2 text-center text-[11px]">
+          <div class="p-2.5 rounded-xl glass-card">
+            <div class="font-bold">Drag Canvas</div>
+            <div class="opacity-70 text-[10px]">Tilt the 3D camera angle</div>
+          </div>
+          <div class="p-2.5 rounded-xl glass-card">
+            <div class="font-bold">Tap Hour Pills</div>
+            <div class="opacity-70 text-[10px]">Solo or compare specific hours</div>
+          </div>
+          <div class="p-2.5 rounded-xl glass-card">
+            <div class="font-bold">Tap ? Key Anytime</div>
+            <div class="opacity-70 text-[10px]">Re-open the visual legend</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Navigation Bar: Step Dots + Back / Next / Enter -->
+    <div class="w-full max-w-3xl mx-auto pt-3 border-t flex items-center justify-between gap-3 shrink-0" style="border-color: var(--panel-border);">
+      <button id="onboardPrevBtn" type="button" class="px-4 py-2 rounded-full glass-card text-xs font-semibold cursor-pointer invisible">
+        ← Back
+      </button>
+
+      <!-- Step Dots -->
+      <div class="flex items-center gap-2">
+        <button type="button" data-step="0" class="onboard-dot w-6 h-2 rounded-full transition cursor-pointer bg-amber-400"></button>
+        <button type="button" data-step="1" class="onboard-dot w-2 h-2 rounded-full transition cursor-pointer bg-white/30"></button>
+        <button type="button" data-step="2" class="onboard-dot w-2 h-2 rounded-full transition cursor-pointer bg-white/30"></button>
+      </div>
+
+      <button id="onboardNextBtn" type="button" class="px-5 py-2 rounded-full text-xs font-bold cursor-pointer transition shadow-md" style="background: var(--fg-color); color: var(--bg-color);">
+        Next: How to Read →
+      </button>
+    </div>
+  </div>
+
   <script>
-    // Real NOAA NDBC telemetry rows + UTC offsets for real local time-of-day calculation
+    // Real NOAA NDBC telemetry rows + 5-hour history snapshots [Now, -1h, -2h, -3h, -4h]
     const buoys = [
       {
         idx: 1,
@@ -476,6 +759,13 @@
         wvht: 4.0, dpd: 14.0, apd: 8.5, mwd: 102,
         wdir: 220, wspd: 8.0, gst: 12.0,
         pres: 968.2, ptdy: +4.4, atmp: 7.8, wtmp: 8.5,
+        history: [
+          { label: 'Now',   timeUTC: '08:30 UTC', wvht: 4.0, dpd: 14.0, apd: 8.5, mwd: 102, wdir: 220, wspd: 8.0, gst: 12.0, wtmp: 8.5 },
+          { label: '-1 Hr', timeUTC: '07:30 UTC', wvht: 3.6, dpd: 13.5, apd: 8.1, mwd: 105, wdir: 215, wspd: 9.0, gst: 12.5, wtmp: 8.5 },
+          { label: '-2 Hr', timeUTC: '06:30 UTC', wvht: 3.1, dpd: 12.5, apd: 7.6, mwd: 110, wdir: 210, wspd: 7.5, gst: 11.0, wtmp: 8.6 },
+          { label: '-3 Hr', timeUTC: '05:30 UTC', wvht: 2.7, dpd: 11.5, apd: 7.2, mwd: 114, wdir: 200, wspd: 6.8, gst: 9.5,  wtmp: 8.6 },
+          { label: '-4 Hr', timeUTC: '04:30 UTC', wvht: 2.4, dpd: 11.0, apd: 6.8, mwd: 118, wdir: 195, wspd: 6.0, gst: 8.5,  wtmp: 8.7 }
+        ],
         notes: 'Row 08:30 has WVHT=MM because NOAA buoys only compute wave spectra at :20 and :50. Parser merges 08:30 wind (8.0 m/s, 968.2 hPa storm low) with 08:20 wave height (4.0m @ 14s).',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
 2026 11 10 08 30 220  8.0 12.0   MM  MM  MM  MM  968.2  7.8  8.5   MM
@@ -493,6 +783,13 @@
         wvht: 2.04, dpd: 8.8, apd: 7.75, mwd: 175,
         wdir: 70, wspd: 11.8, gst: 13.8,
         pres: 1011.5, ptdy: +0.3, atmp: 11.1, wtmp: 12.1,
+        history: [
+          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 2.04, dpd: 8.8, apd: 7.75, mwd: 175, wdir: 70, wspd: 11.8, gst: 13.8, wtmp: 12.1 },
+          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 1.92, dpd: 8.6, apd: 7.50, mwd: 172, wdir: 70, wspd: 10.3, gst: 12.4, wtmp: 12.1 },
+          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 1.80, dpd: 8.4, apd: 7.20, mwd: 170, wdir: 65, wspd: 9.8,  gst: 11.8, wtmp: 12.1 },
+          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 1.68, dpd: 8.2, apd: 7.00, mwd: 168, wdir: 60, wspd: 9.1,  gst: 11.0, wtmp: 12.2 },
+          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 1.55, dpd: 8.0, apd: 6.80, mwd: 165, wdir: 60, wspd: 8.5,  gst: 10.2, wtmp: 12.2 }
+        ],
         notes: 'Seven Stones Lightvessel reports live wind (11.8 m/s) and water temp (12.1°C) to NOAA, while wave height is enriched live from Open-Meteo Marine (2.04m @ 8.8s).',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP DEWP
 2026 11 10 09 00  70 11.8   MM   MM  MM  MM  MM 1011.5 11.1 12.1  6.8
@@ -510,7 +807,14 @@
         wvht: 5.6, dpd: 14.0, apd: 9.0, mwd: 268,
         wdir: 210, wspd: 12.0, gst: 15.0,
         pres: 1002.1, ptdy: -1.4, atmp: 14.5, wtmp: 13.3,
-        notes: 'Heavy North Pacific storm swell! 5.6-meter (18.4 ft) significant wave height with 15.0 m/s gusts—causing the concentric circles on the lower planes to dilate and fuse.',
+        history: [
+          { label: 'Now',   timeUTC: '08:40 UTC', wvht: 5.6, dpd: 14.0, apd: 9.0, mwd: 268, wdir: 210, wspd: 12.0, gst: 15.0, wtmp: 13.3 },
+          { label: '-1 Hr', timeUTC: '07:40 UTC', wvht: 5.1, dpd: 13.5, apd: 8.7, mwd: 265, wdir: 200, wspd: 11.0, gst: 14.0, wtmp: 13.2 },
+          { label: '-2 Hr', timeUTC: '06:40 UTC', wvht: 4.6, dpd: 13.0, apd: 8.3, mwd: 262, wdir: 195, wspd: 10.2, gst: 13.0, wtmp: 13.2 },
+          { label: '-3 Hr', timeUTC: '05:40 UTC', wvht: 4.1, dpd: 12.5, apd: 7.9, mwd: 260, wdir: 190, wspd: 9.4,  gst: 12.0, wtmp: 13.3 },
+          { label: '-4 Hr', timeUTC: '04:40 UTC', wvht: 3.7, dpd: 12.0, apd: 7.5, mwd: 258, wdir: 185, wspd: 8.8,  gst: 11.2, wtmp: 13.3 }
+        ],
+        notes: 'Heavy North Pacific storm swell! 5.6-meter (18.4 ft) significant wave height with 15.0 m/s gusts—causing the concentric circles on the front planes to dilate and overlap.',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
 2026 11 10 08 40 210 12.0 15.0   MM  MM  MM  MM 1002.1 14.5 13.3   MM
 2026 11 10 08 20 200 10.0 12.0  5.6  14 9.0 268 1001.9 14.4   MM   MM
@@ -527,7 +831,14 @@
         wvht: 0.7, dpd: 3.0, apd: 3.3, mwd: 287,
         wdir: 260, wspd: 8.0, gst: 10.0,
         pres: 1011.3, ptdy: +0.5, atmp: 10.1, wtmp: 12.5,
-        notes: 'Protected bay chop: very low 0.7m wave height with a rapid 3.0-second dominant period. Notice how the dots stay crisp and separated with rapid micro-pulsing.',
+        history: [
+          { label: 'Now',   timeUTC: '08:50 UTC', wvht: 0.7, dpd: 3.0, apd: 3.3, mwd: 287, wdir: 260, wspd: 8.0,  gst: 10.0, wtmp: 12.5 },
+          { label: '-1 Hr', timeUTC: '07:50 UTC', wvht: 0.9, dpd: 3.5, apd: 3.6, mwd: 290, wdir: 270, wspd: 9.0,  gst: 11.0, wtmp: 12.5 },
+          { label: '-2 Hr', timeUTC: '06:50 UTC', wvht: 1.2, dpd: 4.2, apd: 4.0, mwd: 292, wdir: 275, wspd: 10.2, gst: 12.5, wtmp: 12.4 },
+          { label: '-3 Hr', timeUTC: '05:50 UTC', wvht: 1.5, dpd: 4.8, apd: 4.3, mwd: 295, wdir: 280, wspd: 11.5, gst: 14.0, wtmp: 12.4 },
+          { label: '-4 Hr', timeUTC: '04:50 UTC', wvht: 1.8, dpd: 5.2, apd: 4.6, mwd: 298, wdir: 285, wspd: 12.4, gst: 15.2, wtmp: 12.3 }
+        ],
+        notes: 'Calming bay chop: waves have subsided from 1.8m four hours ago down to 0.7m Now with a rapid 3.0-second dominant period.',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
 2026 11 10 08 50 260  8.0 10.0  0.7   3 3.3 287 1011.3   MM   MM   MM
 2026 11 10 08 40 270  9.0 11.0   MM  MM  MM  MM 1011.3 10.1 12.5   MM`
@@ -543,7 +854,14 @@
         wvht: 2.7, dpd: 14.0, apd: 8.4, mwd: 274,
         wdir: 340, wspd: 8.0, gst: 10.0,
         pres: 1021.4, ptdy: +0.7, atmp: 16.5, wtmp: 18.3,
-        notes: 'Long 14-second Pacific groundswell (2.7m) rolling toward the Golden Gate Bridge under high barometric pressure (1021.4 hPa).',
+        history: [
+          { label: 'Now',   timeUTC: '08:40 UTC', wvht: 2.7, dpd: 14.0, apd: 8.4, mwd: 274, wdir: 340, wspd: 8.0, gst: 10.0, wtmp: 18.3 },
+          { label: '-1 Hr', timeUTC: '07:40 UTC', wvht: 2.9, dpd: 14.0, apd: 8.5, mwd: 275, wdir: 335, wspd: 8.5, gst: 10.5, wtmp: 18.3 },
+          { label: '-2 Hr', timeUTC: '06:40 UTC', wvht: 3.1, dpd: 14.5, apd: 8.7, mwd: 276, wdir: 330, wspd: 9.0, gst: 11.2, wtmp: 18.2 },
+          { label: '-3 Hr', timeUTC: '05:40 UTC', wvht: 3.2, dpd: 14.5, apd: 8.8, mwd: 278, wdir: 330, wspd: 9.4, gst: 11.8, wtmp: 18.2 },
+          { label: '-4 Hr', timeUTC: '04:40 UTC', wvht: 3.4, dpd: 15.0, apd: 9.0, mwd: 280, wdir: 325, wspd: 9.8, gst: 12.0, wtmp: 18.1 }
+        ],
+        notes: 'Long 14-second Pacific groundswell (2.7m) rolling east from W 274° toward the Golden Gate Bridge under high barometric pressure (1021.4 hPa).',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
 2026 11 10 08 40  MM   MM   MM  2.7  14 8.4 274     MM   MM   MM   MM
 2026 11 10 08 30 340  8.0 10.0   MM  MM  MM  MM 1021.4   MM 18.3   MM`
@@ -559,7 +877,14 @@
         wvht: 2.2, dpd: 11.0, apd: 6.8, mwd: 314,
         wdir: 60, wspd: 8.0, gst: 10.0,
         pres: 1021.6, ptdy: +1.5, atmp: 24.7, wtmp: 25.4,
-        notes: 'Warm 25.4°C Pacific water shifts the concentric rings into vibrant tropical corals, pinks, and warm gold.',
+        history: [
+          { label: 'Now',   timeUTC: '08:20 UTC', wvht: 2.2, dpd: 11.0, apd: 6.8, mwd: 314, wdir: 60, wspd: 8.0, gst: 10.0, wtmp: 25.4 },
+          { label: '-1 Hr', timeUTC: '07:20 UTC', wvht: 2.1, dpd: 11.0, apd: 6.7, mwd: 312, wdir: 55, wspd: 8.0, gst: 10.5, wtmp: 25.4 },
+          { label: '-2 Hr', timeUTC: '06:20 UTC', wvht: 2.0, dpd: 10.5, apd: 6.5, mwd: 310, wdir: 50, wspd: 7.8, gst: 10.0, wtmp: 25.3 },
+          { label: '-3 Hr', timeUTC: '05:20 UTC', wvht: 1.9, dpd: 10.5, apd: 6.4, mwd: 310, wdir: 50, wspd: 7.5, gst: 9.5,  wtmp: 25.3 },
+          { label: '-4 Hr', timeUTC: '04:20 UTC', wvht: 1.8, dpd: 10.0, apd: 6.2, mwd: 308, wdir: 50, wspd: 7.2, gst: 9.0,  wtmp: 25.3 }
+        ],
+        notes: 'Warm 25.4°C Pacific water shifts the concentric rings into vibrant tropical corals, with NW 314° groundswell crossing ENE 60° trade winds.',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
 2026 11 10 08 20  60  8.0 10.0  2.2  11 6.8 314 1021.6 24.7 25.4   MM
 2026 11 10 08 00  50  8.0 11.0   MM  MM  MM  MM 1021.6 24.4 25.4 +1.5`
@@ -575,12 +900,26 @@
         wvht: 1.5, dpd: 6.0, apd: 4.4, mwd: 99,
         wdir: 70, wspd: 9.0, gst: 11.0,
         pres: 1010.5, ptdy: -1.2, atmp: 29.3, wtmp: 29.6,
+        history: [
+          { label: 'Now',   timeUTC: '08:40 UTC', wvht: 1.5, dpd: 6.0, apd: 4.4, mwd: 99, wdir: 70, wspd: 9.0, gst: 11.0, wtmp: 29.6 },
+          { label: '-1 Hr', timeUTC: '07:40 UTC', wvht: 1.4, dpd: 6.0, apd: 4.5, mwd: 95, wdir: 65, wspd: 9.0, gst: 11.0, wtmp: 29.6 },
+          { label: '-2 Hr', timeUTC: '06:40 UTC', wvht: 1.4, dpd: 5.8, apd: 4.4, mwd: 93, wdir: 60, wspd: 8.8, gst: 10.8, wtmp: 29.5 },
+          { label: '-3 Hr', timeUTC: '05:40 UTC', wvht: 1.3, dpd: 5.8, apd: 4.3, mwd: 92, wdir: 60, wspd: 8.5, gst: 10.5, wtmp: 29.5 },
+          { label: '-4 Hr', timeUTC: '04:40 UTC', wvht: 1.2, dpd: 5.5, apd: 4.2, mwd: 90, wdir: 60, wspd: 8.2, gst: 10.0, wtmp: 29.5 }
+        ],
         notes: '29.6°C sea surface temperature—the warmest station in the network—driving deep vermilion/sunburst thermal rings and a rich burgundy background.',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
 2026 11 10 08 40  70  9.0 11.0  1.5  MM 4.4  99 1010.5 29.3 29.6   MM
 2026 11 10 08 20  60  9.0 11.0  1.4   6 4.5  93 1010.6 29.3 29.6   MM`
       }
     ];
+
+    function degToCompass(deg) {
+      if (deg == null || !Number.isFinite(deg)) return '—';
+      const dirs = ['N', 'NNE', 'NE', 'ENE', 'E', 'ESE', 'SE', 'SSE', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW'];
+      const idx = Math.round(((deg % 360) + 360) % 360 / 22.5) % 16;
+      return `${dirs[idx]} ${Math.round(deg)}°`;
+    }
 
     // Dynamic Temperature-Driven Palette + Dark Background Anchors (Navy for cold -> Burgundy for warm)
     const thermalAnchors = [
@@ -678,13 +1017,13 @@
       };
     }
 
-    // Actual human-readable layer names (no cryptic 50, 75, 100 codes)
+    // 5 Time-Series Planes: Now (front) -> 4 Hours Ago (back)
     const planeDefs = [
-      { label: 'Wind / Gust',  short: 'Wind / Gust',  stem: 'Air Breeze' },
-      { label: 'Surface Chop', short: 'Surface Chop', stem: 'Harmonic Shimmer' },
-      { label: 'Swell Crest',  short: 'Swell Crest',  stem: 'Surf Wash' },
-      { label: 'Wave Period',  short: 'Wave Period',  stem: 'Deep Tide' },
-      { label: 'Thermal Base', short: 'Thermal Base', stem: 'Warm Drone' }
+      { label: 'Now',   short: 'Now',   offsetHours: 0 },
+      { label: '-1 Hr', short: '-1 Hr', offsetHours: 1 },
+      { label: '-2 Hr', short: '-2 Hr', offsetHours: 2 },
+      { label: '-3 Hr', short: '-3 Hr', offsetHours: 3 },
+      { label: '-4 Hr', short: '-4 Hr', offsetHours: 4 }
     ];
 
     let activeBuoyIdx = 0;
@@ -692,7 +1031,8 @@
     let explodeFactor = 1.0;
     let isDarkMode = true; // Default is temperature-aligned Dark Mode
     let isDesktopSidebarOpen = true;
-    let isGuideOpen = window.innerWidth >= 768;
+    let isGuideOpen = false;
+    let onboardStep = 0;
 
     // Interactive isometric camera tilt offset
     let camYaw = 0;
@@ -779,16 +1119,19 @@
       updateDesktopSidebarState();
     });
 
-    // Mobile Bottom Dropdown Toggle (Rotates left caret)
+    // Mobile Bottom Dropdown Toggle (Rotates left caret & toggles main-screen telemetry HUD)
     const mobileBuoyDrawer = document.getElementById('mobileBuoyDrawer');
+    const mobileTelemetryHud = document.getElementById('mobileTelemetryHud');
     const mobDropdownCaret = document.getElementById('mobDropdownCaret');
 
     function setMobileDrawerOpen(open) {
       if (open) {
         mobileBuoyDrawer.classList.remove('hidden');
+        if (mobileTelemetryHud) mobileTelemetryHud.classList.add('hidden');
         mobDropdownCaret.style.transform = 'rotate(180deg)';
       } else {
         mobileBuoyDrawer.classList.add('hidden');
+        if (mobileTelemetryHud) mobileTelemetryHud.classList.remove('hidden');
         mobDropdownCaret.style.transform = 'rotate(0deg)';
       }
     }
@@ -831,6 +1174,71 @@
     });
     document.getElementById('closeGuideMobileBottomBtn').addEventListener('click', () => {
       setGuideOpen(false);
+    });
+
+    // Full-Screen Onboarding Controller (3 Steps + Instant Skip)
+    const onboardingOverlay = document.getElementById('onboardingOverlay');
+    const onboardStepBadge = document.getElementById('onboardStepBadge');
+    const onboardPrevBtn = document.getElementById('onboardPrevBtn');
+    const onboardNextBtn = document.getElementById('onboardNextBtn');
+    const onboardDots = Array.from(document.querySelectorAll('.onboard-dot'));
+
+    function setOnboardingStep(step) {
+      onboardStep = Math.max(0, Math.min(2, step));
+      [0, 1, 2].forEach((idx) => {
+        const el = document.getElementById(`onboardSlide${idx}`);
+        if (el) el.classList.toggle('hidden', idx !== onboardStep);
+      });
+      onboardStepBadge.textContent = `Step ${onboardStep + 1} of 3`;
+      onboardPrevBtn.classList.toggle('invisible', onboardStep === 0);
+
+      const nextLabels = [
+        'Next: How to Read →',
+        'Next: 5-Hour Stack →',
+        'Enter BuoyFM →'
+      ];
+      onboardNextBtn.textContent = nextLabels[onboardStep];
+
+      onboardDots.forEach((dot, idx) => {
+        if (idx === onboardStep) {
+          dot.className = 'onboard-dot w-6 h-2 rounded-full transition cursor-pointer bg-amber-400';
+        } else {
+          dot.className = 'onboard-dot w-2 h-2 rounded-full transition cursor-pointer bg-current opacity-30';
+        }
+      });
+    }
+
+    function closeOnboarding() {
+      onboardingOverlay.classList.add('hidden');
+    }
+
+    function openOnboarding() {
+      setOnboardingStep(0);
+      onboardingOverlay.classList.remove('hidden');
+    }
+
+    document.getElementById('skipOnboardingBtn').addEventListener('click', closeOnboarding);
+    onboardPrevBtn.addEventListener('click', () => setOnboardingStep(onboardStep - 1));
+    onboardNextBtn.addEventListener('click', () => {
+      if (onboardStep < 2) {
+        setOnboardingStep(onboardStep + 1);
+      } else {
+        closeOnboarding();
+      }
+    });
+    onboardDots.forEach((dot) => {
+      dot.addEventListener('click', () => {
+        setOnboardingStep(parseInt(dot.getAttribute('data-step'), 10));
+      });
+    });
+    document.getElementById('replayOnboardingBtn').addEventListener('click', () => {
+      setGuideOpen(false);
+      openOnboarding();
+    });
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !onboardingOverlay.classList.contains('hidden')) {
+        closeOnboarding();
+      }
     });
 
     // Canvas Dragging
@@ -918,18 +1326,20 @@
           activeBuoyIdx = idx;
           renderSpine();
           updateHUD();
+          setMobileDrawerOpen(false);
         };
         mobContainer.appendChild(mobBtn);
       });
     }
 
-    // Render Layer Toggle Buttons using descriptive terms (Wind/Gust, Surface Chop, etc.)
+    // Render Time-Plane Toggle Buttons (All 5 Hours + Now, -1 Hr, -2 Hr, -3 Hr, -4 Hr)
     function renderPlaneButtons() {
       const deskContainer = document.getElementById('desktopPlaneBtns');
       const mobContainer = document.getElementById('mobilePlaneBtns');
       deskContainer.innerHTML = '';
       mobContainer.innerHTML = '';
 
+      const b = buoys[activeBuoyIdx];
       const allSelected = selectedPlanes.size === planeDefs.length;
 
       const activeClass = isDarkMode
@@ -942,7 +1352,7 @@
       function makeAllBtn() {
         const btn = document.createElement('button');
         btn.className = `px-3 py-1 rounded-full text-[11px] font-bold transition cursor-pointer shrink-0 ${allSelected ? activeClass : idleClass}`;
-        btn.textContent = 'All Layers';
+        btn.textContent = 'All 5 Hours';
         btn.onclick = () => {
           selectedPlanes = new Set([0, 1, 2, 3, 4]);
           renderPlaneButtons();
@@ -955,6 +1365,8 @@
 
       planeDefs.forEach((p, idx) => {
         const active = selectedPlanes.has(idx);
+        const snap = (b.history && b.history[idx]) || b;
+        const wvText = snap.wvht != null ? `${snap.wvht.toFixed(1)}m` : '';
 
         [deskContainer, mobContainer].forEach(container => {
           const btn = document.createElement('button');
@@ -962,8 +1374,9 @@
           btn.innerHTML = `
             <span class="w-1.5 h-1.5 rounded-full ${active ? 'bg-amber-500' : 'bg-current opacity-40'}"></span>
             <span>${p.label}</span>
+            <span class="opacity-65 text-[10px]">${wvText}</span>
           `;
-          btn.title = `${p.label} — Audio Stem: ${p.stem}`;
+          btn.title = `${p.label} (${snap.timeUTC || b.timeUTC}) — ${wvText} waves • Wave Dir ${degToCompass(snap.mwd ?? b.mwd)}`;
           btn.onclick = () => {
             if (selectedPlanes.has(idx)) {
               if (selectedPlanes.size > 1) selectedPlanes.delete(idx);
@@ -995,6 +1408,23 @@
         if (data.pres != null) b.pres = data.pres;
         if (data.wtmp != null) b.wtmp = data.wtmp;
         if (data.timeUTC) b.timeUTC = data.timeUTC;
+        if (Array.isArray(data.history) && data.history.length === 5) {
+          b.history = data.history.map((h, i) => {
+            const fallback = (b.history && b.history[i]) || b;
+            return {
+              label: planeDefs[i].label,
+              timeUTC: h.timeUTC || fallback.timeUTC || b.timeUTC,
+              wvht: h.wvht ?? fallback.wvht ?? b.wvht,
+              dpd: h.dpd ?? fallback.dpd ?? b.dpd,
+              apd: h.apd ?? fallback.apd ?? b.apd,
+              mwd: h.mwd ?? fallback.mwd ?? b.mwd,
+              wdir: h.wdir ?? fallback.wdir ?? b.wdir,
+              wspd: h.wspd ?? fallback.wspd ?? b.wspd,
+              gst: h.gst ?? fallback.gst ?? b.gst,
+              wtmp: h.wtmp ?? fallback.wtmp ?? b.wtmp
+            };
+          });
+        }
         if (data.raw) b.raw = data.raw;
         const badge = document.getElementById('syncBadge');
         if (badge) badge.textContent = 'NOAA LIVE';
@@ -1011,18 +1441,34 @@
       const localTime = getBuoyLocalTime(b.tzOffset);
 
       applyThemeColors();
+      renderPlaneButtons();
 
       // Update Desktop In-Place Selector Header Dot & State
       document.getElementById('collapsedBuoyDot').style.background = pal.rings[0];
       updateDesktopSidebarState();
 
+      // Compute 4-hour wave trend from history
+      const oldestWvht = (b.history && b.history[4] && b.history[4].wvht != null) ? b.history[4].wvht : b.wvht;
+      const diffWvht = b.wvht - oldestWvht;
+      const trendSign = diffWvht > 0.05 ? '+' : '';
+      const trendLabel = Math.abs(diffWvht) < 0.05
+        ? 'Steady vs 4h ago'
+        : `${trendSign}${diffWvht.toFixed(1)}m vs 4h ago`;
+
+      const waveCompass = degToCompass(b.mwd);
+      const windCompass = degToCompass(b.wdir);
+
       // Update Desktop Sidebar Info
       document.getElementById('deskStationTitle').textContent = `#${b.id} • ${b.short}`;
       document.getElementById('deskStationSub').textContent = `${b.lat}°N, ${Math.abs(b.lon)}°W • ${b.pres} hPa • ${localTime.utcLabel}`;
       document.getElementById('deskWvht').textContent = `${b.wvht.toFixed(2)} m`;
+      document.getElementById('deskTrendSub').textContent = trendLabel;
       document.getElementById('deskPeriod').textContent = `${b.dpd.toFixed(1)}s / ${b.apd.toFixed(1)}s`;
+      document.getElementById('deskWaveDir').textContent = `Wave Dir • ${waveCompass}`;
       document.getElementById('deskWind').textContent = `${b.wspd.toFixed(1)} / ${b.gst.toFixed(1)} m/s`;
+      document.getElementById('deskWindDir').textContent = `Wind Dir • ${windCompass}`;
       document.getElementById('deskTemp').textContent = `${b.wtmp.toFixed(1)} °C`;
+      document.getElementById('deskPresSub').textContent = `${b.pres.toFixed(1)} hPa`;
       document.getElementById('deskPaletteName').textContent = pal.name;
 
       const swatchRow = document.getElementById('deskSwatchRow');
@@ -1047,19 +1493,24 @@
       document.getElementById('keySolidOuter').setAttribute('fill', pal.rings[0]);
       document.getElementById('keySolidInner').setAttribute('fill', pal.rings[2]);
 
-      // Update Mobile Bottom Dropdown & Drawer Info
+      // Update Mobile Bottom Selector Bar & Main-Screen Telemetry HUD
       document.getElementById('mobActiveDot').style.background = pal.rings[0];
       document.getElementById('mobActiveName').textContent = b.short;
-      document.getElementById('mobActiveStats').textContent = `${b.wtmp.toFixed(1)}°C • ${b.wvht.toFixed(1)}m waves • #${b.id}`;
+      document.getElementById('mobActiveStats').textContent = `#${b.id} • ${b.lat}°N, ${Math.abs(b.lon)}°W • NOAA Live`;
       document.getElementById('mobActiveClock').textContent = localTime.full;
       document.getElementById('mobActiveSub').textContent = localTime.utcLabel;
 
-      document.getElementById('mobStationTitle').textContent = `#${b.id} • ${b.short}`;
-      document.getElementById('mobStationCoords').textContent = `${b.lat}°N, ${Math.abs(b.lon)}°W • ${b.pres} hPa`;
+      const mobTrendShort = Math.abs(diffWvht) < 0.05
+        ? 'Steady / 4h'
+        : `${trendSign}${diffWvht.toFixed(1)}m / 4h`;
       document.getElementById('mobWvht').textContent = `${b.wvht.toFixed(2)} m`;
+      document.getElementById('mobTrendSub').textContent = mobTrendShort;
       document.getElementById('mobPeriod').textContent = `${b.dpd.toFixed(1)}s / ${b.apd.toFixed(1)}s`;
-      document.getElementById('mobWind').textContent = `${b.wspd.toFixed(1)} / ${b.gst.toFixed(1)} m/s`;
+      document.getElementById('mobWaveDir').textContent = waveCompass;
+      document.getElementById('mobWind').textContent = `${b.wspd.toFixed(1)} / ${b.gst.toFixed(1)}`;
+      document.getElementById('mobWindDir').textContent = windCompass;
       document.getElementById('mobTemp').textContent = `${b.wtmp.toFixed(1)} °C`;
+      document.getElementById('mobPresSub').textContent = `${b.pres.toFixed(1)} hPa`;
 
       if (!skipSync) syncLiveBuoy(activeBuoyIdx);
     }
@@ -1175,7 +1626,7 @@
     };
 
     // =========================================================================
-    // MAIN FULL-SCREEN ISOMETRIC RENDER LOOP (Stable Center + Tall Mobile Stack)
+    // MAIN FULL-SCREEN ISOMETRIC RENDER LOOP (5-Hour Time-Series History Stack)
     // =========================================================================
     let t = 0;
     function render() {
@@ -1186,70 +1637,56 @@
       const H = window.innerHeight;
       ctx.clearRect(0, 0, W, H);
 
-      const swellOmega = (14 / b.dpd) * 1.1;
-      const chopOmega = (10 / b.apd) * 2.1;
+      // Drive ambient audio from the active (or latest selected) hour plane
+      const activeIndices = Array.from(selectedPlanes).sort((a, z) => a - z);
+      const primaryIdx = activeIndices.length > 0 ? activeIndices[0] : 0;
+      const audioSnap = (b.history && b.history[primaryIdx]) || b;
+      const audioSwellOmega = (14 / (audioSnap.dpd || b.dpd)) * 1.1;
+      const audioChopOmega = (10 / (audioSnap.apd || b.apd)) * 2.1;
 
       if (isPlaying && audioCtx && stems) {
         const now = audioCtx.currentTime;
-        const swellBreath = 0.5 + 0.5 * Math.sin(t * swellOmega);
-        const chopBreath = 0.5 + 0.5 * Math.sin(t * chopOmega * 0.45);
+        const swellBreath = 0.5 + 0.5 * Math.sin(t * audioSwellOmega);
+        const chopBreath = 0.5 + 0.5 * Math.sin(t * audioChopOmega * 0.45);
         const gustWave = 0.5 + 0.5 * Math.sin(t * 0.9);
-        const rootFreq = 92 + b.wtmp * 3.0;
+        const rootFreq = 92 + (audioSnap.wtmp || b.wtmp) * 3.0;
+        const mixRatio = Math.max(0.35, selectedPlanes.size / 5);
 
-        if (selectedPlanes.has(0)) {
-          const windFreq = 240 + b.wspd * 22 + (b.gst - b.wspd) * 35 * gustWave;
-          const windVol = Math.min(0.14, 0.02 + (b.wspd / 18) * 0.09);
-          stems.windFilter.frequency.setTargetAtTime(windFreq, now, 0.12);
-          stems.windGain.gain.setTargetAtTime(windVol, now, 0.12);
-        } else {
-          stems.windGain.gain.setTargetAtTime(0.0001, now, 0.12);
-        }
+        const windFreq = 240 + audioSnap.wspd * 22 + ((audioSnap.gst || audioSnap.wspd) - audioSnap.wspd) * 35 * gustWave;
+        const windVol = Math.min(0.14, 0.02 + (audioSnap.wspd / 18) * 0.09) * mixRatio;
+        stems.windFilter.frequency.setTargetAtTime(windFreq, now, 0.12);
+        stems.windGain.gain.setTargetAtTime(windVol, now, 0.12);
 
-        if (selectedPlanes.has(1)) {
-          stems.chopOsc.frequency.setTargetAtTime(rootFreq * 1.5, now, 0.15);
-          const shimmerVol = 0.006 + 0.018 * chopBreath;
-          stems.chopGain.gain.setTargetAtTime(shimmerVol, now, 0.15);
-        } else {
-          stems.chopGain.gain.setTargetAtTime(0.0001, now, 0.12);
-        }
+        stems.chopOsc.frequency.setTargetAtTime(rootFreq * 1.5, now, 0.15);
+        const shimmerVol = (0.006 + 0.018 * chopBreath) * mixRatio;
+        stems.chopGain.gain.setTargetAtTime(shimmerVol, now, 0.15);
 
-        if (selectedPlanes.has(2)) {
-          const surfVol = Math.min(0.32, (0.05 + (b.wvht / 5.8) * 0.22) * (0.38 + 0.62 * swellBreath));
-          const surfCutoff = 130 + b.wvht * 28 + swellBreath * 180;
-          stems.surfFilter.frequency.setTargetAtTime(surfCutoff, now, 0.12);
-          stems.surfGain.gain.setTargetAtTime(surfVol, now, 0.12);
-        } else {
-          stems.surfGain.gain.setTargetAtTime(0.0001, now, 0.12);
-        }
+        const surfVol = Math.min(0.32, (0.05 + (audioSnap.wvht / 5.8) * 0.22) * (0.38 + 0.62 * swellBreath)) * mixRatio;
+        const surfCutoff = 130 + audioSnap.wvht * 28 + swellBreath * 180;
+        stems.surfFilter.frequency.setTargetAtTime(surfCutoff, now, 0.12);
+        stems.surfGain.gain.setTargetAtTime(surfVol, now, 0.12);
 
-        if (selectedPlanes.has(3)) {
-          stems.periodOsc.frequency.setTargetAtTime(rootFreq * 0.75, now, 0.15);
-          const pulseVol = 0.012 + 0.035 * Math.pow(swellBreath, 2);
-          stems.periodGain.gain.setTargetAtTime(pulseVol, now, 0.12);
-        } else {
-          stems.periodGain.gain.setTargetAtTime(0.0001, now, 0.12);
-        }
+        stems.periodOsc.frequency.setTargetAtTime(rootFreq * 0.75, now, 0.15);
+        const pulseVol = (0.012 + 0.035 * Math.pow(swellBreath, 2)) * mixRatio;
+        stems.periodGain.gain.setTargetAtTime(pulseVol, now, 0.12);
 
-        if (selectedPlanes.has(4)) {
-          stems.thermalOsc.frequency.setTargetAtTime(rootFreq, now, 0.15);
-          stems.thermalGain.gain.setTargetAtTime(0.038, now, 0.12);
-        } else {
-          stems.thermalGain.gain.setTargetAtTime(0.0001, now, 0.12);
-        }
+        stems.thermalOsc.frequency.setTargetAtTime(rootFreq, now, 0.15);
+        stems.thermalGain.gain.setTargetAtTime(0.038 * mixRatio, now, 0.12);
       }
 
       // Responsive Layout:
-      // - On mobile (<768px): tall vertical cascade filling the portrait screen.
+      // - On mobile (<768px): centered between top telemetry HUD (~118px) and bottom dock (~136px).
       // - On desktop (>=768px): steady centered position that never jumps when panels open or close.
       const isMobile = W < 768;
       const centerW = Math.max(320, W - 672);
+      const mobAvailH = Math.max(220, H - 254);
 
       const planeSize = isMobile
-        ? Math.min(W * 0.68, H * 0.42)
+        ? Math.min(W * 0.64, mobAvailH * 0.56)
         : Math.min(centerW * 0.56, H * 0.48);
 
-      const baseSpacingX = (isMobile ? W * 0.055 : Math.min(centerW * 0.105, 88)) * explodeFactor * (1 + camYaw * 0.45);
-      const baseSpacingY = (isMobile ? -H * 0.068 : -18) * explodeFactor + camPitch * 45;
+      const baseSpacingX = (isMobile ? W * 0.052 : Math.min(centerW * 0.105, 88)) * explodeFactor * (1 + camYaw * 0.45);
+      const baseSpacingY = (isMobile ? -mobAvailH * 0.085 : -18) * explodeFactor + camPitch * 45;
       const skewY = (isMobile ? 0.24 : 0.30) + camPitch * 0.18;
 
       const totalStackW = baseSpacingX * 4 + planeSize;
@@ -1257,11 +1694,13 @@
 
       const startX = (W - totalStackW) * 0.50;
       const startY = isMobile
-        ? (H - totalStackH) * 0.44 + Math.abs(baseSpacingY * 4)
+        ? 118 + Math.max(0, (mobAvailH - totalStackH) * 0.50) + Math.abs(baseSpacingY * 4)
         : (H - planeSize - planeSize * skewY) * 0.50;
 
       for (let pIdx = 4; pIdx >= 0; pIdx--) {
         const pDef = planeDefs[pIdx];
+        const snap = (b.history && b.history[pIdx]) || b;
+        const snapPal = getThermalPalette(snap.wtmp ?? b.wtmp);
         const isActive = selectedPlanes.has(pIdx);
         const planeAlpha = isActive ? 1.0 : 0.15;
 
@@ -1286,10 +1725,19 @@
         ctx.lineWidth = isActive ? 1.25 : 0.9;
         ctx.strokeRect(0, 0, planeSize, planeSize);
 
-        // Actual human-readable term on each plane corner in Manrope font
-        ctx.fillStyle = isDarkMode ? 'rgba(245, 242, 235, 0.85)' : 'rgba(28, 25, 23, 0.82)';
-        ctx.font = isMobile ? '600 10px "Manrope", sans-serif' : '600 11px "Manrope", sans-serif';
-        ctx.fillText(pDef.label.toUpperCase(), 4, planeSize + (isMobile ? 13 : 16));
+        // Time-series label + wave height + compass wave direction on each plane edge
+        const snapWvht = snap.wvht ?? b.wvht;
+        const snapMwd = snap.mwd ?? b.mwd;
+        const snapWdir = snap.wdir ?? b.wdir;
+        const snapDpd = snap.dpd ?? b.dpd;
+        const snapApd = snap.apd ?? b.apd;
+        const snapWspd = snap.wspd ?? b.wspd;
+        const snapWtmp = snap.wtmp ?? b.wtmp;
+
+        ctx.fillStyle = isDarkMode ? 'rgba(245, 242, 235, 0.88)' : 'rgba(28, 25, 23, 0.85)';
+        ctx.font = isMobile ? '600 9.5px "Manrope", sans-serif' : '600 10.5px "Manrope", sans-serif';
+        const planeLabel = `${pDef.label.toUpperCase()} • ${snapWvht.toFixed(1)}M • ${degToCompass(snapMwd)}`;
+        ctx.fillText(planeLabel, 4, planeSize + (isMobile ? 13 : 16));
 
         const gridN = 8;
         const pad = planeSize * 0.12;
@@ -1307,9 +1755,19 @@
           }
         }
 
-        // Second pass: Live Buoy Telemetry Concentric Dots & Overlapping Clusters
-        const dirRad = (b.mwd * Math.PI) / 180;
-        const windRad = (b.wdir * Math.PI) / 180;
+        // Second pass: Hourly Buoy Telemetry Dots (Consistent Visual Grammar Across All 5 Hours)
+        // - Travel angle = Wave Direction (snapMwd) + Wind Direction (snapWdir)
+        // - Bubble size  = Wave Height at that hour (snapWvht)
+        // - Pulse speed  = Wave Period at that hour (snapDpd / snapApd)
+        const dirRad = (snapMwd * Math.PI) / 180;
+        const windRad = (snapWdir * Math.PI) / 180;
+        const swellOmega = (14 / snapDpd) * 1.1;
+        const chopOmega = (10 / snapApd) * 2.1;
+
+        // Wave height directly determines bubble radius on every time plane
+        const waveFactor = 0.42 + Math.pow(snapWvht / 5.2, 0.88) * 1.28;
+        // Wind-blown hollow target rings appear more frequently when wind is brisk
+        const windChopiness = Math.min(1, snapWspd / 11.0);
 
         for (let gx = 0; gx < gridN; gx++) {
           for (let gy = 0; gy < gridN; gy++) {
@@ -1319,24 +1777,23 @@
             const waveProj = nx * Math.cos(dirRad) + ny * Math.sin(dirRad);
             const windProj = nx * Math.cos(windRad) + ny * Math.sin(windRad);
 
-            const swellWave = Math.sin(waveProj * 2.4 - t * swellOmega + pIdx * 0.48);
-            const chopRipple = Math.cos(windProj * 4.2 + t * chopOmega - pIdx * 0.3) * (3.5 / b.apd);
+            const swellWave = Math.sin(waveProj * 2.4 - t * swellOmega);
+            const chopRipple = Math.cos(windProj * 4.2 - t * chopOmega) * (3.5 / snapApd);
             const combined = swellWave * 0.78 + chopRipple * 0.32;
 
-            const threshold = -0.15 - (b.wvht * 0.04);
+            const threshold = -0.22 - (snapWvht * 0.04);
             if (combined > threshold) {
               const px = pad + gx * step;
               const py = pad + gy * step;
 
-              const planeScale = 0.38 + pIdx * 0.34;
-              const waveFactor = 0.55 + (b.wvht / 5.6) * 0.75;
-              const outerRadius = Math.max(2.0, step * 0.46 * (combined + 0.45) * planeScale * waveFactor);
+              const outerRadius = Math.max(2.0, step * 0.48 * (0.52 + 0.48 * combined) * waveFactor);
 
-              const outerColor = pal.rings[(gx + pIdx) % pal.rings.length];
-              const innerColor = pal.rings[(gy + pIdx + 2) % pal.rings.length];
+              const outerColor = snapPal.rings[(gx + pIdx) % snapPal.rings.length];
+              const innerColor = snapPal.rings[(gy + pIdx + 2) % snapPal.rings.length];
               const coreColor = '#fdfaf2';
 
-              const isTargetRing = (pIdx <= 1) && ((gx + gy) % 2 === 1);
+              // Show hollow target rings for wind chop on alternating nodes when chop ripple crests
+              const isTargetRing = ((gx + gy) % 3 === 0) && (chopRipple * windChopiness > 0.08);
 
               if (isTargetRing) {
                 ctx.beginPath();
@@ -1355,15 +1812,15 @@
                 ctx.fillStyle = outerColor;
                 ctx.fill();
 
-                if (outerRadius > (isMobile ? 5.5 : 7.5)) {
-                  const innerRatio = Math.min(0.65, 0.30 + (b.wtmp / 32) * 0.32);
+                if (outerRadius > (isMobile ? 5.0 : 6.8)) {
+                  const innerRatio = Math.min(0.65, 0.32 + (snapWtmp / 32) * 0.30);
                   ctx.beginPath();
                   ctx.arc(px, py, outerRadius * innerRatio, 0, Math.PI * 2);
                   ctx.fillStyle = innerColor;
                   ctx.fill();
                 }
 
-                const pinRadius = Math.max(1.2, (isMobile ? 1.5 : 1.8) + Math.sin(t * chopOmega + gx + gy) * 0.7);
+                const pinRadius = Math.max(1.2, (isMobile ? 1.5 : 1.8) + Math.sin(t * chopOmega + gx + gy) * 0.6);
                 ctx.beginPath();
                 ctx.arc(px, py, pinRadius, 0, Math.PI * 2);
                 ctx.fillStyle = coreColor;
