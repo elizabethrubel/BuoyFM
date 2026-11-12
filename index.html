@@ -401,19 +401,19 @@
 
       <!-- KEY 3: COLOR = WATER TEMPERATURE -->
       <div class="p-2.5 rounded-xl glass-card space-y-1.5">
-        <div class="font-bold text-[11px] uppercase tracking-wider">3. Color = Water Temperature</div>
+        <div class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">3. Color = Water Temperature</div>
         <div class="grid grid-cols-3 gap-1.5 text-[10px] pt-0.5">
           <div class="p-1.5 rounded-lg text-center text-white" style="background: #0b2545; border: 1px solid rgba(255,255,255,0.15);">
-            <div class="font-bold">Cold</div>
-            <div class="text-[9px] opacity-80">Navy • ~6°C</div>
+            <div class="font-bold whitespace-nowrap">Cold</div>
+            <div class="text-[9px] opacity-80 whitespace-nowrap">Navy • ~6°C</div>
           </div>
           <div class="p-1.5 rounded-lg text-center text-white" style="background: #1b6b63; border: 1px solid rgba(255,255,255,0.15);">
-            <div class="font-bold">Mild</div>
-            <div class="text-[9px] opacity-80">Teal • ~18°C</div>
+            <div class="font-bold whitespace-nowrap">Mild</div>
+            <div class="text-[9px] opacity-80 whitespace-nowrap">Teal • ~18°C</div>
           </div>
           <div class="p-1.5 rounded-lg text-center text-white" style="background: #6e1423; border: 1px solid rgba(255,255,255,0.15);">
-            <div class="font-bold">Warm</div>
-            <div class="text-[9px] opacity-80">Burgundy • 28°C+</div>
+            <div class="font-bold whitespace-nowrap">Warm</div>
+            <div class="text-[9px] opacity-80 whitespace-nowrap">Coral • 28°C+</div>
           </div>
         </div>
         <p class="text-[10px] opacity-80 leading-snug">
@@ -423,22 +423,22 @@
 
       <!-- KEY 4: THE 5 TIME PLANES (NOW -> -4 HR) -->
       <div class="p-2.5 rounded-xl glass-card space-y-1.5">
-        <div class="font-bold text-[11px] uppercase tracking-wider">4. The 5 Time Planes (Now → -4 Hr)</div>
+        <div class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">4. The 5 Time Planes (Now → -4 Hr)</div>
         <p class="text-[10px] opacity-80 leading-snug">
           Each sheet in the 3D stack is an hourly snapshot from the buoy's logbook, ordered from <strong>Now</strong> (front) to <strong>4 Hours Ago</strong> (back):
         </p>
         <div class="space-y-1 text-[10px] pt-0.5">
-          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
-            <strong>1. Now (Front)</strong>
-            <span class="opacity-80">Latest live satellite reading</span>
+          <div class="flex items-center justify-between gap-2 py-1 px-2 rounded bg-black/15">
+            <strong class="whitespace-nowrap">1. Now (Front)</strong>
+            <span class="opacity-80 whitespace-nowrap">Latest live reading</span>
           </div>
-          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
-            <strong>2. -1 Hr to -3 Hr</strong>
-            <span class="opacity-80">Recent hourly trend &amp; wind shifts</span>
+          <div class="flex items-center justify-between gap-2 py-1 px-2 rounded bg-black/15">
+            <strong class="whitespace-nowrap">2. -1 Hr to -3 Hr</strong>
+            <span class="opacity-80 whitespace-nowrap">Recent hourly trend</span>
           </div>
-          <div class="flex items-center justify-between py-1 px-2 rounded bg-black/15">
-            <strong>3. -4 Hr (Back)</strong>
-            <span class="opacity-80">Baseline sea state 4 hours earlier</span>
+          <div class="flex items-center justify-between gap-2 py-1 px-2 rounded bg-black/15">
+            <strong class="whitespace-nowrap">3. -4 Hr (Back)</strong>
+            <span class="opacity-80 whitespace-nowrap">Baseline 4h earlier</span>
           </div>
         </div>
         <p class="text-[10px] opacity-80 leading-snug pt-0.5">
@@ -448,9 +448,9 @@
 
       <!-- KEY 5: PUBLIC DATA & UPDATE FREQUENCY -->
       <div class="p-2.5 rounded-xl glass-card space-y-1">
-        <div class="flex items-center justify-between">
-          <span class="font-bold text-[11px] uppercase tracking-wider">Public Ocean Data</span>
-          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">Every 10–60 Min</span>
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">Public Ocean Data</span>
+          <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30 whitespace-nowrap">Every 10–60 Min</span>
         </div>
         <p class="text-[10px] opacity-85 leading-snug">
           All buoy information is free and publicly available from the <strong>NOAA National Data Buoy Center</strong>. Sensors bolted to floating ocean buoys measure wind, waves, and water temperature and broadcast fresh readings via satellite <strong>every 10 to 60 minutes</strong>.
@@ -461,14 +461,14 @@
     <!-- Footer Actions: Replay Full-Screen Intro + Mobile Close -->
     <div class="pt-2.5 mt-2 border-t shrink-0 flex flex-col gap-2" style="border-color: var(--panel-border);">
       <div class="flex items-center justify-between text-[10px] opacity-70 px-0.5">
-        <span class="font-bitcount text-xs tracking-wide">BuoyFM</span>
-        <span>Built by <strong>Elizabeth Rubel</strong></span>
+        <span class="font-bitcount text-xs tracking-wide whitespace-nowrap">BuoyFM</span>
+        <span class="whitespace-nowrap">Built by <strong>Elizabeth Rubel</strong></span>
       </div>
       <div class="flex items-center gap-2">
-        <button id="replayOnboardingBtn" class="flex-1 py-2 rounded-xl glass-card font-bitcount text-sm tracking-wide hover:opacity-100 opacity-90 cursor-pointer">
+        <button id="replayOnboardingBtn" class="flex-1 py-2 rounded-xl glass-card font-bitcount text-sm tracking-wide hover:opacity-100 opacity-90 cursor-pointer whitespace-nowrap">
           ✦ Replay Intro
         </button>
-        <button id="closeGuideMobileBottomBtn" class="md:hidden flex-1 py-2 rounded-xl font-bitcount text-sm tracking-wide cursor-pointer" style="background: var(--fg-color); color: var(--bg-color);">
+        <button id="closeGuideMobileBottomBtn" class="md:hidden flex-1 py-2 rounded-xl font-bitcount text-sm tracking-wide cursor-pointer whitespace-nowrap" style="background: var(--fg-color); color: var(--bg-color);">
           Back to View
         </button>
       </div>
@@ -478,90 +478,84 @@
   <!-- ======================================================================= -->
   <!-- FULL-SCREEN ONBOARDING EXPERIENCE (Editorial Bitcount Typography, No Top Nav) -->
   <!-- ======================================================================= -->
-  <div id="onboardingOverlay" class="fixed inset-0 z-50 glass-panel surface-grid flex flex-col justify-between p-4 sm:p-8 overflow-y-auto pointer-events-auto" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding-top: max(1.5rem, env(safe-area-inset-top, 1.5rem)); padding-bottom: max(1.25rem, env(safe-area-inset-bottom, 1.25rem));">
+  <div id="onboardingOverlay" class="fixed inset-0 z-50 glass-panel surface-grid flex flex-col justify-between px-3.5 sm:px-10 overflow-y-auto sm:overflow-hidden pointer-events-auto" style="backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); padding-top: max(0.85rem, env(safe-area-inset-top, 0.85rem)); padding-bottom: max(0.75rem, env(safe-area-inset-bottom, 0.75rem));">
 
-    <!-- Center Editorial Frame (No Top Navigation Bar) -->
-    <div class="w-full max-w-2xl mx-auto my-auto py-2">
+    <!-- Center Editorial Frame (Wide max-w-5xl on Desktop, Compact Zero-Scroll on Mobile) -->
+    <div class="w-full max-w-5xl mx-auto my-auto py-1 sm:py-4">
 
       <!-- SLIDE 1: BUOYFM HERO & OVERVIEW -->
-      <div id="onboardSlide0" class="space-y-6">
-        <div class="text-center space-y-3">
-          <div class="font-bitcount text-xs sm:text-sm uppercase tracking-[0.22em] opacity-70">
+      <div id="onboardSlide0" class="space-y-3.5 sm:space-y-7">
+        <div class="text-center space-y-1.5 sm:space-y-3">
+          <div class="font-bitcount text-[10px] sm:text-sm uppercase tracking-[0.18em] sm:tracking-[0.22em] opacity-70 whitespace-nowrap">
             NOAA Ocean Telemetry // Isometric Synthesizer
           </div>
-          <h2 class="font-bitcount text-6xl sm:text-8xl tracking-tight leading-none">
+          <h2 class="font-bitcount text-5xl sm:text-8xl tracking-tight leading-none whitespace-nowrap">
             BuoyFM
           </h2>
-          <div class="font-bitcount text-base sm:text-lg tracking-widest opacity-85">
+          <div class="font-bitcount text-sm sm:text-lg tracking-widest opacity-85 whitespace-nowrap">
             Built by Elizabeth Rubel
           </div>
-          <p class="text-xs sm:text-sm opacity-80 leading-relaxed max-w-lg mx-auto pt-1">
-            Across the Atlantic, Pacific, and Caribbean, floating NOAA weather buoys measure swell height, wave period, wind direction, and sea temperature every 10 to 60 minutes. <span class="font-bitcount text-sm">BuoyFM</span> translates those live satellite transmissions into a 5-hour time stack and generative soundscape.
+          <p class="text-[11px] sm:text-sm opacity-80 leading-snug sm:leading-relaxed max-w-2xl mx-auto pt-0.5">
+            Across the Atlantic, Pacific, and Caribbean, floating NOAA weather buoys measure swell height, wave period, wind direction, and sea temperature every 10 to 60 minutes. <span class="font-bitcount text-xs sm:text-sm">BuoyFM</span> translates those live satellite transmissions into a 5-hour time stack and generative soundscape.
           </p>
         </div>
 
-        <!-- 3-Column Architectural Grid (Bitcount Numerals & Headings, Hairline Borders) -->
+        <!-- 3-Column Architectural Grid (Single-Line Headings aligned across all 3 columns) -->
         <div class="grid grid-cols-1 sm:grid-cols-3 border rounded-2xl overflow-hidden divide-y sm:divide-y-0 sm:divide-x" style="border-color: var(--panel-border); background: rgba(255, 255, 255, 0.03);">
-          <div class="p-4 sm:p-5 flex flex-col justify-between gap-3" style="border-color: var(--panel-border);">
-            <div class="flex items-baseline justify-between">
-              <span class="font-bitcount text-2xl sm:text-3xl opacity-50">01</span>
-              <span class="font-bitcount text-[11px] uppercase tracking-widest opacity-60">NDBC Live</span>
+          <div class="p-3 sm:p-6 flex flex-col justify-start gap-1.5 sm:gap-3" style="border-color: var(--panel-border);">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-bitcount text-xl sm:text-3xl opacity-50 whitespace-nowrap">01</span>
+              <span class="font-bitcount text-[10px] sm:text-xs uppercase tracking-widest opacity-60 whitespace-nowrap">NDBC Live</span>
             </div>
-            <div class="space-y-1">
-              <div class="font-bitcount text-lg sm:text-xl leading-snug">7 Ocean Stations</div>
-              <p class="text-[11px] opacity-75 leading-relaxed">
-                Tune between real offshore buoys—from sub-arctic storm swells in the Gulf of Alaska to warm trade winds in the Caribbean.
-              </p>
-            </div>
+            <div class="font-bitcount text-base sm:text-xl leading-none whitespace-nowrap">7 Ocean Stations</div>
+            <p class="text-[11px] sm:text-xs opacity-75 leading-snug sm:leading-relaxed">
+              Tune between real offshore buoys—from sub-arctic storm swells in the Gulf of Alaska to warm trade winds in the Caribbean.
+            </p>
           </div>
 
-          <div class="p-4 sm:p-5 flex flex-col justify-between gap-3" style="border-color: var(--panel-border);">
-            <div class="flex items-baseline justify-between">
-              <span class="font-bitcount text-2xl sm:text-3xl opacity-50">02</span>
-              <span class="font-bitcount text-[11px] uppercase tracking-widest opacity-60">Now → -4 Hr</span>
+          <div class="p-3 sm:p-6 flex flex-col justify-start gap-1.5 sm:gap-3" style="border-color: var(--panel-border);">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-bitcount text-xl sm:text-3xl opacity-50 whitespace-nowrap">02</span>
+              <span class="font-bitcount text-[10px] sm:text-xs uppercase tracking-widest opacity-60 whitespace-nowrap">Now → -4 Hr</span>
             </div>
-            <div class="space-y-1">
-              <div class="font-bitcount text-lg sm:text-xl leading-snug">5-Hour Time Stack</div>
-              <p class="text-[11px] opacity-75 leading-relaxed">
-                Five isometric planes show the latest reading in front and the previous 4 hours behind it as swells cascade through time.
-              </p>
-            </div>
+            <div class="font-bitcount text-base sm:text-xl leading-none whitespace-nowrap">5-Hour Time Stack</div>
+            <p class="text-[11px] sm:text-xs opacity-75 leading-snug sm:leading-relaxed">
+              Five isometric planes show the latest reading in front and the previous 4 hours behind it as swells cascade through time.
+            </p>
           </div>
 
-          <div class="p-4 sm:p-5 flex flex-col justify-between gap-3" style="border-color: var(--panel-border);">
-            <div class="flex items-baseline justify-between">
-              <span class="font-bitcount text-2xl sm:text-3xl opacity-50">03</span>
-              <span class="font-bitcount text-[11px] uppercase tracking-widest opacity-60">5-Stem Audio</span>
+          <div class="p-3 sm:p-6 flex flex-col justify-start gap-1.5 sm:gap-3" style="border-color: var(--panel-border);">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-bitcount text-xl sm:text-3xl opacity-50 whitespace-nowrap">03</span>
+              <span class="font-bitcount text-[10px] sm:text-xs uppercase tracking-widest opacity-60 whitespace-nowrap">5-Stem Audio</span>
             </div>
-            <div class="space-y-1">
-              <div class="font-bitcount text-lg sm:text-xl leading-snug">Ambient Sea Synth</div>
-              <p class="text-[11px] opacity-75 leading-relaxed">
-                Unmute the audio engine to hear live wave height, swell rhythm, wind gusts, and water temperature shape an ambient drone.
-              </p>
-            </div>
+            <div class="font-bitcount text-base sm:text-xl leading-none whitespace-nowrap">Ambient Sea Synth</div>
+            <p class="text-[11px] sm:text-xs opacity-75 leading-snug sm:leading-relaxed">
+              Unmute the audio engine to hear live wave height, swell rhythm, wind gusts, and water temperature shape an ambient drone.
+            </p>
           </div>
         </div>
       </div>
 
       <!-- SLIDE 2: HOW TO READ EACH PLANE (4 VISUAL CUES) -->
-      <div id="onboardSlide1" class="hidden space-y-5">
-        <div class="text-center space-y-1.5">
-          <div class="font-bitcount text-xs sm:text-sm uppercase tracking-[0.22em] opacity-65">
+      <div id="onboardSlide1" class="hidden space-y-3 sm:space-y-6">
+        <div class="text-center space-y-1 sm:space-y-1.5">
+          <div class="font-bitcount text-[10px] sm:text-sm uppercase tracking-[0.22em] opacity-65 whitespace-nowrap">
             Visual Grammar // 01 — 04
           </div>
-          <h2 class="font-bitcount text-4xl sm:text-6xl tracking-tight leading-none">
+          <h2 class="font-bitcount text-3xl sm:text-6xl tracking-tight leading-none whitespace-nowrap">
             How to Read Each Plane
           </h2>
-          <p class="text-xs sm:text-sm opacity-75 max-w-md mx-auto">
+          <p class="text-[11px] sm:text-sm opacity-75 max-w-xl mx-auto">
             Every time plane is an 8×8 sensor matrix encoding four live ocean readings:
           </p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 border rounded-2xl overflow-hidden" style="border-color: var(--panel-border); background: rgba(255, 255, 255, 0.03);">
           <!-- Cue 1: Bubble Size = Wave Height -->
-          <div class="p-4 flex items-center gap-4 border-b sm:border-r" style="border-color: var(--panel-border);">
-            <div class="w-16 h-16 rounded-xl border flex items-center justify-center shrink-0" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
-              <svg width="56" height="44" viewBox="0 0 56 44">
+          <div class="p-2.5 sm:p-5 flex items-center gap-3 sm:gap-4 border-b sm:border-r" style="border-color: var(--panel-border);">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl border flex items-center justify-center shrink-0" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
+              <svg width="48" height="38" viewBox="0 0 56 44">
                 <circle cx="13" cy="22" r="5" fill="#3a86a8" />
                 <circle cx="13" cy="22" r="1.8" fill="#fdfaf2" />
                 <circle cx="38" cy="22" r="14" fill="#1d5b9e" />
@@ -569,37 +563,37 @@
                 <circle cx="38" cy="22" r="2.2" fill="#fdfaf2" />
               </svg>
             </div>
-            <div class="space-y-1">
-              <div class="font-bitcount text-xs uppercase tracking-widest opacity-60">01 // WVHT</div>
-              <div class="font-bitcount text-lg leading-tight">Bubble Size = Wave Height</div>
-              <p class="text-[11px] opacity-75 leading-snug">
+            <div class="min-w-0 space-y-0.5 sm:space-y-1">
+              <div class="font-bitcount text-[10px] sm:text-xs uppercase tracking-widest opacity-60 whitespace-nowrap">01 // WVHT</div>
+              <div class="font-bitcount text-base sm:text-xl leading-tight whitespace-nowrap">Bubble Size = Wave Height</div>
+              <p class="text-[11px] sm:text-xs opacity-75 leading-snug">
                 Calm seas (&lt;1m) draw small, quiet dots. Heavy swells (4m–6m+) expand into overlapping concentric rings.
               </p>
             </div>
           </div>
 
           <!-- Cue 2: Travel = Wave & Wind Direction -->
-          <div class="p-4 flex items-center gap-4 border-b" style="border-color: var(--panel-border);">
-            <div class="w-16 h-16 rounded-xl border flex items-center justify-center shrink-0" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <div class="p-2.5 sm:p-5 flex items-center gap-3 sm:gap-4 border-b" style="border-color: var(--panel-border);">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl border flex items-center justify-center shrink-0" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
+              <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
                 <circle cx="24" cy="24" r="18" stroke="currentColor" stroke-opacity="0.25" stroke-dasharray="3 3" />
                 <line x1="12" y1="34" x2="34" y2="14" stroke="#56b4d3" stroke-width="2.2" stroke-linecap="round" />
                 <polyline points="25,13 35,13 34,23" stroke="#56b4d3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </div>
-            <div class="space-y-1">
-              <div class="font-bitcount text-xs uppercase tracking-widest opacity-60">02 // MWD &amp; WDIR</div>
-              <div class="font-bitcount text-lg leading-tight">Travel = Wave &amp; Wind Angle</div>
-              <p class="text-[11px] opacity-75 leading-snug">
+            <div class="min-w-0 space-y-0.5 sm:space-y-1">
+              <div class="font-bitcount text-[10px] sm:text-xs uppercase tracking-widest opacity-60 whitespace-nowrap">02 // MWD &amp; WDIR</div>
+              <div class="font-bitcount text-base sm:text-xl leading-tight whitespace-nowrap">Travel = Wave &amp; Wind Angle</div>
+              <p class="text-[11px] sm:text-xs opacity-75 leading-snug">
                 Dots stay anchored on the grid while wave crests travel across the plane along the buoy's compass wave and wind directions.
               </p>
             </div>
           </div>
 
           <!-- Cue 3: Hollow Rings vs Solid Circles & Tempo -->
-          <div class="p-4 flex items-center gap-4 border-b sm:border-b-0 sm:border-r" style="border-color: var(--panel-border);">
-            <div class="w-16 h-16 rounded-xl border flex items-center justify-center shrink-0" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
-              <svg width="56" height="44" viewBox="0 0 56 44">
+          <div class="p-2.5 sm:p-5 flex items-center gap-3 sm:gap-4 border-b sm:border-b-0 sm:border-r" style="border-color: var(--panel-border);">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl border flex items-center justify-center shrink-0" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
+              <svg width="48" height="38" viewBox="0 0 56 44">
                 <circle cx="16" cy="22" r="10" fill="none" stroke="#56b4d3" stroke-width="2.4" />
                 <circle cx="16" cy="22" r="3.5" fill="#d9ed92" />
                 <circle cx="40" cy="22" r="11" fill="#1d5b9e" />
@@ -607,26 +601,26 @@
                 <circle cx="40" cy="22" r="2" fill="#fdfaf2" />
               </svg>
             </div>
-            <div class="space-y-1">
-              <div class="font-bitcount text-xs uppercase tracking-widest opacity-60">03 // DPD &amp; APD</div>
-              <div class="font-bitcount text-lg leading-tight">Rings &amp; Tempo = Chop vs. Swell</div>
-              <p class="text-[11px] opacity-75 leading-snug">
+            <div class="min-w-0 space-y-0.5 sm:space-y-1">
+              <div class="font-bitcount text-[10px] sm:text-xs uppercase tracking-widest opacity-60 whitespace-nowrap">03 // DPD &amp; APD</div>
+              <div class="font-bitcount text-base sm:text-xl leading-tight whitespace-nowrap">Rings &amp; Speed = Chop vs. Swell</div>
+              <p class="text-[11px] sm:text-xs opacity-75 leading-snug">
                 Hollow target rings mark brisk wind chop; solid circles mark groundswell. Fast ripples = short period; slow breathing = long swell.
               </p>
             </div>
           </div>
 
           <!-- Cue 4: Color = Water Temperature -->
-          <div class="p-4 flex items-center gap-4" style="border-color: var(--panel-border);">
-            <div class="w-16 h-16 rounded-xl border flex flex-col items-center justify-center gap-1.5 p-2.5 shrink-0" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
-              <div class="w-full h-2.5 rounded-full" style="background: #1d5b9e;"></div>
-              <div class="w-full h-2.5 rounded-full" style="background: #2a9d8f;"></div>
-              <div class="w-full h-2.5 rounded-full" style="background: #ed5c2b;"></div>
+          <div class="p-2.5 sm:p-5 flex items-center gap-3 sm:gap-4" style="border-color: var(--panel-border);">
+            <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-xl border flex flex-col items-center justify-center gap-1.5 p-2 sm:p-2.5 shrink-0" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
+              <div class="w-full h-2 sm:h-2.5 rounded-full" style="background: #1d5b9e;"></div>
+              <div class="w-full h-2 sm:h-2.5 rounded-full" style="background: #2a9d8f;"></div>
+              <div class="w-full h-2 sm:h-2.5 rounded-full" style="background: #ed5c2b;"></div>
             </div>
-            <div class="space-y-1">
-              <div class="font-bitcount text-xs uppercase tracking-widest opacity-60">04 // WTMP</div>
-              <div class="font-bitcount text-lg leading-tight">Color = Water Temperature</div>
-              <p class="text-[11px] opacity-75 leading-snug">
+            <div class="min-w-0 space-y-0.5 sm:space-y-1">
+              <div class="font-bitcount text-[10px] sm:text-xs uppercase tracking-widest opacity-60 whitespace-nowrap">04 // WTMP</div>
+              <div class="font-bitcount text-base sm:text-xl leading-tight whitespace-nowrap">Color = Water Temperature</div>
+              <p class="text-[11px] sm:text-xs opacity-75 leading-snug">
                 Palette and background shift automatically from sub-arctic Navy (~6°C) to temperate Teal (~18°C) to tropical Coral (28°C+).
               </p>
             </div>
@@ -635,28 +629,28 @@
       </div>
 
       <!-- SLIDE 3: READING THE 5-HOUR TIME STACK -->
-      <div id="onboardSlide2" class="hidden space-y-5">
-        <div class="text-center space-y-1.5">
-          <div class="font-bitcount text-xs sm:text-sm uppercase tracking-[0.22em] opacity-65">
+      <div id="onboardSlide2" class="hidden space-y-3 sm:space-y-6">
+        <div class="text-center space-y-1 sm:space-y-1.5">
+          <div class="font-bitcount text-[10px] sm:text-sm uppercase tracking-[0.22em] opacity-65 whitespace-nowrap">
             Chronological Depth // Now → -4 Hr
           </div>
-          <h2 class="font-bitcount text-4xl sm:text-6xl tracking-tight leading-none">
+          <h2 class="font-bitcount text-3xl sm:text-6xl tracking-tight leading-none whitespace-nowrap">
             Reading the 5-Hour Stack
           </h2>
-          <p class="text-xs sm:text-sm opacity-75 max-w-lg mx-auto">
-            Comparing bubble sizes from back (<strong>-4 Hr</strong>) to front (<strong>Now</strong>) reveals whether a swell is building or calming down:
+          <p class="text-[11px] sm:text-sm opacity-75 max-w-xl mx-auto">
+            Compare bubble sizes from back (<strong>-4 Hr</strong>) to front (<strong>Now</strong>) to see if a swell is building or calming down:
           </p>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 border rounded-2xl overflow-hidden divide-y sm:divide-y-0 sm:divide-x" style="border-color: var(--panel-border); background: rgba(255, 255, 255, 0.03);">
           <!-- Building Storm Diagram -->
-          <div class="p-4 space-y-3" style="border-color: var(--panel-border);">
-            <div class="flex items-baseline justify-between">
-              <span class="font-bitcount text-xl">Building Swell</span>
-              <span class="font-bitcount text-xs uppercase tracking-wider opacity-70">Growing Toward Now</span>
+          <div class="p-3 sm:p-5 space-y-2 sm:space-y-3" style="border-color: var(--panel-border);">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-bitcount text-lg sm:text-2xl whitespace-nowrap">Building Swell</span>
+              <span class="font-bitcount text-[10px] sm:text-xs uppercase tracking-wider opacity-70 whitespace-nowrap">Growing Toward Now</span>
             </div>
-            <div class="h-24 rounded-xl border flex items-center justify-center px-3" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
-              <svg width="220" height="76" viewBox="0 0 220 76">
+            <div class="h-16 sm:h-24 rounded-xl border flex items-center justify-center px-3" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
+              <svg width="220" height="68" viewBox="0 0 220 76">
                 <circle cx="32" cy="34" r="6" fill="#3a86a8" fill-opacity="0.5" />
                 <text x="32" y="64" text-anchor="middle" fill="currentColor" font-family="Bitcount Prop Single, monospace" font-size="10" opacity="0.65">-4H</text>
                 <circle cx="70" cy="34" r="9" fill="#3a86a8" fill-opacity="0.65" />
@@ -671,19 +665,19 @@
                 <text x="192" y="66" text-anchor="middle" fill="currentColor" font-family="Bitcount Prop Single, monospace" font-size="11">NOW</text>
               </svg>
             </div>
-            <p class="text-[11px] opacity-75 leading-snug">
+            <p class="text-[11px] sm:text-xs opacity-75 leading-snug">
               Larger bubbles on the front <strong>Now</strong> plane mean wave energy is actively building (e.g., <strong>#46001 Gulf of Alaska</strong>).
             </p>
           </div>
 
           <!-- Calming Seas Diagram -->
-          <div class="p-4 space-y-3" style="border-color: var(--panel-border);">
-            <div class="flex items-baseline justify-between">
-              <span class="font-bitcount text-xl">Subsiding Seas</span>
-              <span class="font-bitcount text-xs uppercase tracking-wider opacity-70">Tapering Toward Now</span>
+          <div class="p-3 sm:p-5 space-y-2 sm:space-y-3" style="border-color: var(--panel-border);">
+            <div class="flex items-baseline justify-between gap-2">
+              <span class="font-bitcount text-lg sm:text-2xl whitespace-nowrap">Subsiding Seas</span>
+              <span class="font-bitcount text-[10px] sm:text-xs uppercase tracking-wider opacity-70 whitespace-nowrap">Tapering Toward Now</span>
             </div>
-            <div class="h-24 rounded-xl border flex items-center justify-center px-3" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
-              <svg width="220" height="76" viewBox="0 0 220 76">
+            <div class="h-16 sm:h-24 rounded-xl border flex items-center justify-center px-3" style="border-color: var(--panel-border); background: rgba(0,0,0,0.22);">
+              <svg width="220" height="68" viewBox="0 0 220 76">
                 <circle cx="32" cy="34" r="20" fill="#2b72c4" fill-opacity="0.65" />
                 <circle cx="32" cy="34" r="10" fill="#56b4d3" fill-opacity="0.65" />
                 <text x="32" y="66" text-anchor="middle" fill="currentColor" font-family="Bitcount Prop Single, monospace" font-size="10" opacity="0.65">-4H</text>
@@ -698,45 +692,45 @@
                 <text x="192" y="64" text-anchor="middle" fill="currentColor" font-family="Bitcount Prop Single, monospace" font-size="11">NOW</text>
               </svg>
             </div>
-            <p class="text-[11px] opacity-75 leading-snug">
+            <p class="text-[11px] sm:text-xs opacity-75 leading-snug">
               Larger bubbles on the back planes tapering down toward <strong>Now</strong> mean a swell is subsiding (e.g., <strong>#44013 Boston Harbor</strong>).
             </p>
           </div>
         </div>
 
-        <!-- Quick Controls Strip -->
+        <!-- Quick Controls Strip (Single-Line Headings & Captions) -->
         <div class="grid grid-cols-3 border rounded-xl overflow-hidden divide-x text-center" style="border-color: var(--panel-border); background: rgba(255, 255, 255, 0.02);">
-          <div class="p-2.5" style="border-color: var(--panel-border);">
-            <div class="font-bitcount text-sm">01 // Drag Canvas</div>
-            <div class="opacity-65 text-[10px]">Tilt the 3D camera angle</div>
+          <div class="p-2 sm:p-3" style="border-color: var(--panel-border);">
+            <div class="font-bitcount text-xs sm:text-base whitespace-nowrap">01 // Drag</div>
+            <div class="opacity-65 text-[9px] sm:text-xs whitespace-nowrap">Tilt 3D camera</div>
           </div>
-          <div class="p-2.5" style="border-color: var(--panel-border);">
-            <div class="font-bitcount text-sm">02 // Hour Pills</div>
-            <div class="opacity-65 text-[10px]">Solo or compare any hour</div>
+          <div class="p-2 sm:p-3" style="border-color: var(--panel-border);">
+            <div class="font-bitcount text-xs sm:text-base whitespace-nowrap">02 // Hours</div>
+            <div class="opacity-65 text-[9px] sm:text-xs whitespace-nowrap">Solo any hour</div>
           </div>
-          <div class="p-2.5" style="border-color: var(--panel-border);">
-            <div class="font-bitcount text-sm">03 // ? Key</div>
-            <div class="opacity-65 text-[10px]">Open visual key anytime</div>
+          <div class="p-2 sm:p-3" style="border-color: var(--panel-border);">
+            <div class="font-bitcount text-xs sm:text-base whitespace-nowrap">03 // ? Key</div>
+            <div class="opacity-65 text-[9px] sm:text-xs whitespace-nowrap">Visual legend</div>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- Single Unified Bottom Bar: Skip / Back + Step Counter + Next / Enter -->
-    <div class="w-full max-w-2xl mx-auto pt-3 border-t flex items-center justify-between gap-3 shrink-0" style="border-color: var(--panel-border);">
-      <div class="flex items-center gap-2">
-        <button id="onboardPrevBtn" type="button" class="hidden px-3.5 py-1.5 rounded-full glass-card font-bitcount text-sm tracking-wide cursor-pointer hover:opacity-100 opacity-85">
+    <!-- Sticky Bottom Bar: Single-Line Buttons + Step Counter -->
+    <div class="sticky bottom-0 left-0 right-0 z-20 w-full max-w-5xl mx-auto pt-2.5 pb-1 mt-auto border-t flex items-center justify-between gap-2 shrink-0" style="border-color: var(--panel-border); background: transparent;">
+      <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        <button id="onboardPrevBtn" type="button" class="hidden whitespace-nowrap shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card font-bitcount text-xs sm:text-sm tracking-wide cursor-pointer hover:opacity-100 opacity-85">
           ← Back
         </button>
-        <button id="skipOnboardingBtn" type="button" class="px-3.5 py-1.5 rounded-full glass-card font-bitcount text-sm tracking-wide opacity-75 hover:opacity-100 transition cursor-pointer">
+        <button id="skipOnboardingBtn" type="button" class="whitespace-nowrap shrink-0 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full glass-card font-bitcount text-xs sm:text-sm tracking-wide opacity-75 hover:opacity-100 transition cursor-pointer">
           Skip Intro
         </button>
       </div>
 
       <!-- Step Counter + Dots -->
-      <div class="flex items-center gap-2.5">
-        <span id="onboardStepBadge" class="font-bitcount text-sm tracking-widest opacity-80">01 / 03</span>
+      <div class="flex items-center gap-2 shrink-0">
+        <span id="onboardStepBadge" class="font-bitcount text-xs sm:text-sm tracking-widest opacity-80 whitespace-nowrap">01 / 03</span>
         <div class="hidden sm:flex items-center gap-1.5">
           <button type="button" data-step="0" class="onboard-dot w-5 h-1.5 rounded-full transition cursor-pointer bg-amber-400"></button>
           <button type="button" data-step="1" class="onboard-dot w-1.5 h-1.5 rounded-full transition cursor-pointer bg-white/30"></button>
@@ -744,8 +738,8 @@
         </div>
       </div>
 
-      <button id="onboardNextBtn" type="button" class="px-5 py-2 rounded-full font-bitcount text-sm sm:text-base tracking-wide cursor-pointer transition shadow-md" style="background: var(--fg-color); color: var(--bg-color);">
-        Next: How to Read →
+      <button id="onboardNextBtn" type="button" class="whitespace-nowrap shrink-0 px-4 sm:px-6 py-1.5 sm:py-2 rounded-full font-bitcount text-xs sm:text-base tracking-wide cursor-pointer transition shadow-md" style="background: var(--fg-color); color: var(--bg-color);">
+        Next →
       </button>
     </div>
   </div>
@@ -1198,8 +1192,8 @@
       onboardPrevBtn.classList.toggle('hidden', onboardStep === 0);
 
       const nextLabels = [
-        'Next: How to Read →',
-        'Next: 5-Hour Stack →',
+        'Next →',
+        'Next →',
         'Enter BuoyFM →'
       ];
       onboardNextBtn.textContent = nextLabels[onboardStep];
