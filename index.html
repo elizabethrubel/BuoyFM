@@ -1758,14 +1758,18 @@
         // Second pass: Hourly Buoy Telemetry Dots (Consistent Visual Grammar Across All 5 Hours)
         // - Travel angle = Wave Direction (snapMwd) + Wind Direction (snapWdir)
         // - Bubble size  = Wave Height at that hour (snapWvht)
-        // - Pulse speed  = Wave Period at that hour (snapDpd / snapApd)
+        // - Pulse speed  = Wave Period (audioSwellOmega / audioChopOmega) with staggered start time per plane
         const dirRad = (snapMwd * Math.PI) / 180;
         const windRad = (snapWdir * Math.PI) / 180;
-        const swellOmega = (14 / snapDpd) * 1.1;
-        const chopOmega = (10 / snapApd) * 2.1;
+        const periodTightness = 2.4 * ((b.dpd || snapDpd) / snapDpd);
+
+        // Stagger the start time of each swell and wind chop across the 5 planes
+        // so waves visibly cascade from plane to plane instead of pulsing in flat lockstep
+        const swellStagger = pIdx * 0.62;
+        const chopStagger = pIdx * 0.42;
 
         // Wave height directly determines bubble radius on every time plane
-        const waveFactor = 0.42 + Math.pow(snapWvht / 5.2, 0.88) * 1.28;
+        const waveFactor = 0.52 + Math.pow(snapWvht / 5.2, 0.88) * 1.15;
         // Wind-blown hollow target rings appear more frequently when wind is brisk
         const windChopiness = Math.min(1, snapWspd / 11.0);
 
@@ -1777,16 +1781,16 @@
             const waveProj = nx * Math.cos(dirRad) + ny * Math.sin(dirRad);
             const windProj = nx * Math.cos(windRad) + ny * Math.sin(windRad);
 
-            const swellWave = Math.sin(waveProj * 2.4 - t * swellOmega);
-            const chopRipple = Math.cos(windProj * 4.2 - t * chopOmega) * (3.5 / snapApd);
+            const swellWave = Math.sin(waveProj * periodTightness - t * audioSwellOmega + swellStagger);
+            const chopRipple = Math.cos(windProj * 4.2 - t * audioChopOmega - chopStagger) * (3.5 / snapApd);
             const combined = swellWave * 0.78 + chopRipple * 0.32;
 
-            const threshold = -0.22 - (snapWvht * 0.04);
+            const threshold = -0.18 - (snapWvht * 0.04);
             if (combined > threshold) {
               const px = pad + gx * step;
               const py = pad + gy * step;
 
-              const outerRadius = Math.max(2.0, step * 0.48 * (0.52 + 0.48 * combined) * waveFactor);
+              const outerRadius = Math.max(2.0, step * 0.46 * (combined + 0.45) * waveFactor);
 
               const outerColor = snapPal.rings[(gx + pIdx) % snapPal.rings.length];
               const innerColor = snapPal.rings[(gy + pIdx + 2) % snapPal.rings.length];
@@ -1820,7 +1824,7 @@
                   ctx.fill();
                 }
 
-                const pinRadius = Math.max(1.2, (isMobile ? 1.5 : 1.8) + Math.sin(t * chopOmega + gx + gy) * 0.6);
+                const pinRadius = Math.max(1.2, (isMobile ? 1.5 : 1.8) + Math.sin(t * audioChopOmega - chopStagger + gx + gy) * 0.6);
                 ctx.beginPath();
                 ctx.arc(px, py, pinRadius, 0, Math.PI * 2);
                 ctx.fillStyle = coreColor;
