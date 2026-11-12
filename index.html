@@ -701,8 +701,8 @@
         <!-- Quick Controls Strip (Single-Line Headings & Captions) -->
         <div class="grid grid-cols-3 border rounded-xl overflow-hidden divide-x text-center" style="border-color: var(--panel-border); background: rgba(255, 255, 255, 0.02);">
           <div class="p-2 sm:p-3" style="border-color: var(--panel-border);">
-            <div class="font-bitcount text-xs sm:text-base whitespace-nowrap">01 // Drag</div>
-            <div class="opacity-65 text-[9px] sm:text-xs whitespace-nowrap">Tilt 3D camera</div>
+            <div class="font-bitcount text-xs sm:text-base whitespace-nowrap">01 // Tap or Drag</div>
+            <div class="opacity-65 text-[9px] sm:text-xs whitespace-nowrap">Drop ripples • Tilt 3D</div>
           </div>
           <div class="p-2 sm:p-3" style="border-color: var(--panel-border);">
             <div class="font-bitcount text-xs sm:text-base whitespace-nowrap">02 // Hours</div>
@@ -1240,19 +1240,36 @@
       }
     });
 
-    // Canvas Dragging
+    // Canvas Tap-to-Ripple & Drag-to-Tilt
+    let pointerDownClientX = 0;
+    let pointerDownClientY = 0;
+    let pointerMoved = false;
+
     canvas.addEventListener('pointerdown', (e) => {
       isDragging = true;
+      pointerMoved = false;
+      pointerDownClientX = e.clientX;
+      pointerDownClientY = e.clientY;
       dragStartX = e.clientX - camYaw * 140;
       dragStartY = e.clientY - camPitch * 140;
       setMobileDrawerOpen(false);
     });
     window.addEventListener('pointermove', (e) => {
       if (!isDragging) return;
-      camYaw = Math.max(-0.45, Math.min(0.45, (e.clientX - dragStartX) / 140));
-      camPitch = Math.max(-0.35, Math.min(0.35, (e.clientY - dragStartY) / 140));
+      if (Math.hypot(e.clientX - pointerDownClientX, e.clientY - pointerDownClientY) > 7) {
+        pointerMoved = true;
+      }
+      if (pointerMoved) {
+        camYaw = Math.max(-0.45, Math.min(0.45, (e.clientX - dragStartX) / 140));
+        camPitch = Math.max(-0.35, Math.min(0.35, (e.clientY - dragStartY) / 140));
+      }
     });
-    window.addEventListener('pointerup', () => { isDragging = false; });
+    window.addEventListener('pointerup', (e) => {
+      if (isDragging && !pointerMoved && e.target === canvas) {
+        spawnTapRipple(e.clientX, e.clientY);
+      }
+      isDragging = false;
+    });
 
     // Sync Explode Sliders (Desktop & Mobile)
     function setExplode(val) {
@@ -1625,11 +1642,140 @@
     };
 
     // =========================================================================
-    // MAIN FULL-SCREEN ISOMETRIC RENDER LOOP (5-Hour Time-Series History Stack)
+    // INTERACTIVE TAP RIPPLES & HARMONIC OCEAN PLUCK CHIMES
     // =========================================================================
     let t = 0;
+    let tapRipples = []; // { pIdx, u, v, birthT, amp }
+    const pentatonicRatios = [1, 9 / 8, 5 / 4, 3 / 2, 5 / 3, 2, 9 / 4, 5 / 2];
+
+    function playOceanPluck(gx, gy, pIdx) {
+      if (!isPlaying || !audioCtx) return;
+      try {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const now = audioCtx.currentTime;
+        const b = buoys[activeBuoyIdx];
+        const rootFreq = (92 + (b.wtmp || 16) * 3.0) * 2.0 * Math.pow(0.96, pIdx);
+        const noteIdx = (gx + (7 - gy)) % pentatonicRatios.length;
+        const freq = rootFreq * pentatonicRatios[noteIdx];
+
+        const osc = audioCtx.createOscillator();
+        const sub = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        sub.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        sub.frequency.setValueAtTime(freq * 0.5, now);
+
+        gain.gain.setValueAtTime(0.0008, now);
+        gain.gain.exponentialRampToValueAtTime(0.11, now + 0.018);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + 1.35);
+
+        osc.connect(gain);
+        sub.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        sub.start(now);
+        osc.stop(now + 1.4);
+        sub.stop(now + 1.4);
+      } catch (_) {}
+    }
+
+    function getStackGeometry(W, H) {
+      const isMobile = W < 768;
+      const centerW = Math.max(320, W - 672);
+      const mobAvailH = Math.max(220, H - 256);
+
+      const planeSize = isMobile
+        ? Math.min(W * 0.64, mobAvailH * 0.56)
+        : Math.min(centerW * 0.56, H * 0.48);
+
+      const baseSpacingX = (isMobile ? W * 0.052 : Math.min(centerW * 0.105, 88)) * explodeFactor * (1 + camYaw * 0.45);
+      const baseSpacingY = (isMobile ? -mobAvailH * 0.085 : -18) * explodeFactor + camPitch * 45;
+      const skewY = (isMobile ? 0.24 : 0.30) + camPitch * 0.18;
+
+      const totalStackW = baseSpacingX * 4 + planeSize;
+      const totalStackH = planeSize + planeSize * skewY + Math.abs(baseSpacingY * 4);
+
+      const startX = (W - totalStackW) * 0.50;
+      const startY = isMobile
+        ? 56 + Math.max(0, (mobAvailH - totalStackH) * 0.50) + Math.abs(baseSpacingY * 4)
+        : (H - planeSize - planeSize * skewY) * 0.50;
+
+      return { isMobile, planeSize, baseSpacingX, baseSpacingY, skewY, startX, startY };
+    }
+
+    function spawnTapRipple(clientX, clientY) {
+      const geom = getStackGeometry(window.innerWidth, window.innerHeight);
+      const pad = geom.planeSize * 0.12;
+      const innerSpan = geom.planeSize - pad * 2;
+
+      let hitPIdx = -1;
+      let hitU = 0.5;
+      let hitV = 0.5;
+      let closestDist = Infinity;
+      let fallbackPIdx = 0;
+      let fallbackU = 0.5;
+      let fallbackV = 0.5;
+
+      // Hit-test planes from front (Now = 0) to back (-4 Hr = 4)
+      for (let pIdx = 0; pIdx <= 4; pIdx++) {
+        if (!selectedPlanes.has(pIdx)) continue;
+        const ox = geom.startX + pIdx * geom.baseSpacingX;
+        const oy = geom.startY + pIdx * geom.baseSpacingY;
+        const dx = clientX - ox;
+        const dy = clientY - oy - dx * geom.skewY;
+        const u = (dx - pad) / innerSpan;
+        const v = (dy - pad) / innerSpan;
+
+        if (dx >= 0 && dx <= geom.planeSize && dy >= 0 && dy <= geom.planeSize) {
+          hitPIdx = pIdx;
+          hitU = Math.max(0, Math.min(1, u));
+          hitV = Math.max(0, Math.min(1, v));
+          break;
+        }
+
+        const dist = Math.hypot(u - 0.5, v - 0.5);
+        if (dist < closestDist) {
+          closestDist = dist;
+          fallbackPIdx = pIdx;
+          fallbackU = Math.max(0.08, Math.min(0.92, u));
+          fallbackV = Math.max(0.08, Math.min(0.92, v));
+        }
+      }
+
+      const targetPIdx = hitPIdx !== -1 ? hitPIdx : fallbackPIdx;
+      const targetU = hitPIdx !== -1 ? hitU : fallbackU;
+      const targetV = hitPIdx !== -1 ? hitV : fallbackV;
+
+      // Primary ripple on the tapped plane + staggered echo ripples across the other 4 planes
+      tapRipples.push({ pIdx: targetPIdx, u: targetU, v: targetV, birthT: t, amp: 1.0 });
+      for (let other = 0; other < 5; other++) {
+        if (other !== targetPIdx) {
+          const dist = Math.abs(other - targetPIdx);
+          tapRipples.push({
+            pIdx: other,
+            u: targetU,
+            v: targetV,
+            birthT: t + dist * 0.18,
+            amp: Math.max(0.35, 0.85 - dist * 0.18)
+          });
+        }
+      }
+
+      const gx = Math.round(targetU * 7);
+      const gy = Math.round(targetV * 7);
+      playOceanPluck(gx, gy, targetPIdx);
+    }
+
+    // =========================================================================
+    // MAIN FULL-SCREEN ISOMETRIC RENDER LOOP (5-Hour Time-Series History Stack)
+    // =========================================================================
     function render() {
       t += 0.022;
+      tapRipples = tapRipples.filter((r) => t - r.birthT < 2.2);
+
       const b = buoys[activeBuoyIdx];
       const pal = getThermalPalette(b.wtmp);
       const W = window.innerWidth;
@@ -1673,28 +1819,7 @@
         stems.thermalGain.gain.setTargetAtTime(0.038 * mixRatio, now, 0.12);
       }
 
-      // Responsive Layout:
-      // - On mobile (<768px): centered between top header (~56px) and bottom dock (~200px).
-      // - On desktop (>=768px): steady centered position that never jumps when panels open or close.
-      const isMobile = W < 768;
-      const centerW = Math.max(320, W - 672);
-      const mobAvailH = Math.max(220, H - 256);
-
-      const planeSize = isMobile
-        ? Math.min(W * 0.64, mobAvailH * 0.56)
-        : Math.min(centerW * 0.56, H * 0.48);
-
-      const baseSpacingX = (isMobile ? W * 0.052 : Math.min(centerW * 0.105, 88)) * explodeFactor * (1 + camYaw * 0.45);
-      const baseSpacingY = (isMobile ? -mobAvailH * 0.085 : -18) * explodeFactor + camPitch * 45;
-      const skewY = (isMobile ? 0.24 : 0.30) + camPitch * 0.18;
-
-      const totalStackW = baseSpacingX * 4 + planeSize;
-      const totalStackH = planeSize + planeSize * skewY + Math.abs(baseSpacingY * 4);
-
-      const startX = (W - totalStackW) * 0.50;
-      const startY = isMobile
-        ? 56 + Math.max(0, (mobAvailH - totalStackH) * 0.50) + Math.abs(baseSpacingY * 4)
-        : (H - planeSize - planeSize * skewY) * 0.50;
+      const { isMobile, planeSize, baseSpacingX, baseSpacingY, skewY, startX, startY } = getStackGeometry(W, H);
 
       for (let pIdx = 4; pIdx >= 0; pIdx--) {
         const pDef = planeDefs[pIdx];
@@ -1774,15 +1899,33 @@
 
         for (let gx = 0; gx < gridN; gx++) {
           for (let gy = 0; gy < gridN; gy++) {
-            const nx = (gx / (gridN - 1)) * 2 - 1;
-            const ny = (gy / (gridN - 1)) * 2 - 1;
+            const u = gx / (gridN - 1);
+            const v = gy / (gridN - 1);
+            const nx = u * 2 - 1;
+            const ny = v * 2 - 1;
 
             const waveProj = nx * Math.cos(dirRad) + ny * Math.sin(dirRad);
             const windProj = nx * Math.cos(windRad) + ny * Math.sin(windRad);
 
             const swellWave = Math.sin(waveProj * periodTightness - t * audioSwellOmega + swellStagger);
             const chopRipple = Math.cos(windProj * 4.2 - t * audioChopOmega - chopStagger) * (3.5 / snapApd);
-            const combined = swellWave * 0.78 + chopRipple * 0.32;
+
+            // Interactive Tap Ripple wave contribution on this plane
+            let rippleBoost = 0;
+            for (let rIdx = 0; rIdx < tapRipples.length; rIdx++) {
+              const r = tapRipples[rIdx];
+              if (r.pIdx !== pIdx || t < r.birthT) continue;
+              const age = t - r.birthT;
+              const dist = Math.hypot(u - r.u, v - r.v);
+              const waveFront = age * 0.85;
+              const ringDelta = Math.abs(dist - waveFront);
+              if (ringDelta < 0.24) {
+                const decay = Math.max(0, 1 - age / 1.85);
+                rippleBoost += Math.cos((ringDelta / 0.24) * (Math.PI * 0.5)) * decay * r.amp * 0.95;
+              }
+            }
+
+            const combined = swellWave * 0.78 + chopRipple * 0.32 + rippleBoost;
 
             const threshold = -0.18 - (snapWvht * 0.04);
             if (combined > threshold) {
@@ -1791,12 +1934,15 @@
 
               const outerRadius = Math.max(2.0, step * 0.46 * (combined + 0.45) * waveFactor);
 
-              const outerColor = snapPal.rings[(gx + pIdx) % snapPal.rings.length];
+              const isRippleCrest = rippleBoost > 0.22;
+              const outerColor = isRippleCrest
+                ? snapPal.rings[snapPal.rings.length - 1]
+                : snapPal.rings[(gx + pIdx) % snapPal.rings.length];
               const innerColor = snapPal.rings[(gy + pIdx + 2) % snapPal.rings.length];
               const coreColor = '#fdfaf2';
 
               // Show hollow target rings for wind chop on alternating nodes when chop ripple crests
-              const isTargetRing = ((gx + gy) % 3 === 0) && (chopRipple * windChopiness > 0.08);
+              const isTargetRing = !isRippleCrest && ((gx + gy) % 3 === 0) && (chopRipple * windChopiness > 0.08);
 
               if (isTargetRing) {
                 ctx.beginPath();
@@ -1830,6 +1976,26 @@
                 ctx.fill();
               }
             }
+          }
+        }
+
+        // Draw expanding circular shockwave ring for active tap ripples
+        for (let rIdx = 0; rIdx < tapRipples.length; rIdx++) {
+          const r = tapRipples[rIdx];
+          if (r.pIdx !== pIdx || t < r.birthT) continue;
+          const age = t - r.birthT;
+          const innerSpan = planeSize - pad * 2;
+          const radiusPx = age * 0.85 * innerSpan;
+          const alphaRing = Math.max(0, 1 - age / 1.65) * r.amp * 0.65;
+          if (alphaRing > 0.02) {
+            ctx.save();
+            ctx.globalAlpha = planeAlpha * alphaRing;
+            ctx.beginPath();
+            ctx.arc(pad + r.u * innerSpan, pad + r.v * innerSpan, radiusPx, 0, Math.PI * 2);
+            ctx.strokeStyle = snapPal.rings[snapPal.rings.length - 1];
+            ctx.lineWidth = isMobile ? 1.6 : 2.0;
+            ctx.stroke();
+            ctx.restore();
           }
         }
 
