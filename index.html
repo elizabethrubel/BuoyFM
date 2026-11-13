@@ -84,8 +84,13 @@
       </h1>
     </div>
 
-    <!-- Top-Right Action Pills: Audio + Dark/Light Mode + '?' Key Panel -->
+    <!-- Top-Right Action Pills: Zoom Reset + Audio + Dark/Light Mode + '?' Key Panel -->
     <div class="flex items-center gap-1.5 pointer-events-auto">
+      <button id="zoomResetBtn" type="button" class="hidden glass-panel h-8 px-2.5 rounded-full text-[11px] font-semibold hover:opacity-90 transition cursor-pointer items-center gap-1 shadow-sm" title="Reset Zoom to 100%">
+        <span id="zoomResetLabel">100%</span>
+        <span class="opacity-70">↺</span>
+      </button>
+
       <button id="audioToggleBtn" class="glass-panel h-8 px-3 rounded-full text-xs font-semibold hover:opacity-90 transition cursor-pointer flex items-center gap-1.5 shadow-sm" title="Toggle Ambient Ocean Synth">
         <span id="audioIcon" class="text-xs">🔇</span>
         <span id="audioLabel" class="text-[11px]">Audio</span>
@@ -701,8 +706,8 @@
         <!-- Quick Controls Strip (Single-Line Headings & Captions) -->
         <div class="grid grid-cols-3 border rounded-xl overflow-hidden divide-x text-center" style="border-color: var(--panel-border); background: rgba(255, 255, 255, 0.02);">
           <div class="p-2 sm:p-3" style="border-color: var(--panel-border);">
-            <div class="font-bitcount text-xs sm:text-base whitespace-nowrap">01 // Tap or Drag</div>
-            <div class="opacity-65 text-[9px] sm:text-xs whitespace-nowrap">Drop ripples • Tilt 3D</div>
+            <div class="font-bitcount text-xs sm:text-base whitespace-nowrap">01 // Touch &amp; Pinch</div>
+            <div class="opacity-65 text-[9px] sm:text-xs whitespace-nowrap">Ripple • Tilt • Zoom</div>
           </div>
           <div class="p-2 sm:p-3" style="border-color: var(--panel-border);">
             <div class="font-bitcount text-xs sm:text-base whitespace-nowrap">02 // Hours</div>
@@ -1241,9 +1246,17 @@
     let isGuideOpen = false;
     let onboardStep = 0;
 
-    // Interactive isometric camera tilt offset
+    // Interactive isometric camera tilt, pinch-zoom & desktop stage insets
+    const MIN_ZOOM = 0.65;
+    const MAX_ZOOM = 4.0;
     let camYaw = 0;
     let camPitch = 0;
+    let zoomScale = 1.0;
+    let panX = 0;
+    let panY = 0;
+    let isResettingZoom = false;
+    let stageLeftInset = null;
+    let stageRightInset = null;
     let isDragging = false;
     let dragStartX = 0;
     let dragStartY = 0;
@@ -1256,6 +1269,8 @@
       canvas.width = window.innerWidth * dpr;
       canvas.height = window.innerHeight * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      stageLeftInset = null;
+      stageRightInset = null;
     }
     window.addEventListener('resize', resizeCanvas);
     resizeCanvas();
@@ -1448,21 +1463,121 @@
       }
     });
 
-    // Canvas Tap-to-Ripple & Drag-to-Tilt
+    // Canvas Tap-to-Ripple, Drag-to-Tilt & Pinch-to-Zoom (Touch + Trackpad + Wheel)
+    const zoomResetBtn = document.getElementById('zoomResetBtn');
+    const zoomResetLabel = document.getElementById('zoomResetLabel');
+
+    function updateZoomBadge() {
+      if (!zoomResetBtn || !zoomResetLabel) return;
+      if (Math.abs(zoomScale - 1.0) > 0.025) {
+        zoomResetLabel.textContent = `${Math.round(zoomScale * 100)}%`;
+        zoomResetBtn.classList.remove('hidden');
+        zoomResetBtn.classList.add('flex');
+      } else {
+        zoomResetBtn.classList.add('hidden');
+        zoomResetBtn.classList.remove('flex');
+      }
+    }
+
+    zoomResetBtn.addEventListener('click', () => {
+      isResettingZoom = true;
+    });
+
+    function clampPan(scale, px, py, geom, W, H) {
+      const halfSpanX = Math.max(geom.totalStackW * 0.65, W * 0.35);
+      const halfSpanY = Math.max(geom.totalStackH * 0.65, H * 0.35);
+      const maxPanX = Math.max(0, (scale - 1) * halfSpanX);
+      const maxPanY = Math.max(0, (scale - 1) * halfSpanY);
+      return {
+        x: Math.max(-maxPanX, Math.min(maxPanX, px)),
+        y: Math.max(-maxPanY, Math.min(maxPanY, py))
+      };
+    }
+
+    function applyZoomAtPoint(nextZoomRaw, focalX, focalY, deltaMidX = 0, deltaMidY = 0) {
+      isResettingZoom = false;
+      const W = window.innerWidth;
+      const H = window.innerHeight;
+      const geom = getStackGeometry(W, H);
+      const oldZoom = zoomScale;
+      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, nextZoomRaw));
+      const ratio = newZoom / oldZoom;
+
+      const prevFocalX = focalX - deltaMidX;
+      const prevFocalY = focalY - deltaMidY;
+
+      const rawPanX = focalX - geom.baseCenterX - (prevFocalX - geom.baseCenterX - panX) * ratio;
+      const rawPanY = focalY - geom.baseCenterY - (prevFocalY - geom.baseCenterY - panY) * ratio;
+
+      zoomScale = newZoom;
+      const clamped = clampPan(newZoom, rawPanX, rawPanY, geom, W, H);
+      panX = clamped.x;
+      panY = clamped.y;
+      updateZoomBadge();
+    }
+
+    const activePointers = new Map();
     let pointerDownClientX = 0;
     let pointerDownClientY = 0;
     let pointerMoved = false;
+    let wasMultiTouch = false;
+    let lastPinchDist = 0;
+    let lastPinchMidX = 0;
+    let lastPinchMidY = 0;
+    let isWebKitGestureActive = false;
+    let lastGestureScale = 1;
+
+    function syncTwoFingerPinchBaseline() {
+      const pts = Array.from(activePointers.values());
+      if (pts.length >= 2) {
+        lastPinchDist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+        lastPinchMidX = (pts[0].x + pts[1].x) * 0.5;
+        lastPinchMidY = (pts[0].y + pts[1].y) * 0.5;
+      }
+    }
 
     canvas.addEventListener('pointerdown', (e) => {
-      isDragging = true;
-      pointerMoved = false;
-      pointerDownClientX = e.clientX;
-      pointerDownClientY = e.clientY;
-      dragStartX = e.clientX - camYaw * 140;
-      dragStartY = e.clientY - camPitch * 140;
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
       setMobileDrawerOpen(false);
+
+      if (activePointers.size === 1) {
+        isDragging = true;
+        wasMultiTouch = false;
+        pointerMoved = false;
+        pointerDownClientX = e.clientX;
+        pointerDownClientY = e.clientY;
+        dragStartX = e.clientX - camYaw * 140;
+        dragStartY = e.clientY - camPitch * 140;
+      } else if (activePointers.size >= 2) {
+        isDragging = false;
+        wasMultiTouch = true;
+        pointerMoved = true;
+        syncTwoFingerPinchBaseline();
+      }
     });
+
     window.addEventListener('pointermove', (e) => {
+      if (!activePointers.has(e.pointerId)) return;
+      activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+      if (activePointers.size >= 2) {
+        const pts = Array.from(activePointers.values());
+        const dist = Math.hypot(pts[1].x - pts[0].x, pts[1].y - pts[0].y);
+        const midX = (pts[0].x + pts[1].x) * 0.5;
+        const midY = (pts[0].y + pts[1].y) * 0.5;
+        if (lastPinchDist > 8 && dist > 8) {
+          const scaleFactor = dist / lastPinchDist;
+          const dfx = midX - lastPinchMidX;
+          const dfy = midY - lastPinchMidY;
+          applyZoomAtPoint(zoomScale * scaleFactor, midX, midY, dfx, dfy);
+        }
+        lastPinchDist = dist;
+        lastPinchMidX = midX;
+        lastPinchMidY = midY;
+        return;
+      }
+
       if (!isDragging) return;
       if (Math.hypot(e.clientX - pointerDownClientX, e.clientY - pointerDownClientY) > 7) {
         pointerMoved = true;
@@ -1472,12 +1587,97 @@
         camPitch = Math.max(-0.35, Math.min(0.35, (e.clientY - dragStartY) / 140));
       }
     });
-    window.addEventListener('pointerup', (e) => {
-      if (isDragging && !pointerMoved && e.target === canvas) {
-        spawnTapRipple(e.clientX, e.clientY);
+
+    function handlePointerEnd(e) {
+      if (!activePointers.has(e.pointerId)) return;
+      const prevCount = activePointers.size;
+      activePointers.delete(e.pointerId);
+
+      if (prevCount === 1) {
+        if (isDragging && !pointerMoved && !wasMultiTouch && e.type === 'pointerup') {
+          spawnTapRipple(e.clientX, e.clientY);
+        }
+        activePointers.clear();
+        isDragging = false;
+        wasMultiTouch = false;
+      } else if (activePointers.size === 1) {
+        const rem = activePointers.values().next().value;
+        isDragging = true;
+        pointerMoved = false;
+        pointerDownClientX = rem.x;
+        pointerDownClientY = rem.y;
+        dragStartX = rem.x - camYaw * 140;
+        dragStartY = rem.y - camPitch * 140;
+      } else if (activePointers.size >= 2) {
+        syncTwoFingerPinchBaseline();
       }
+    }
+
+    window.addEventListener('pointerup', handlePointerEnd);
+    window.addEventListener('pointercancel', handlePointerEnd);
+    window.addEventListener('blur', () => {
+      activePointers.clear();
       isDragging = false;
+      wasMultiTouch = false;
+      isWebKitGestureActive = false;
     });
+
+    canvas.addEventListener('touchmove', (e) => {
+      if (e.touches && e.touches.length >= 2) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Safari trackpad GestureEvent pinch support (guarded when multi-touch PointerEvents are active)
+    window.addEventListener('gesturestart', (e) => {
+      if (!onboardingOverlay.classList.contains('hidden')) return;
+      e.preventDefault();
+      if (activePointers.size < 2) {
+        isWebKitGestureActive = true;
+        lastGestureScale = e.scale || 1;
+      } else {
+        isWebKitGestureActive = false;
+      }
+    }, { passive: false });
+
+    window.addEventListener('gesturechange', (e) => {
+      if (!onboardingOverlay.classList.contains('hidden')) return;
+      e.preventDefault();
+      if (isWebKitGestureActive && activePointers.size < 2) {
+        const curScale = e.scale || 1;
+        const factor = curScale / lastGestureScale;
+        lastGestureScale = curScale;
+        applyZoomAtPoint(zoomScale * factor, e.clientX, e.clientY, 0, 0);
+      }
+    }, { passive: false });
+
+    window.addEventListener('gestureend', (e) => {
+      if (!onboardingOverlay.classList.contains('hidden')) return;
+      e.preventDefault();
+      isWebKitGestureActive = false;
+    }, { passive: false });
+
+    // Desktop trackpad pinch (ctrlKey wheel) & canvas scroll-wheel zoom
+    window.addEventListener('wheel', (e) => {
+      if (!onboardingOverlay.classList.contains('hidden')) return;
+
+      if (e.ctrlKey) {
+        e.preventDefault();
+        if (isWebKitGestureActive) return;
+        const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+        const factor = Math.exp(-dy * 0.012);
+        applyZoomAtPoint(zoomScale * factor, e.clientX, e.clientY, 0, 0);
+        return;
+      }
+
+      if (e.target === canvas) {
+        e.preventDefault();
+        if (isWebKitGestureActive) return;
+        const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+        const factor = Math.exp(-dy * 0.0018);
+        applyZoomAtPoint(zoomScale * factor, e.clientX, e.clientY, 0, 0);
+      }
+    }, { passive: false });
 
     // Sync Explode Sliders (Desktop & Mobile)
     function setExplode(val) {
@@ -1890,32 +2090,72 @@
       } catch (_) {}
     }
 
+    function getDesktopTargetInsets(W) {
+      const gutter = Math.round(Math.max(28, Math.min(56, W * 0.035)));
+      const left = isDesktopSidebarOpen ? 332 + gutter : gutter;
+      const right = isGuideOpen ? 332 + gutter : gutter;
+      return { left, right };
+    }
+
     function getStackGeometry(W, H) {
       const isMobile = W < 768;
-      const centerW = Math.max(320, W - 672);
       const mobAvailH = Math.max(220, H - 256);
+
+      let leftInset = 0;
+      let rightInset = 0;
+      if (!isMobile) {
+        const targets = getDesktopTargetInsets(W);
+        leftInset = stageLeftInset ?? targets.left;
+        rightInset = stageRightInset ?? targets.right;
+      }
+
+      const deskAvailW = Math.max(220, W - leftInset - rightInset);
 
       const planeSize = isMobile
         ? Math.min(W * 0.64, mobAvailH * 0.56)
-        : Math.min(centerW * 0.56, H * 0.48);
+        : Math.min(deskAvailW * 0.48, H * 0.48, 440);
 
-      const baseSpacingX = (isMobile ? W * 0.052 : Math.min(centerW * 0.105, 88)) * explodeFactor * (1 + camYaw * 0.45);
+      const deskRawSpacingX = Math.min(deskAvailW * 0.085, planeSize * 0.21, 88);
+      const baseSpacingX = (isMobile ? W * 0.052 : deskRawSpacingX) * explodeFactor * (1 + camYaw * 0.45);
       const baseSpacingY = (isMobile ? -mobAvailH * 0.085 : -18) * explodeFactor + camPitch * 45;
       const skewY = (isMobile ? 0.24 : 0.30) + camPitch * 0.18;
 
       const totalStackW = baseSpacingX * 4 + planeSize;
       const totalStackH = planeSize + planeSize * skewY + Math.abs(baseSpacingY * 4);
 
-      const startX = (W - totalStackW) * 0.50;
+      const stageCenterX = isMobile
+        ? W * 0.50
+        : (leftInset + (W - rightInset)) * 0.50;
+
+      const startX = stageCenterX - totalStackW * 0.50;
       const startY = isMobile
         ? 56 + Math.max(0, (mobAvailH - totalStackH) * 0.50) + Math.abs(baseSpacingY * 4)
         : (H - planeSize - planeSize * skewY) * 0.50;
 
-      return { isMobile, planeSize, baseSpacingX, baseSpacingY, skewY, startX, startY };
+      const stackTop = startY + Math.min(0, baseSpacingY * 4);
+      const stackBottom = startY + Math.max(0, baseSpacingY * 4) + planeSize * (1 + skewY);
+      const baseCenterX = startX + totalStackW * 0.50;
+      const baseCenterY = (stackTop + stackBottom) * 0.50;
+
+      return {
+        isMobile,
+        planeSize,
+        baseSpacingX,
+        baseSpacingY,
+        skewY,
+        startX,
+        startY,
+        totalStackW,
+        totalStackH,
+        baseCenterX,
+        baseCenterY
+      };
     }
 
     function spawnTapRipple(clientX, clientY) {
       const geom = getStackGeometry(window.innerWidth, window.innerHeight);
+      const worldX = (clientX - geom.baseCenterX - panX) / zoomScale + geom.baseCenterX;
+      const worldY = (clientY - geom.baseCenterY - panY) / zoomScale + geom.baseCenterY;
       const pad = geom.planeSize * 0.12;
       const innerSpan = geom.planeSize - pad * 2;
 
@@ -1932,8 +2172,8 @@
         if (!selectedPlanes.has(pIdx)) continue;
         const ox = geom.startX + pIdx * geom.baseSpacingX;
         const oy = geom.startY + pIdx * geom.baseSpacingY;
-        const dx = clientX - ox;
-        const dy = clientY - oy - dx * geom.skewY;
+        const dx = worldX - ox;
+        const dy = worldY - oy - dx * geom.skewY;
         const u = (dx - pad) / innerSpan;
         const v = (dy - pad) / innerSpan;
 
@@ -1990,6 +2230,30 @@
       const H = window.innerHeight;
       ctx.clearRect(0, 0, W, H);
 
+      if (W >= 768) {
+        const targets = getDesktopTargetInsets(W);
+        if (stageLeftInset === null || stageRightInset === null) {
+          stageLeftInset = targets.left;
+          stageRightInset = targets.right;
+        } else {
+          stageLeftInset += (targets.left - stageLeftInset) * 0.16;
+          stageRightInset += (targets.right - stageRightInset) * 0.16;
+        }
+      }
+
+      if (isResettingZoom) {
+        zoomScale += (1.0 - zoomScale) * 0.18;
+        panX += (0 - panX) * 0.18;
+        panY += (0 - panY) * 0.18;
+        if (Math.abs(zoomScale - 1.0) < 0.004 && Math.hypot(panX, panY) < 0.5) {
+          zoomScale = 1.0;
+          panX = 0;
+          panY = 0;
+          isResettingZoom = false;
+        }
+        updateZoomBadge();
+      }
+
       // Drive ambient audio from the active (or latest selected) hour plane
       const activeIndices = Array.from(selectedPlanes).sort((a, z) => a - z);
       const primaryIdx = activeIndices.length > 0 ? activeIndices[0] : 0;
@@ -2027,14 +2291,20 @@
         stems.thermalGain.gain.setTargetAtTime(0.038 * mixRatio, now, 0.12);
       }
 
-      const { isMobile, planeSize, baseSpacingX, baseSpacingY, skewY, startX, startY } = getStackGeometry(W, H);
+      const { isMobile, planeSize, baseSpacingX, baseSpacingY, skewY, startX, startY, baseCenterX, baseCenterY } = getStackGeometry(W, H);
+
+      ctx.save();
+      ctx.translate(baseCenterX + panX, baseCenterY + panY);
+      ctx.scale(zoomScale, zoomScale);
+      ctx.translate(-baseCenterX, -baseCenterY);
 
       for (let pIdx = 4; pIdx >= 0; pIdx--) {
         const pDef = planeDefs[pIdx];
         const snap = (b.history && b.history[pIdx]) || b;
         const snapPal = getThermalPalette(snap.wtmp ?? b.wtmp);
         const isActive = selectedPlanes.has(pIdx);
-        const planeAlpha = isActive ? 1.0 : 0.15;
+        const depthAlpha = 1.0 - pIdx * 0.085;
+        const planeAlpha = isActive ? depthAlpha : 0.15 * depthAlpha;
 
         const ox = startX + pIdx * baseSpacingX;
         const oy = startY + pIdx * baseSpacingY;
@@ -2209,6 +2479,8 @@
 
         ctx.restore();
       }
+
+      ctx.restore();
 
       requestAnimationFrame(render);
     }
