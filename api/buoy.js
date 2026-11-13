@@ -1,20 +1,20 @@
 const ALLOWED_STATIONS = new Set([
-  '46035', // Bering Sea (Pribilof Islands, AK)
-  '46001', // Gulf of Alaska (Kodiak Basin, AK)
-  '63055', // Norwegian Sea (Haltenbanken, Norway)
-  '45001', // Lake Superior (Mid-Superior, MI)
-  '62105', // UK Celtic Sea (Seven Stones, UK)
-  '46005', // West Washington (300 NM W of Aberdeen)
-  '44013', // Boston Harbor (Massachusetts Bay)
-  '62094', // Nazaré Canyon (Portuguese Atlantic)
-  '46026', // San Francisco Bar (Golden Gate, CA)
-  '21418', // Kuroshio Current (Offshore Tokyo, Japan)
-  '41025', // Cape Hatteras (Diamond Shoals, NC)
-  '42001', // Gulf of Mexico (Mid-Gulf, LA)
   '51001', // NW Hawaii (Kauai, HI)
+  '46001', // Gulf of Alaska (Kodiak Basin, AK)
+  '46005', // West Washington (300 NM W of Aberdeen)
+  '46026', // San Francisco Bar (Golden Gate, CA)
+  '42001', // Gulf of Mexico (Mid-Gulf, LA)
+  '45001', // Lake Superior (Mid-Superior, MI)
+  '41025', // Cape Hatteras (Diamond Shoals, NC)
   '42058', // Central Caribbean (South of Haiti)
-  '55020', // Tasman Sea (Sydney Heads, Australia)
+  '44013', // Boston Harbor (Massachusetts Bay)
   '32012', // Drake Passage (Cape Horn, Southern Ocean)
+  '62094', // Nazaré Canyon (Portuguese Atlantic)
+  '62105', // UK Celtic Sea (Seven Stones, UK)
+  '63055', // Norwegian Sea (Haltenbanken, Norway)
+  '21418', // Kuroshio Current (Offshore Tokyo, Japan)
+  '55020', // Tasman Sea (Sydney Heads, Australia)
+  '46035', // Bering Sea (Pribilof Islands, AK)
 ]);
 
 function parseNum(val) {
@@ -100,7 +100,7 @@ async function fetchOpenMeteoTelemetry(id, lat, lon) {
 }
 
 export default async function handler(req, res) {
-  const id = String(req.query.id || '46001').trim();
+  const id = String(req.query.id || '51001').trim();
   if (!ALLOWED_STATIONS.has(id) && !/^[0-9A-Za-z]{5}$/.test(id)) {
     return res.status(400).json({ error: 'Invalid station ID' });
   }

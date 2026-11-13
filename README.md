@@ -9,7 +9,7 @@ Buoy FM transforms live marine meteorological data from NOAA National Data Buoy 
 ## Features
 
 - **5-Plane Isometric Time-Series Stack (`Now` → `-4 Hr`)**: Compares the last 5 hours of buoy readings front-to-back using a unified visual grammar—bubble size for wave height (`WVHT`), directional wave & wind travel (`MWD`/`WDIR`), hollow target rings for wind chop (`WSPD`/`APD`), pulse tempo for wave period (`DPD`), and thermal color palettes (`WTMP`).
-- **L'Annuel Océanique Latitude Spine**: Spatial station selector ordered North-to-South across major Atlantic, Pacific, and Caribbean buoys (`46001`, `62105`, `46005`, `44013`, `46026`, `51001`, `42058`).
+- **Global Longitude Spine**: Spatial station selector ordered around the globe by longitude starting from NW Hawaii (`51001`, `46001`, `46005`, `46026`, `42001`, `45001`, `41025`, `42058`, `44013`, `32012`, `62094`, `62105`, `63055`, `21418`, `55020`, `46035`).
 - **Generative Web Audio Shortwave Synth**: Modulates pink/brown noise surf filters and thermal sine drones in real time using wave height, swell period, and water temperature.
 - **Live Vercel Serverless NOAA Telemetry Proxy (`/api/buoy`)**: Fetches and merges real-time NOAA `.txt` packets (including 5-hour historical snapshots) and Open-Meteo Marine wave spectra with Vercel Edge caching (`s-maxage=300, stale-while-revalidate=600`), with instant fallback to embedded station telemetry.
 - **Raw NOAA `.txt` Packet Inspector**: Inspect the underlying NDBC tabular telemetry rows and station notes.

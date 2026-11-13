@@ -135,8 +135,8 @@
       <div class="shrink-0 pt-2.5 border-t flex flex-col gap-2" style="border-color: var(--panel-border);">
         <div class="flex items-center justify-between">
           <div>
-            <div id="deskStationTitle" class="text-xs font-bold">#46001 • Gulf of Alaska</div>
-            <div id="deskStationSub" class="text-[10px] opacity-70">56.3°N, 148.0°W • 968.2 hPa</div>
+            <div id="deskStationTitle" class="text-xs font-bold">#51001 • NW Hawaii</div>
+            <div id="deskStationSub" class="text-[10px] opacity-70">24.4°N, 162.0°W • 1021.6 hPa</div>
           </div>
           <span id="syncBadge" class="text-[9px] font-bold px-1.5 py-0.5 rounded glass-card">NOAA LIVE</span>
         </div>
@@ -145,23 +145,23 @@
         <div class="grid grid-cols-2 gap-1.5 text-xs">
           <div class="p-2 rounded-lg glass-card">
             <div class="text-[10px] opacity-65">Wave Height</div>
-            <div id="deskWvht" class="font-bold text-sm mt-0.5">4.00 m</div>
-            <div id="deskTrendSub" class="text-[9px] opacity-65">+1.6m vs 4h ago</div>
+            <div id="deskWvht" class="font-bold text-sm mt-0.5">2.20 m</div>
+            <div id="deskTrendSub" class="text-[9px] opacity-65">+0.4m vs 4h ago</div>
           </div>
           <div class="p-2 rounded-lg glass-card">
             <div class="text-[10px] opacity-65">Swell / Chop</div>
-            <div id="deskPeriod" class="font-bold text-sm mt-0.5">14.0s / 8.5s</div>
-            <div id="deskWaveDir" class="text-[9px] opacity-65">Wave Dir • ESE 102°</div>
+            <div id="deskPeriod" class="font-bold text-sm mt-0.5">11.0s / 6.8s</div>
+            <div id="deskWaveDir" class="text-[9px] opacity-65">Wave Dir • NW 314°</div>
           </div>
           <div class="p-2 rounded-lg glass-card">
             <div class="text-[10px] opacity-65">Wind / Gust</div>
-            <div id="deskWind" class="font-bold text-sm mt-0.5">8.0 / 12.0 m/s</div>
-            <div id="deskWindDir" class="text-[9px] opacity-65">Wind Dir • SW 220°</div>
+            <div id="deskWind" class="font-bold text-sm mt-0.5">8.0 / 10.0 m/s</div>
+            <div id="deskWindDir" class="text-[9px] opacity-65">Wind Dir • ENE 60°</div>
           </div>
           <div class="p-2 rounded-lg glass-card">
             <div class="text-[10px] opacity-65">Water Temp</div>
-            <div id="deskTemp" class="font-bold text-sm mt-0.5">8.5 °C</div>
-            <div id="deskPresSub" class="text-[9px] opacity-65">968.2 hPa</div>
+            <div id="deskTemp" class="font-bold text-sm mt-0.5">25.4 °C</div>
+            <div id="deskPresSub" class="text-[9px] opacity-65">1021.6 hPa</div>
           </div>
         </div>
 
@@ -169,19 +169,19 @@
         <div class="p-2 rounded-lg glass-card">
           <div class="flex items-center justify-between text-[10px] mb-1">
             <span class="opacity-75">Thermal Palette</span>
-            <span id="deskPaletteName" class="font-semibold">Sub-Arctic Glacial</span>
+            <span id="deskPaletteName" class="font-semibold">Sub-Tropical Hibiscus &amp; Gold</span>
           </div>
           <div id="deskSwatchRow" class="flex items-center gap-1 h-2 mb-1.5"></div>
           <div class="relative pt-1">
             <div class="h-1.5 w-full rounded-full" style="background: linear-gradient(90deg, #0b2545 0%, #1d5b9e 22%, #1b7a75 42%, #28664b 56%, #eab308 72%, #ed5c2b 88%, #8f2d1e 100%);"></div>
-            <div id="deskTempMarker" class="absolute top-0 w-2.5 h-2.5 rounded-full bg-white border-2 border-stone-900 shadow" style="left: 26%;"></div>
+            <div id="deskTempMarker" class="absolute top-0 w-2.5 h-2.5 rounded-full bg-white border-2 border-stone-900 shadow" style="left: 79%;"></div>
           </div>
         </div>
 
         <details class="text-[10px] rounded-lg p-2 bg-black/35 text-stone-200 border border-white/10">
           <summary class="cursor-pointer font-semibold text-amber-300 flex items-center justify-between">
             <span>{ } Raw NOAA Packet</span>
-            <span id="deskRawTime" class="opacity-70 font-normal">08:30 UTC</span>
+            <span id="deskRawTime" class="opacity-70 font-normal">08:20 UTC</span>
           </summary>
           <p id="deskRawNotes" class="text-[10px] text-stone-300 my-1 leading-relaxed"></p>
           <pre id="deskRawPre" class="font-mono text-[9px] leading-tight text-emerald-300 bg-black/50 p-1.5 rounded overflow-x-auto whitespace-pre"></pre>
@@ -243,13 +243,13 @@
           <span id="mobDropdownCaret" class="w-6 h-6 rounded-lg glass-card flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200">▾</span>
           <span id="mobActiveDot" class="w-3 h-3 rounded-full shrink-0 border border-white/80"></span>
           <div class="truncate">
-            <div class="text-xs font-bold truncate" id="mobActiveName">Gulf of Alaska</div>
-            <div class="text-[10px] opacity-75 truncate" id="mobActiveStats">#46001 • 56.3°N, 148.0°W • NOAA Live</div>
+            <div class="text-xs font-bold truncate" id="mobActiveName">NW Hawaii</div>
+            <div class="text-[10px] opacity-75 truncate" id="mobActiveStats">#51001 • 24.4°N, 162.0°W • 186 NM NW of Kauai</div>
           </div>
         </div>
         <div class="text-right shrink-0">
-          <div id="mobActiveClock" class="text-xs font-bold">☾ 10:00 PM</div>
-          <div id="mobActiveSub" class="text-[10px] opacity-70">UTC-9</div>
+          <div id="mobActiveClock" class="text-xs font-bold">☾ 09:00 PM</div>
+          <div id="mobActiveSub" class="text-[10px] opacity-70">UTC-10</div>
         </div>
       </button>
 
@@ -257,23 +257,23 @@
       <div id="mobileTelemetryHud" class="grid grid-cols-4 gap-1.5 text-xs pt-2 border-t" style="border-color: var(--panel-border);">
         <div class="p-1.5 rounded-lg glass-card">
           <div class="text-[9px] opacity-65 truncate">Wave Height</div>
-          <div id="mobWvht" class="font-bold text-xs mt-0.5 truncate">4.00 m</div>
-          <div id="mobTrendSub" class="text-[8px] opacity-65 truncate">+1.6m / 4h</div>
+          <div id="mobWvht" class="font-bold text-xs mt-0.5 truncate">2.20 m</div>
+          <div id="mobTrendSub" class="text-[8px] opacity-65 truncate">+0.4m / 4h</div>
         </div>
         <div class="p-1.5 rounded-lg glass-card">
           <div class="text-[9px] opacity-65 truncate">Swell / Chop</div>
-          <div id="mobPeriod" class="font-bold text-xs mt-0.5 truncate">14.0s / 8.5s</div>
-          <div id="mobWaveDir" class="text-[8px] opacity-65 truncate">ESE 102°</div>
+          <div id="mobPeriod" class="font-bold text-xs mt-0.5 truncate">11.0s / 6.8s</div>
+          <div id="mobWaveDir" class="text-[8px] opacity-65 truncate">NW 314°</div>
         </div>
         <div class="p-1.5 rounded-lg glass-card">
           <div class="text-[9px] opacity-65 truncate">Wind / Gust</div>
-          <div id="mobWind" class="font-bold text-xs mt-0.5 truncate">8.0 / 12.0</div>
-          <div id="mobWindDir" class="text-[8px] opacity-65 truncate">SW 220°</div>
+          <div id="mobWind" class="font-bold text-xs mt-0.5 truncate">8.0 / 10.0</div>
+          <div id="mobWindDir" class="text-[8px] opacity-65 truncate">ENE 60°</div>
         </div>
         <div class="p-1.5 rounded-lg glass-card">
           <div class="text-[9px] opacity-65 truncate">Water Temp</div>
-          <div id="mobTemp" class="font-bold text-xs mt-0.5 truncate">8.5 °C</div>
-          <div id="mobPresSub" class="text-[8px] opacity-65 truncate">968.2 hPa</div>
+          <div id="mobTemp" class="font-bold text-xs mt-0.5 truncate">25.4 °C</div>
+          <div id="mobPresSub" class="text-[8px] opacity-65 truncate">1021.6 hPa</div>
         </div>
       </div>
     </div>
@@ -751,9 +751,33 @@
 
   <script>
     // Real NOAA NDBC + Global Marine Telemetry Stations + 5-hour history snapshots [Now, -1h, -2h, -3h, -4h]
+    // Ordered eastward by longitude around the globe starting from NW Hawaii (162.0°W)
     const buoys = [
       {
         idx: 1,
+        id: '51001',
+        short: 'NW Hawaii',
+        region: '186 NM NW of Kauai',
+        lat: 24.4, lon: -162.0,
+        tzOffset: -10, // HST (UTC-10)
+        timeUTC: '08:20 UTC',
+        wvht: 2.2, dpd: 11.0, apd: 6.8, mwd: 314,
+        wdir: 60, wspd: 8.0, gst: 10.0,
+        pres: 1021.6, ptdy: +1.5, atmp: 24.7, wtmp: 25.4,
+        history: [
+          { label: 'Now',   timeUTC: '08:20 UTC', wvht: 2.2, dpd: 11.0, apd: 6.8, mwd: 314, wdir: 60, wspd: 8.0, gst: 10.0, wtmp: 25.4 },
+          { label: '-1 Hr', timeUTC: '07:20 UTC', wvht: 2.1, dpd: 11.0, apd: 6.7, mwd: 312, wdir: 55, wspd: 8.0, gst: 10.5, wtmp: 25.4 },
+          { label: '-2 Hr', timeUTC: '06:20 UTC', wvht: 2.0, dpd: 10.5, apd: 6.5, mwd: 310, wdir: 50, wspd: 7.8, gst: 10.0, wtmp: 25.3 },
+          { label: '-3 Hr', timeUTC: '05:20 UTC', wvht: 1.9, dpd: 10.5, apd: 6.4, mwd: 310, wdir: 50, wspd: 7.5, gst: 9.5,  wtmp: 25.3 },
+          { label: '-4 Hr', timeUTC: '04:20 UTC', wvht: 1.8, dpd: 10.0, apd: 6.2, mwd: 308, wdir: 50, wspd: 7.2, gst: 9.0,  wtmp: 25.3 }
+        ],
+        notes: 'Warm 25.4°C Pacific water shifts the concentric rings into vibrant tropical corals, with NW 314° groundswell crossing ENE 60° trade winds.',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 20  60  8.0 10.0  2.2  11 6.8 314 1021.6 24.7 25.4   MM
+2026 11 10 08 00  50  8.0 11.0   MM  MM  MM  MM 1021.6 24.4 25.4 +1.5`
+      },
+      {
+        idx: 2,
         id: '46001',
         short: 'Gulf of Alaska',
         region: 'Kodiak Basin, AK',
@@ -777,99 +801,7 @@
 2026 11 10 08 00 220  9.0 12.0   MM  MM  MM  MM  967.5  7.8  8.5 +4.4`
       },
       {
-        idx: 2,
-        id: '46035',
-        short: 'Bering Sea',
-        region: 'Pribilof Islands, AK',
-        lat: 57.0, lon: -177.7,
-        tzOffset: -9, // AKST (UTC-9)
-        timeUTC: '08:50 UTC',
-        wvht: 4.8, dpd: 13.0, apd: 8.2, mwd: 310,
-        wdir: 330, wspd: 14.2, gst: 18.5,
-        pres: 984.6, ptdy: -2.1, atmp: 3.4, wtmp: 5.2,
-        history: [
-          { label: 'Now',   timeUTC: '08:50 UTC', wvht: 4.8, dpd: 13.0, apd: 8.2, mwd: 310, wdir: 330, wspd: 14.2, gst: 18.5, wtmp: 5.2 },
-          { label: '-1 Hr', timeUTC: '07:50 UTC', wvht: 4.5, dpd: 12.5, apd: 7.9, mwd: 308, wdir: 325, wspd: 13.6, gst: 17.8, wtmp: 5.2 },
-          { label: '-2 Hr', timeUTC: '06:50 UTC', wvht: 4.1, dpd: 12.0, apd: 7.6, mwd: 305, wdir: 320, wspd: 12.8, gst: 16.5, wtmp: 5.3 },
-          { label: '-3 Hr', timeUTC: '05:50 UTC', wvht: 3.7, dpd: 11.5, apd: 7.3, mwd: 300, wdir: 315, wspd: 11.9, gst: 15.2, wtmp: 5.3 },
-          { label: '-4 Hr', timeUTC: '04:50 UTC', wvht: 3.3, dpd: 11.0, apd: 7.0, mwd: 296, wdir: 310, wspd: 11.0, gst: 14.0, wtmp: 5.4 }
-        ],
-        notes: 'Sub-arctic Bering Sea shelf station 310 NM N of Adak: icy 5.2°C water and 18.5 m/s NW gales building a steep 4.8m storm swell.',
-        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
-2026 11 10 08 50 330 14.2 18.5  4.8  13 8.2 310  984.6  3.4  5.2 -2.1
-2026 11 10 07 50 325 13.6 17.8  4.5  13 7.9 308  985.8  3.6  5.2   MM`
-      },
-      {
         idx: 3,
-        id: '63055',
-        short: 'Norwegian Sea',
-        region: 'Haltenbanken, Norway',
-        lat: 65.0, lon: 7.6,
-        tzOffset: +1, // CET (UTC+1)
-        timeUTC: '09:00 UTC',
-        wvht: 3.9, dpd: 12.5, apd: 8.0, mwd: 245,
-        wdir: 235, wspd: 13.0, gst: 16.8,
-        pres: 992.4, ptdy: -1.8, atmp: 5.9, wtmp: 6.8,
-        history: [
-          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 3.9, dpd: 12.5, apd: 8.0, mwd: 245, wdir: 235, wspd: 13.0, gst: 16.8, wtmp: 6.8 },
-          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 3.7, dpd: 12.2, apd: 7.8, mwd: 242, wdir: 230, wspd: 12.4, gst: 16.0, wtmp: 6.8 },
-          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 3.5, dpd: 12.0, apd: 7.6, mwd: 240, wdir: 228, wspd: 11.8, gst: 15.1, wtmp: 6.9 },
-          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 3.2, dpd: 11.6, apd: 7.4, mwd: 238, wdir: 225, wspd: 11.2, gst: 14.3, wtmp: 6.9 },
-          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 2.9, dpd: 11.2, apd: 7.1, mwd: 235, wdir: 220, wspd: 10.5, gst: 13.4, wtmp: 6.9 }
-        ],
-        notes: 'High-latitude Norwegian Sea station just south of the Arctic Circle (65.0°N, 7.6°E), where North Atlantic lows push WSW 245° swells toward the Norwegian coast.',
-        raw: `[Norwegian Sea / Haltenbanken @ 65.0°N, 7.6°E]
-2026 11 10 09 00 WDIR=235 WSPD=13.0 GST=16.8 WVHT=3.9m DPD=12.5s MWD=245 PRES=992.4 WTMP=6.8°C`
-      },
-      {
-        idx: 4,
-        id: '45001',
-        short: 'Lake Superior',
-        region: 'Mid-Superior, MI',
-        lat: 48.1, lon: -87.8,
-        tzOffset: -5, // EST (UTC-5)
-        timeUTC: '08:50 UTC',
-        wvht: 2.3, dpd: 6.5, apd: 5.1, mwd: 325,
-        wdir: 330, wspd: 11.4, gst: 14.6,
-        pres: 1008.7, ptdy: +1.2, atmp: 4.2, wtmp: 7.4,
-        history: [
-          { label: 'Now',   timeUTC: '08:50 UTC', wvht: 2.3, dpd: 6.5, apd: 5.1, mwd: 325, wdir: 330, wspd: 11.4, gst: 14.6, wtmp: 7.4 },
-          { label: '-1 Hr', timeUTC: '07:50 UTC', wvht: 2.1, dpd: 6.2, apd: 4.9, mwd: 322, wdir: 325, wspd: 10.8, gst: 13.8, wtmp: 7.4 },
-          { label: '-2 Hr', timeUTC: '06:50 UTC', wvht: 1.8, dpd: 5.8, apd: 4.6, mwd: 318, wdir: 320, wspd: 9.9,  gst: 12.6, wtmp: 7.5 },
-          { label: '-3 Hr', timeUTC: '05:50 UTC', wvht: 1.5, dpd: 5.5, apd: 4.3, mwd: 315, wdir: 315, wspd: 9.0,  gst: 11.4, wtmp: 7.5 },
-          { label: '-4 Hr', timeUTC: '04:50 UTC', wvht: 1.2, dpd: 5.0, apd: 4.0, mwd: 310, wdir: 310, wspd: 8.1,  gst: 10.2, wtmp: 7.5 }
-        ],
-        notes: 'Freshwater inland sea! November gales over central Lake Superior whip up steep, closely spaced 2.3m waves at a rapid 6.5-second period in 7.4°C water.',
-        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
-2026 11 10 08 50 330 11.4 14.6  2.3 6.5 5.1 325 1008.7  4.2  7.4 +1.2
-2026 11 10 07 50 325 10.8 13.8  2.1 6.2 4.9 322 1008.1  4.5  7.4   MM`
-      },
-      {
-        idx: 5,
-        id: '62105',
-        short: 'UK Celtic Sea',
-        region: 'Seven Stones, UK',
-        lat: 50.1, lon: -6.1,
-        tzOffset: 0, // GMT (UTC+0)
-        timeUTC: '09:00 UTC + Open-Meteo',
-        wvht: 2.04, dpd: 8.8, apd: 7.75, mwd: 175,
-        wdir: 70, wspd: 11.8, gst: 13.8,
-        pres: 1011.5, ptdy: +0.3, atmp: 11.1, wtmp: 12.1,
-        history: [
-          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 2.04, dpd: 8.8, apd: 7.75, mwd: 175, wdir: 70, wspd: 11.8, gst: 13.8, wtmp: 12.1 },
-          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 1.92, dpd: 8.6, apd: 7.50, mwd: 172, wdir: 70, wspd: 10.3, gst: 12.4, wtmp: 12.1 },
-          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 1.80, dpd: 8.4, apd: 7.20, mwd: 170, wdir: 65, wspd: 9.8,  gst: 11.8, wtmp: 12.1 },
-          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 1.68, dpd: 8.2, apd: 7.00, mwd: 168, wdir: 60, wspd: 9.1,  gst: 11.0, wtmp: 12.2 },
-          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 1.55, dpd: 8.0, apd: 6.80, mwd: 165, wdir: 60, wspd: 8.5,  gst: 10.2, wtmp: 12.2 }
-        ],
-        notes: 'Seven Stones Lightvessel reports live wind (11.8 m/s) and water temp (12.1°C) to NOAA, while wave height is enriched live from Open-Meteo Marine (2.04m @ 8.8s).',
-        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP DEWP
-2026 11 10 09 00  70 11.8   MM   MM  MM  MM  MM 1011.5 11.1 12.1  6.8
-2026 11 10 08 00  70 10.3   MM   MM  MM  MM  MM 1011.5 11.4 12.1  6.1
-[+ Open-Meteo Marine @ 50.12°N, -6.12°W]: WVHT=2.04m, DPD=8.8s, APD=7.75s`
-      },
-      {
-        idx: 6,
         id: '46005',
         short: 'West Washington',
         region: '300 NM W of Aberdeen',
@@ -893,52 +825,7 @@
 2026 11 10 08 00 200 11.0 14.0   MM  MM  MM  MM 1001.1 14.4 13.2 -1.4`
       },
       {
-        idx: 7,
-        id: '44013',
-        short: 'Boston Harbor',
-        region: 'Massachusetts Bay',
-        lat: 42.3, lon: -70.6,
-        tzOffset: -5, // EST (UTC-5)
-        timeUTC: '08:50 / 08:40 UTC',
-        wvht: 0.7, dpd: 3.0, apd: 3.3, mwd: 287,
-        wdir: 260, wspd: 8.0, gst: 10.0,
-        pres: 1011.3, ptdy: +0.5, atmp: 10.1, wtmp: 12.5,
-        history: [
-          { label: 'Now',   timeUTC: '08:50 UTC', wvht: 0.7, dpd: 3.0, apd: 3.3, mwd: 287, wdir: 260, wspd: 8.0,  gst: 10.0, wtmp: 12.5 },
-          { label: '-1 Hr', timeUTC: '07:50 UTC', wvht: 0.9, dpd: 3.5, apd: 3.6, mwd: 290, wdir: 270, wspd: 9.0,  gst: 11.0, wtmp: 12.5 },
-          { label: '-2 Hr', timeUTC: '06:50 UTC', wvht: 1.2, dpd: 4.2, apd: 4.0, mwd: 292, wdir: 275, wspd: 10.2, gst: 12.5, wtmp: 12.4 },
-          { label: '-3 Hr', timeUTC: '05:50 UTC', wvht: 1.5, dpd: 4.8, apd: 4.3, mwd: 295, wdir: 280, wspd: 11.5, gst: 14.0, wtmp: 12.4 },
-          { label: '-4 Hr', timeUTC: '04:50 UTC', wvht: 1.8, dpd: 5.2, apd: 4.6, mwd: 298, wdir: 285, wspd: 12.4, gst: 15.2, wtmp: 12.3 }
-        ],
-        notes: 'Calming bay chop: waves have subsided from 1.8m four hours ago down to 0.7m Now with a rapid 3.0-second dominant period.',
-        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
-2026 11 10 08 50 260  8.0 10.0  0.7   3 3.3 287 1011.3   MM   MM   MM
-2026 11 10 08 40 270  9.0 11.0   MM  MM  MM  MM 1011.3 10.1 12.5   MM`
-      },
-      {
-        idx: 8,
-        id: '62094',
-        short: 'Nazaré Canyon',
-        region: 'Portuguese Atlantic',
-        lat: 39.6, lon: -9.2,
-        tzOffset: 0, // WET (UTC+0)
-        timeUTC: '09:00 UTC',
-        wvht: 5.2, dpd: 16.0, apd: 11.2, mwd: 292,
-        wdir: 315, wspd: 7.4, gst: 9.8,
-        pres: 1018.8, ptdy: +0.6, atmp: 17.2, wtmp: 16.4,
-        history: [
-          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 5.2, dpd: 16.0, apd: 11.2, mwd: 292, wdir: 315, wspd: 7.4, gst: 9.8,  wtmp: 16.4 },
-          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 4.9, dpd: 15.8, apd: 11.0, mwd: 290, wdir: 310, wspd: 7.8, gst: 10.1, wtmp: 16.4 },
-          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 4.5, dpd: 15.5, apd: 10.6, mwd: 288, wdir: 310, wspd: 8.1, gst: 10.4, wtmp: 16.3 },
-          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 4.1, dpd: 15.0, apd: 10.2, mwd: 286, wdir: 305, wspd: 8.4, gst: 10.8, wtmp: 16.3 },
-          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 3.8, dpd: 14.5, apd: 9.8,  mwd: 285, wdir: 300, wspd: 8.6, gst: 11.0, wtmp: 16.3 }
-        ],
-        notes: 'Long-period 16.0-second WNW 292° Atlantic groundswell funneling into the deep submarine Nazaré Canyon off Portugal—producing slow, massive, clean wave crests.',
-        raw: `[Nazaré Canyon Approach @ 39.6°N, 9.2°W]
-2026 11 10 09 00 WDIR=315 WSPD=7.4 GST=9.8 WVHT=5.2m DPD=16.0s APD=11.2s MWD=292 PRES=1018.8 WTMP=16.4°C`
-      },
-      {
-        idx: 9,
+        idx: 4,
         id: '46026',
         short: 'San Francisco Bar',
         region: '18 NM W of Golden Gate',
@@ -961,52 +848,7 @@
 2026 11 10 08 30 340  8.0 10.0   MM  MM  MM  MM 1021.4   MM 18.3   MM`
       },
       {
-        idx: 10,
-        id: '21418',
-        short: 'Kuroshio Current',
-        region: 'Offshore Tokyo, Japan',
-        lat: 38.7, lon: 148.7,
-        tzOffset: +9, // JST (UTC+9)
-        timeUTC: '09:00 UTC',
-        wvht: 3.4, dpd: 13.0, apd: 8.6, mwd: 135,
-        wdir: 150, wspd: 9.6, gst: 12.4,
-        pres: 1014.2, ptdy: -0.5, atmp: 18.8, wtmp: 19.6,
-        history: [
-          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 3.4, dpd: 13.0, apd: 8.6, mwd: 135, wdir: 150, wspd: 9.6, gst: 12.4, wtmp: 19.6 },
-          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 3.2, dpd: 12.8, apd: 8.4, mwd: 138, wdir: 148, wspd: 9.2, gst: 11.8, wtmp: 19.6 },
-          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 3.0, dpd: 12.5, apd: 8.1, mwd: 140, wdir: 145, wspd: 8.8, gst: 11.2, wtmp: 19.5 },
-          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 2.8, dpd: 12.2, apd: 7.9, mwd: 142, wdir: 142, wspd: 8.4, gst: 10.6, wtmp: 19.5 },
-          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 2.6, dpd: 12.0, apd: 7.7, mwd: 145, wdir: 140, wspd: 8.0, gst: 10.1, wtmp: 19.5 }
-        ],
-        notes: 'Western North Pacific station east of Honshu, Japan (38.7°N, 148.7°E), where the warm Kuroshio Current (19.6°C) meets SE 135° Pacific groundswells.',
-        raw: `[Northwest Pacific / Kuroshio @ 38.7°N, 148.7°E]
-2026 11 10 09 00 WDIR=150 WSPD=9.6 GST=12.4 WVHT=3.4m DPD=13.0s MWD=135 PRES=1014.2 WTMP=19.6°C`
-      },
-      {
-        idx: 11,
-        id: '41025',
-        short: 'Cape Hatteras',
-        region: 'Diamond Shoals, NC',
-        lat: 35.0, lon: -75.4,
-        tzOffset: -5, // EST (UTC-5)
-        timeUTC: '08:50 UTC',
-        wvht: 3.2, dpd: 10.0, apd: 6.9, mwd: 165,
-        wdir: 190, wspd: 12.6, gst: 16.2,
-        pres: 1012.8, ptdy: -0.9, atmp: 21.4, wtmp: 22.8,
-        history: [
-          { label: 'Now',   timeUTC: '08:50 UTC', wvht: 3.2, dpd: 10.0, apd: 6.9, mwd: 165, wdir: 190, wspd: 12.6, gst: 16.2, wtmp: 22.8 },
-          { label: '-1 Hr', timeUTC: '07:50 UTC', wvht: 2.9, dpd: 9.5,  apd: 6.6, mwd: 168, wdir: 185, wspd: 11.8, gst: 15.0, wtmp: 22.8 },
-          { label: '-2 Hr', timeUTC: '06:50 UTC', wvht: 2.6, dpd: 9.0,  apd: 6.3, mwd: 170, wdir: 180, wspd: 11.0, gst: 14.1, wtmp: 22.7 },
-          { label: '-3 Hr', timeUTC: '05:50 UTC', wvht: 2.3, dpd: 8.5,  apd: 6.0, mwd: 172, wdir: 175, wspd: 10.1, gst: 13.0, wtmp: 22.7 },
-          { label: '-4 Hr', timeUTC: '04:50 UTC', wvht: 2.0, dpd: 8.0,  apd: 5.8, mwd: 175, wdir: 170, wspd: 9.2,  gst: 11.8, wtmp: 22.6 }
-        ],
-        notes: 'Diamond Shoals ("Graveyard of the Atlantic"), where the warm 22.8°C Gulf Stream collides with coastal currents—generating brisk wind chop and building 3.2m seas.',
-        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
-2026 11 10 08 50 190 12.6 16.2  3.2  10 6.9 165 1012.8 21.4 22.8 -0.9
-2026 11 10 07 50 185 11.8 15.0  2.9 9.5 6.6 168 1013.2 21.2 22.8   MM`
-      },
-      {
-        idx: 12,
+        idx: 5,
         id: '42001',
         short: 'Gulf of Mexico',
         region: '180 NM S of Louisiana',
@@ -1029,30 +871,53 @@
 2026 11 10 07 50 108  8.4 10.5  1.8 7.5 5.3 112 1015.2 26.1 27.4   MM`
       },
       {
-        idx: 13,
-        id: '51001',
-        short: 'NW Hawaii',
-        region: '186 NM NW of Kauai',
-        lat: 24.4, lon: -162.0,
-        tzOffset: -10, // HST (UTC-10)
-        timeUTC: '08:20 UTC',
-        wvht: 2.2, dpd: 11.0, apd: 6.8, mwd: 314,
-        wdir: 60, wspd: 8.0, gst: 10.0,
-        pres: 1021.6, ptdy: +1.5, atmp: 24.7, wtmp: 25.4,
+        idx: 6,
+        id: '45001',
+        short: 'Lake Superior',
+        region: 'Mid-Superior, MI',
+        lat: 48.1, lon: -87.8,
+        tzOffset: -5, // EST (UTC-5)
+        timeUTC: '08:50 UTC',
+        wvht: 2.3, dpd: 6.5, apd: 5.1, mwd: 325,
+        wdir: 330, wspd: 11.4, gst: 14.6,
+        pres: 1008.7, ptdy: +1.2, atmp: 4.2, wtmp: 7.4,
         history: [
-          { label: 'Now',   timeUTC: '08:20 UTC', wvht: 2.2, dpd: 11.0, apd: 6.8, mwd: 314, wdir: 60, wspd: 8.0, gst: 10.0, wtmp: 25.4 },
-          { label: '-1 Hr', timeUTC: '07:20 UTC', wvht: 2.1, dpd: 11.0, apd: 6.7, mwd: 312, wdir: 55, wspd: 8.0, gst: 10.5, wtmp: 25.4 },
-          { label: '-2 Hr', timeUTC: '06:20 UTC', wvht: 2.0, dpd: 10.5, apd: 6.5, mwd: 310, wdir: 50, wspd: 7.8, gst: 10.0, wtmp: 25.3 },
-          { label: '-3 Hr', timeUTC: '05:20 UTC', wvht: 1.9, dpd: 10.5, apd: 6.4, mwd: 310, wdir: 50, wspd: 7.5, gst: 9.5,  wtmp: 25.3 },
-          { label: '-4 Hr', timeUTC: '04:20 UTC', wvht: 1.8, dpd: 10.0, apd: 6.2, mwd: 308, wdir: 50, wspd: 7.2, gst: 9.0,  wtmp: 25.3 }
+          { label: 'Now',   timeUTC: '08:50 UTC', wvht: 2.3, dpd: 6.5, apd: 5.1, mwd: 325, wdir: 330, wspd: 11.4, gst: 14.6, wtmp: 7.4 },
+          { label: '-1 Hr', timeUTC: '07:50 UTC', wvht: 2.1, dpd: 6.2, apd: 4.9, mwd: 322, wdir: 325, wspd: 10.8, gst: 13.8, wtmp: 7.4 },
+          { label: '-2 Hr', timeUTC: '06:50 UTC', wvht: 1.8, dpd: 5.8, apd: 4.6, mwd: 318, wdir: 320, wspd: 9.9,  gst: 12.6, wtmp: 7.5 },
+          { label: '-3 Hr', timeUTC: '05:50 UTC', wvht: 1.5, dpd: 5.5, apd: 4.3, mwd: 315, wdir: 315, wspd: 9.0,  gst: 11.4, wtmp: 7.5 },
+          { label: '-4 Hr', timeUTC: '04:50 UTC', wvht: 1.2, dpd: 5.0, apd: 4.0, mwd: 310, wdir: 310, wspd: 8.1,  gst: 10.2, wtmp: 7.5 }
         ],
-        notes: 'Warm 25.4°C Pacific water shifts the concentric rings into vibrant tropical corals, with NW 314° groundswell crossing ENE 60° trade winds.',
+        notes: 'Freshwater inland sea! November gales over central Lake Superior whip up steep, closely spaced 2.3m waves at a rapid 6.5-second period in 7.4°C water.',
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
-2026 11 10 08 20  60  8.0 10.0  2.2  11 6.8 314 1021.6 24.7 25.4   MM
-2026 11 10 08 00  50  8.0 11.0   MM  MM  MM  MM 1021.6 24.4 25.4 +1.5`
+2026 11 10 08 50 330 11.4 14.6  2.3 6.5 5.1 325 1008.7  4.2  7.4 +1.2
+2026 11 10 07 50 325 10.8 13.8  2.1 6.2 4.9 322 1008.1  4.5  7.4   MM`
       },
       {
-        idx: 14,
+        idx: 7,
+        id: '41025',
+        short: 'Cape Hatteras',
+        region: 'Diamond Shoals, NC',
+        lat: 35.0, lon: -75.4,
+        tzOffset: -5, // EST (UTC-5)
+        timeUTC: '08:50 UTC',
+        wvht: 3.2, dpd: 10.0, apd: 6.9, mwd: 165,
+        wdir: 190, wspd: 12.6, gst: 16.2,
+        pres: 1012.8, ptdy: -0.9, atmp: 21.4, wtmp: 22.8,
+        history: [
+          { label: 'Now',   timeUTC: '08:50 UTC', wvht: 3.2, dpd: 10.0, apd: 6.9, mwd: 165, wdir: 190, wspd: 12.6, gst: 16.2, wtmp: 22.8 },
+          { label: '-1 Hr', timeUTC: '07:50 UTC', wvht: 2.9, dpd: 9.5,  apd: 6.6, mwd: 168, wdir: 185, wspd: 11.8, gst: 15.0, wtmp: 22.8 },
+          { label: '-2 Hr', timeUTC: '06:50 UTC', wvht: 2.6, dpd: 9.0,  apd: 6.3, mwd: 170, wdir: 180, wspd: 11.0, gst: 14.1, wtmp: 22.7 },
+          { label: '-3 Hr', timeUTC: '05:50 UTC', wvht: 2.3, dpd: 8.5,  apd: 6.0, mwd: 172, wdir: 175, wspd: 10.1, gst: 13.0, wtmp: 22.7 },
+          { label: '-4 Hr', timeUTC: '04:50 UTC', wvht: 2.0, dpd: 8.0,  apd: 5.8, mwd: 175, wdir: 170, wspd: 9.2,  gst: 11.8, wtmp: 22.6 }
+        ],
+        notes: 'Diamond Shoals ("Graveyard of the Atlantic"), where the warm 22.8°C Gulf Stream collides with coastal currents—generating brisk wind chop and building 3.2m seas.',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 50 190 12.6 16.2  3.2  10 6.9 165 1012.8 21.4 22.8 -0.9
+2026 11 10 07 50 185 11.8 15.0  2.9 9.5 6.6 168 1013.2 21.2 22.8   MM`
+      },
+      {
+        idx: 8,
         id: '42058',
         short: 'Central Caribbean',
         region: '210 NM S of Haiti',
@@ -1073,6 +938,141 @@
         raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
 2026 11 10 08 40  70  9.0 11.0  1.5  MM 4.4  99 1010.5 29.3 29.6   MM
 2026 11 10 08 20  60  9.0 11.0  1.4   6 4.5  93 1010.6 29.3 29.6   MM`
+      },
+      {
+        idx: 9,
+        id: '44013',
+        short: 'Boston Harbor',
+        region: 'Massachusetts Bay',
+        lat: 42.3, lon: -70.6,
+        tzOffset: -5, // EST (UTC-5)
+        timeUTC: '08:50 / 08:40 UTC',
+        wvht: 0.7, dpd: 3.0, apd: 3.3, mwd: 287,
+        wdir: 260, wspd: 8.0, gst: 10.0,
+        pres: 1011.3, ptdy: +0.5, atmp: 10.1, wtmp: 12.5,
+        history: [
+          { label: 'Now',   timeUTC: '08:50 UTC', wvht: 0.7, dpd: 3.0, apd: 3.3, mwd: 287, wdir: 260, wspd: 8.0,  gst: 10.0, wtmp: 12.5 },
+          { label: '-1 Hr', timeUTC: '07:50 UTC', wvht: 0.9, dpd: 3.5, apd: 3.6, mwd: 290, wdir: 270, wspd: 9.0,  gst: 11.0, wtmp: 12.5 },
+          { label: '-2 Hr', timeUTC: '06:50 UTC', wvht: 1.2, dpd: 4.2, apd: 4.0, mwd: 292, wdir: 275, wspd: 10.2, gst: 12.5, wtmp: 12.4 },
+          { label: '-3 Hr', timeUTC: '05:50 UTC', wvht: 1.5, dpd: 4.8, apd: 4.3, mwd: 295, wdir: 280, wspd: 11.5, gst: 14.0, wtmp: 12.4 },
+          { label: '-4 Hr', timeUTC: '04:50 UTC', wvht: 1.8, dpd: 5.2, apd: 4.6, mwd: 298, wdir: 285, wspd: 12.4, gst: 15.2, wtmp: 12.3 }
+        ],
+        notes: 'Calming bay chop: waves have subsided from 1.8m four hours ago down to 0.7m Now with a rapid 3.0-second dominant period.',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 50 260  8.0 10.0  0.7   3 3.3 287 1011.3   MM   MM   MM
+2026 11 10 08 40 270  9.0 11.0   MM  MM  MM  MM 1011.3 10.1 12.5   MM`
+      },
+      {
+        idx: 10,
+        id: '32012',
+        short: 'Drake Passage',
+        region: 'Cape Horn, Southern Ocean',
+        lat: -56.8, lon: -67.2,
+        tzOffset: -3, // CLT/ART (UTC-3)
+        timeUTC: '09:00 UTC',
+        wvht: 6.1, dpd: 15.0, apd: 10.4, mwd: 262,
+        wdir: 270, wspd: 16.4, gst: 21.8,
+        pres: 974.5, ptdy: -3.2, atmp: 3.8, wtmp: 4.8,
+        history: [
+          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 6.1, dpd: 15.0, apd: 10.4, mwd: 262, wdir: 270, wspd: 16.4, gst: 21.8, wtmp: 4.8 },
+          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 5.8, dpd: 14.8, apd: 10.1, mwd: 260, wdir: 268, wspd: 15.8, gst: 20.9, wtmp: 4.8 },
+          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 5.4, dpd: 14.5, apd: 9.8,  mwd: 258, wdir: 265, wspd: 15.1, gst: 19.8, wtmp: 4.9 },
+          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 5.0, dpd: 14.0, apd: 9.4,  mwd: 255, wdir: 260, wspd: 14.2, gst: 18.6, wtmp: 4.9 },
+          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 4.6, dpd: 13.5, apd: 9.0,  mwd: 252, wdir: 258, wspd: 13.5, gst: 17.5, wtmp: 4.9 }
+        ],
+        notes: 'The Roaring Fifties! Unobstructed circumpolar westerly gales (21.8 m/s gusts) through the Drake Passage drive towering 6.1-meter (20 ft) swells in 4.8°C Antarctic water.',
+        raw: `[Southern Ocean / Drake Passage @ 56.8°S, 67.2°W]
+2026 11 10 09 00 WDIR=270 WSPD=16.4 GST=21.8 WVHT=6.1m DPD=15.0s MWD=262 PRES=974.5 WTMP=4.8°C`
+      },
+      {
+        idx: 11,
+        id: '62094',
+        short: 'Nazaré Canyon',
+        region: 'Portuguese Atlantic',
+        lat: 39.6, lon: -9.2,
+        tzOffset: 0, // WET (UTC+0)
+        timeUTC: '09:00 UTC',
+        wvht: 5.2, dpd: 16.0, apd: 11.2, mwd: 292,
+        wdir: 315, wspd: 7.4, gst: 9.8,
+        pres: 1018.8, ptdy: +0.6, atmp: 17.2, wtmp: 16.4,
+        history: [
+          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 5.2, dpd: 16.0, apd: 11.2, mwd: 292, wdir: 315, wspd: 7.4, gst: 9.8,  wtmp: 16.4 },
+          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 4.9, dpd: 15.8, apd: 11.0, mwd: 290, wdir: 310, wspd: 7.8, gst: 10.1, wtmp: 16.4 },
+          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 4.5, dpd: 15.5, apd: 10.6, mwd: 288, wdir: 310, wspd: 8.1, gst: 10.4, wtmp: 16.3 },
+          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 4.1, dpd: 15.0, apd: 10.2, mwd: 286, wdir: 305, wspd: 8.4, gst: 10.8, wtmp: 16.3 },
+          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 3.8, dpd: 14.5, apd: 9.8,  mwd: 285, wdir: 300, wspd: 8.6, gst: 11.0, wtmp: 16.3 }
+        ],
+        notes: 'Long-period 16.0-second WNW 292° Atlantic groundswell funneling into the deep submarine Nazaré Canyon off Portugal—producing slow, massive, clean wave crests.',
+        raw: `[Nazaré Canyon Approach @ 39.6°N, 9.2°W]
+2026 11 10 09 00 WDIR=315 WSPD=7.4 GST=9.8 WVHT=5.2m DPD=16.0s APD=11.2s MWD=292 PRES=1018.8 WTMP=16.4°C`
+      },
+      {
+        idx: 12,
+        id: '62105',
+        short: 'UK Celtic Sea',
+        region: 'Seven Stones, UK',
+        lat: 50.1, lon: -6.1,
+        tzOffset: 0, // GMT (UTC+0)
+        timeUTC: '09:00 UTC + Open-Meteo',
+        wvht: 2.04, dpd: 8.8, apd: 7.75, mwd: 175,
+        wdir: 70, wspd: 11.8, gst: 13.8,
+        pres: 1011.5, ptdy: +0.3, atmp: 11.1, wtmp: 12.1,
+        history: [
+          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 2.04, dpd: 8.8, apd: 7.75, mwd: 175, wdir: 70, wspd: 11.8, gst: 13.8, wtmp: 12.1 },
+          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 1.92, dpd: 8.6, apd: 7.50, mwd: 172, wdir: 70, wspd: 10.3, gst: 12.4, wtmp: 12.1 },
+          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 1.80, dpd: 8.4, apd: 7.20, mwd: 170, wdir: 65, wspd: 9.8,  gst: 11.8, wtmp: 12.1 },
+          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 1.68, dpd: 8.2, apd: 7.00, mwd: 168, wdir: 60, wspd: 9.1,  gst: 11.0, wtmp: 12.2 },
+          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 1.55, dpd: 8.0, apd: 6.80, mwd: 165, wdir: 60, wspd: 8.5,  gst: 10.2, wtmp: 12.2 }
+        ],
+        notes: 'Seven Stones Lightvessel reports live wind (11.8 m/s) and water temp (12.1°C) to NOAA, while wave height is enriched live from Open-Meteo Marine (2.04m @ 8.8s).',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP DEWP
+2026 11 10 09 00  70 11.8   MM   MM  MM  MM  MM 1011.5 11.1 12.1  6.8
+2026 11 10 08 00  70 10.3   MM   MM  MM  MM  MM 1011.5 11.4 12.1  6.1
+[+ Open-Meteo Marine @ 50.12°N, -6.12°W]: WVHT=2.04m, DPD=8.8s, APD=7.75s`
+      },
+      {
+        idx: 13,
+        id: '63055',
+        short: 'Norwegian Sea',
+        region: 'Haltenbanken, Norway',
+        lat: 65.0, lon: 7.6,
+        tzOffset: +1, // CET (UTC+1)
+        timeUTC: '09:00 UTC',
+        wvht: 3.9, dpd: 12.5, apd: 8.0, mwd: 245,
+        wdir: 235, wspd: 13.0, gst: 16.8,
+        pres: 992.4, ptdy: -1.8, atmp: 5.9, wtmp: 6.8,
+        history: [
+          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 3.9, dpd: 12.5, apd: 8.0, mwd: 245, wdir: 235, wspd: 13.0, gst: 16.8, wtmp: 6.8 },
+          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 3.7, dpd: 12.2, apd: 7.8, mwd: 242, wdir: 230, wspd: 12.4, gst: 16.0, wtmp: 6.8 },
+          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 3.5, dpd: 12.0, apd: 7.6, mwd: 240, wdir: 228, wspd: 11.8, gst: 15.1, wtmp: 6.9 },
+          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 3.2, dpd: 11.6, apd: 7.4, mwd: 238, wdir: 225, wspd: 11.2, gst: 14.3, wtmp: 6.9 },
+          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 2.9, dpd: 11.2, apd: 7.1, mwd: 235, wdir: 220, wspd: 10.5, gst: 13.4, wtmp: 6.9 }
+        ],
+        notes: 'High-latitude Norwegian Sea station just south of the Arctic Circle (65.0°N, 7.6°E), where North Atlantic lows push WSW 245° swells toward the Norwegian coast.',
+        raw: `[Norwegian Sea / Haltenbanken @ 65.0°N, 7.6°E]
+2026 11 10 09 00 WDIR=235 WSPD=13.0 GST=16.8 WVHT=3.9m DPD=12.5s MWD=245 PRES=992.4 WTMP=6.8°C`
+      },
+      {
+        idx: 14,
+        id: '21418',
+        short: 'Kuroshio Current',
+        region: 'Offshore Tokyo, Japan',
+        lat: 38.7, lon: 148.7,
+        tzOffset: +9, // JST (UTC+9)
+        timeUTC: '09:00 UTC',
+        wvht: 3.4, dpd: 13.0, apd: 8.6, mwd: 135,
+        wdir: 150, wspd: 9.6, gst: 12.4,
+        pres: 1014.2, ptdy: -0.5, atmp: 18.8, wtmp: 19.6,
+        history: [
+          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 3.4, dpd: 13.0, apd: 8.6, mwd: 135, wdir: 150, wspd: 9.6, gst: 12.4, wtmp: 19.6 },
+          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 3.2, dpd: 12.8, apd: 8.4, mwd: 138, wdir: 148, wspd: 9.2, gst: 11.8, wtmp: 19.6 },
+          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 3.0, dpd: 12.5, apd: 8.1, mwd: 140, wdir: 145, wspd: 8.8, gst: 11.2, wtmp: 19.5 },
+          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 2.8, dpd: 12.2, apd: 7.9, mwd: 142, wdir: 142, wspd: 8.4, gst: 10.6, wtmp: 19.5 },
+          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 2.6, dpd: 12.0, apd: 7.7, mwd: 145, wdir: 140, wspd: 8.0, gst: 10.1, wtmp: 19.5 }
+        ],
+        notes: 'Western North Pacific station east of Honshu, Japan (38.7°N, 148.7°E), where the warm Kuroshio Current (19.6°C) meets SE 135° Pacific groundswells.',
+        raw: `[Northwest Pacific / Kuroshio @ 38.7°N, 148.7°E]
+2026 11 10 09 00 WDIR=150 WSPD=9.6 GST=12.4 WVHT=3.4m DPD=13.0s MWD=135 PRES=1014.2 WTMP=19.6°C`
       },
       {
         idx: 15,
@@ -1098,25 +1098,26 @@
       },
       {
         idx: 16,
-        id: '32012',
-        short: 'Drake Passage',
-        region: 'Cape Horn, Southern Ocean',
-        lat: -56.8, lon: -67.2,
-        tzOffset: -3, // CLT/ART (UTC-3)
-        timeUTC: '09:00 UTC',
-        wvht: 6.1, dpd: 15.0, apd: 10.4, mwd: 262,
-        wdir: 270, wspd: 16.4, gst: 21.8,
-        pres: 974.5, ptdy: -3.2, atmp: 3.8, wtmp: 4.8,
+        id: '46035',
+        short: 'Bering Sea',
+        region: 'Pribilof Islands, AK',
+        lat: 57.0, lon: -177.7,
+        tzOffset: -9, // AKST (UTC-9)
+        timeUTC: '08:50 UTC',
+        wvht: 4.8, dpd: 13.0, apd: 8.2, mwd: 310,
+        wdir: 330, wspd: 14.2, gst: 18.5,
+        pres: 984.6, ptdy: -2.1, atmp: 3.4, wtmp: 5.2,
         history: [
-          { label: 'Now',   timeUTC: '09:00 UTC', wvht: 6.1, dpd: 15.0, apd: 10.4, mwd: 262, wdir: 270, wspd: 16.4, gst: 21.8, wtmp: 4.8 },
-          { label: '-1 Hr', timeUTC: '08:00 UTC', wvht: 5.8, dpd: 14.8, apd: 10.1, mwd: 260, wdir: 268, wspd: 15.8, gst: 20.9, wtmp: 4.8 },
-          { label: '-2 Hr', timeUTC: '07:00 UTC', wvht: 5.4, dpd: 14.5, apd: 9.8,  mwd: 258, wdir: 265, wspd: 15.1, gst: 19.8, wtmp: 4.9 },
-          { label: '-3 Hr', timeUTC: '06:00 UTC', wvht: 5.0, dpd: 14.0, apd: 9.4,  mwd: 255, wdir: 260, wspd: 14.2, gst: 18.6, wtmp: 4.9 },
-          { label: '-4 Hr', timeUTC: '05:00 UTC', wvht: 4.6, dpd: 13.5, apd: 9.0,  mwd: 252, wdir: 258, wspd: 13.5, gst: 17.5, wtmp: 4.9 }
+          { label: 'Now',   timeUTC: '08:50 UTC', wvht: 4.8, dpd: 13.0, apd: 8.2, mwd: 310, wdir: 330, wspd: 14.2, gst: 18.5, wtmp: 5.2 },
+          { label: '-1 Hr', timeUTC: '07:50 UTC', wvht: 4.5, dpd: 12.5, apd: 7.9, mwd: 308, wdir: 325, wspd: 13.6, gst: 17.8, wtmp: 5.2 },
+          { label: '-2 Hr', timeUTC: '06:50 UTC', wvht: 4.1, dpd: 12.0, apd: 7.6, mwd: 305, wdir: 320, wspd: 12.8, gst: 16.5, wtmp: 5.3 },
+          { label: '-3 Hr', timeUTC: '05:50 UTC', wvht: 3.7, dpd: 11.5, apd: 7.3, mwd: 300, wdir: 315, wspd: 11.9, gst: 15.2, wtmp: 5.3 },
+          { label: '-4 Hr', timeUTC: '04:50 UTC', wvht: 3.3, dpd: 11.0, apd: 7.0, mwd: 296, wdir: 310, wspd: 11.0, gst: 14.0, wtmp: 5.4 }
         ],
-        notes: 'The Roaring Fifties! Unobstructed circumpolar westerly gales (21.8 m/s gusts) through the Drake Passage drive towering 6.1-meter (20 ft) swells in 4.8°C Antarctic water.',
-        raw: `[Southern Ocean / Drake Passage @ 56.8°S, 67.2°W]
-2026 11 10 09 00 WDIR=270 WSPD=16.4 GST=21.8 WVHT=6.1m DPD=15.0s MWD=262 PRES=974.5 WTMP=4.8°C`
+        notes: 'Sub-arctic Bering Sea shelf station 310 NM N of Adak: icy 5.2°C water and 18.5 m/s NW gales building a steep 4.8m storm swell.',
+        raw: `#YY  MM DD hh mm WDIR WSPD GST WVHT DPD APD MWD   PRES ATMP WTMP PTDY
+2026 11 10 08 50 330 14.2 18.5  4.8  13 8.2 310  984.6  3.4  5.2 -2.1
+2026 11 10 07 50 325 13.6 17.8  4.5  13 7.9 308  985.8  3.6  5.2   MM`
       }
     ];
 
