@@ -62,6 +62,14 @@
       border: 1px solid var(--panel-border);
     }
 
+    .glass-card-link {
+      transition: background-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .glass-card-link:hover {
+      background: var(--card-hover);
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -461,22 +469,36 @@
           All buoy information is free and publicly available from the <strong>NOAA National Data Buoy Center</strong>. Sensors bolted to floating ocean buoys measure wind, waves, and water temperature and broadcast fresh readings via satellite <strong>every 10 to 60 minutes</strong>.
         </p>
       </div>
+
+      <!-- KEY 6: HOW BUOYFM WAS MADE (CASE STUDY) -->
+      <a href="https://www.elizabeth-rubel.com/personalprojects/buoyfm" target="_blank" rel="noopener noreferrer" class="block p-2.5 rounded-xl glass-card glass-card-link space-y-1 cursor-pointer group">
+        <div class="flex items-center justify-between gap-2">
+          <span class="font-bold text-[11px] uppercase tracking-wider whitespace-nowrap">How BuoyFM Was Made</span>
+          <span class="font-bitcount text-[10px] px-1.5 py-0.5 rounded glass-card opacity-85 group-hover:opacity-100 whitespace-nowrap">Case Study ↗</span>
+        </div>
+        <p class="text-[10px] opacity-85 leading-snug">
+          Want to understand the design process and how this was built? Read the full project case study by Elizabeth Rubel.
+        </p>
+      </a>
     </div>
 
-    <!-- Footer Actions: Replay Full-Screen Intro + Mobile Close -->
+    <!-- Footer Actions: Replay Full-Screen Intro + Case Study + Mobile Close -->
     <div class="pt-2.5 mt-2 border-t shrink-0 flex flex-col gap-2" style="border-color: var(--panel-border);">
       <div class="flex items-center justify-between text-[10px] opacity-70 px-0.5">
         <span class="font-bitcount text-xs tracking-wide whitespace-nowrap">BuoyFM</span>
         <span class="whitespace-nowrap">Built by <strong>Elizabeth Rubel</strong></span>
       </div>
       <div class="flex items-center gap-2">
-        <button id="replayOnboardingBtn" class="flex-1 py-2 rounded-xl glass-card font-bitcount text-sm tracking-wide hover:opacity-100 opacity-90 cursor-pointer whitespace-nowrap">
+        <button id="replayOnboardingBtn" class="flex-1 py-2 rounded-xl glass-card glass-card-link font-bitcount text-sm tracking-wide hover:opacity-100 opacity-90 cursor-pointer whitespace-nowrap">
           ✦ Replay Intro
         </button>
-        <button id="closeGuideMobileBottomBtn" class="md:hidden flex-1 py-2 rounded-xl font-bitcount text-sm tracking-wide cursor-pointer whitespace-nowrap" style="background: var(--fg-color); color: var(--bg-color);">
-          Back to View
-        </button>
+        <a href="https://www.elizabeth-rubel.com/personalprojects/buoyfm" target="_blank" rel="noopener noreferrer" class="flex-1 py-2 rounded-xl glass-card glass-card-link font-bitcount text-sm tracking-wide hover:opacity-100 opacity-90 cursor-pointer whitespace-nowrap text-center">
+          Case Study ↗
+        </a>
       </div>
+      <button id="closeGuideMobileBottomBtn" class="md:hidden w-full py-2 rounded-xl font-bitcount text-sm tracking-wide cursor-pointer whitespace-nowrap" style="background: var(--fg-color); color: var(--bg-color);">
+        Back to View
+      </button>
     </div>
   </aside>
 
@@ -497,8 +519,14 @@
           <h2 class="font-bitcount text-5xl sm:text-8xl tracking-tight leading-none whitespace-nowrap">
             BuoyFM
           </h2>
-          <div class="font-bitcount text-sm sm:text-lg tracking-widest opacity-85 whitespace-nowrap">
-            Built by Elizabeth Rubel
+          <div class="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1.5 pt-0.5">
+            <span class="font-bitcount text-sm sm:text-lg tracking-widest opacity-85 whitespace-nowrap">
+              Built by Elizabeth Rubel
+            </span>
+            <a href="https://www.elizabeth-rubel.com/personalprojects/buoyfm" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full glass-card glass-card-link font-bitcount text-[11px] sm:text-xs tracking-wider opacity-85 hover:opacity-100 cursor-pointer whitespace-nowrap">
+              <span>Read Case Study</span>
+              <span class="text-[10px]">↗</span>
+            </a>
           </div>
           <p class="text-[11px] sm:text-sm opacity-80 leading-snug sm:leading-relaxed max-w-2xl mx-auto pt-0.5">
             Across the Atlantic, Pacific, and Caribbean, floating NOAA weather buoys measure swell height, wave period, wind direction, and sea temperature every 10 to 60 minutes. <span class="font-bitcount text-xs sm:text-sm">BuoyFM</span> translates those live satellite transmissions into a 5-hour time stack and generative soundscape.
