@@ -76,6 +76,50 @@
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(150, 150, 150, 0.3); border-radius: 99px; }
+
+    /* Mobile first-landing buoy switcher onboarding tooltip */
+    @keyframes buoyTooltipIn {
+      0% { opacity: 0; transform: translateY(8px) scale(0.94); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes buoyTooltipBob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+
+    @keyframes buoyCaretPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.55); }
+      65% { box-shadow: 0 0 0 6px rgba(251, 191, 36, 0); }
+    }
+
+    #mobileBuoyTooltip.is-visible {
+      animation: buoyTooltipIn 0.34s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    #mobileBuoyTooltip.is-visible .buoy-tooltip-bubble {
+      animation: buoyTooltipBob 2.1s ease-in-out 0.36s infinite;
+    }
+
+    #mobileBuoyTooltip.is-hiding {
+      opacity: 0;
+      transform: translateY(4px) scale(0.96);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .buoy-caret-highlight {
+      background: #fbbf24 !important;
+      border-color: #f59e0b !important;
+      color: #141413 !important;
+      animation: buoyCaretPulse 2.1s ease-out infinite;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      #mobileBuoyTooltip.is-visible .buoy-tooltip-bubble,
+      .buoy-caret-highlight {
+        animation: none;
+      }
+    }
   </style>
 </head>
 <body class="surface-grid select-none fixed inset-0 overflow-hidden">
@@ -245,8 +289,27 @@
     <div id="mobilePlaneBtns" class="pointer-events-auto flex items-center gap-1.5 overflow-x-auto no-scrollbar px-3 py-1.5"></div>
 
     <!-- Full-Width Bottom Buoy Selector + Underneath Buoy Telemetry Information -->
-    <div class="pointer-events-auto glass-panel border-b-0 border-x-0 px-3.5 py-2.5 flex flex-col gap-2">
-      <button id="mobileSelectBuoyBtn" class="w-full flex items-center justify-between gap-2.5 text-left cursor-pointer">
+    <div class="relative pointer-events-auto glass-panel border-b-0 border-x-0 px-3.5 py-2.5 flex flex-col gap-2">
+      <!-- First-Landing Onboarding Tooltip pointing directly at the mobile buoy dropdown -->
+      <div id="mobileBuoyTooltip" role="status" aria-live="polite" class="hidden absolute bottom-full left-3.5 mb-1.5 z-40 pointer-events-auto">
+        <div class="buoy-tooltip-bubble relative flex items-center gap-2.5 pl-3 pr-2 py-2 rounded-xl cursor-pointer select-none" style="background: #fbbf24; color: #141413; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(20, 20, 19, 0.14);">
+          <span class="relative flex h-2 w-2 shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-stone-900 opacity-50"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-stone-950"></span>
+          </span>
+          <div class="leading-tight">
+            <div class="text-xs font-bold tracking-tight whitespace-nowrap">Tap to switch buoys</div>
+            <div class="text-[10px] font-medium opacity-80 whitespace-nowrap">Explore 16 live ocean stations</div>
+          </div>
+          <button id="dismissMobileBuoyTooltipBtn" type="button" aria-label="Dismiss buoy switcher hint" class="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold opacity-70 hover:opacity-100 transition cursor-pointer shrink-0 ml-0.5" style="background: rgba(20, 20, 19, 0.12); color: #141413;">
+            ✕
+          </button>
+          <!-- Downward pointer triangle centered directly above #mobDropdownCaret -->
+          <span class="absolute -bottom-[5px] left-[7px] w-2.5 h-2.5 rotate-45 rounded-[1px]" style="background: #fbbf24;"></span>
+        </div>
+      </div>
+
+      <button id="mobileSelectBuoyBtn" class="w-full flex items-center justify-between gap-2.5 text-left cursor-pointer" aria-label="Switch ocean buoy">
         <div class="flex items-center gap-2.5 min-w-0">
           <span id="mobDropdownCaret" class="w-6 h-6 rounded-lg glass-card flex items-center justify-center text-xs font-bold shrink-0 transition-transform duration-200">▾</span>
           <span id="mobActiveDot" class="w-3 h-3 rounded-full shrink-0 border border-white/80"></span>
@@ -1374,9 +1437,67 @@
     const mobileBuoyDrawer = document.getElementById('mobileBuoyDrawer');
     const mobileTelemetryHud = document.getElementById('mobileTelemetryHud');
     const mobDropdownCaret = document.getElementById('mobDropdownCaret');
+    const mobileBuoyTooltip = document.getElementById('mobileBuoyTooltip');
+    const dismissMobileBuoyTooltipBtn = document.getElementById('dismissMobileBuoyTooltipBtn');
+    const MOBILE_BUOY_HINT_KEY = 'buoyfm_mobile_buoy_hint_seen';
+    let mobileBuoyTooltipTimer = null;
+
+    function hasSeenMobileBuoyHint() {
+      try {
+        return window.localStorage.getItem(MOBILE_BUOY_HINT_KEY) === '1';
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function markMobileBuoyHintSeen() {
+      try {
+        window.localStorage.setItem(MOBILE_BUOY_HINT_KEY, '1');
+      } catch (e) {
+        // Ignore storage restrictions in private browsing
+      }
+    }
+
+    function dismissMobileBuoyTooltip(persist = true) {
+      if (mobileBuoyTooltipTimer) {
+        clearTimeout(mobileBuoyTooltipTimer);
+        mobileBuoyTooltipTimer = null;
+      }
+      if (persist) markMobileBuoyHintSeen();
+      if (mobDropdownCaret) mobDropdownCaret.classList.remove('buoy-caret-highlight');
+      if (!mobileBuoyTooltip || mobileBuoyTooltip.classList.contains('hidden')) return;
+      mobileBuoyTooltip.classList.remove('is-visible');
+      mobileBuoyTooltip.classList.add('is-hiding');
+      setTimeout(() => {
+        mobileBuoyTooltip.classList.add('hidden');
+        mobileBuoyTooltip.classList.remove('is-hiding');
+      }, 210);
+    }
+
+    function scheduleMobileBuoyTooltip() {
+      if (!mobileBuoyTooltip || hasSeenMobileBuoyHint() || window.innerWidth >= 768) return;
+      if (mobileBuoyTooltipTimer) clearTimeout(mobileBuoyTooltipTimer);
+      mobileBuoyTooltipTimer = setTimeout(() => {
+        mobileBuoyTooltipTimer = null;
+        if (
+          hasSeenMobileBuoyHint() ||
+          window.innerWidth >= 768 ||
+          !onboardingOverlay.classList.contains('hidden') ||
+          !mobileBuoyDrawer.classList.contains('hidden')
+        ) {
+          return;
+        }
+        mobileBuoyTooltip.classList.remove('hidden', 'is-hiding');
+        // Force reflow so entrance animation plays cleanly
+        void mobileBuoyTooltip.offsetWidth;
+        mobileBuoyTooltip.classList.add('is-visible');
+        if (mobDropdownCaret) mobDropdownCaret.classList.add('buoy-caret-highlight');
+      }, 420);
+    }
 
     function setMobileDrawerOpen(open) {
       if (open) {
+        dismissMobileBuoyTooltip(true);
         mobileBuoyDrawer.classList.remove('hidden');
         if (mobileTelemetryHud) mobileTelemetryHud.classList.add('hidden');
         mobDropdownCaret.style.transform = 'rotate(180deg)';
@@ -1389,12 +1510,26 @@
 
     document.getElementById('mobileSelectBuoyBtn').addEventListener('click', (e) => {
       e.stopPropagation();
+      dismissMobileBuoyTooltip(true);
       const isHidden = mobileBuoyDrawer.classList.contains('hidden');
       setMobileDrawerOpen(isHidden);
     });
     document.getElementById('closeMobileDrawerBtn').addEventListener('click', () => {
       setMobileDrawerOpen(false);
     });
+    if (mobileBuoyTooltip) {
+      mobileBuoyTooltip.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismissMobileBuoyTooltip(true);
+        setMobileDrawerOpen(true);
+      });
+    }
+    if (dismissMobileBuoyTooltipBtn) {
+      dismissMobileBuoyTooltipBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismissMobileBuoyTooltip(true);
+      });
+    }
 
     // '?' Visual Key & Guide Panel (Full-screen on Mobile, Right Side Panel on Desktop)
     const guidePanel = document.getElementById('guidePanel');
@@ -1461,9 +1596,11 @@
 
     function closeOnboarding() {
       onboardingOverlay.classList.add('hidden');
+      scheduleMobileBuoyTooltip();
     }
 
     function openOnboarding() {
+      dismissMobileBuoyTooltip(false);
       setOnboardingStep(0);
       onboardingOverlay.classList.remove('hidden');
     }
